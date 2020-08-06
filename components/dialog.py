@@ -1,6 +1,6 @@
 """
 # GeneratorCSV
-# Wersja 4.0: UC 1
+# Wersja 4.0: UC 2
 # by Mateusz Skoczek
 # luty 2019 - grudzień 2019
 # dla ZSP Sobolew
@@ -14,10 +14,13 @@
 
 
 
-# ---------------------------------------- # Import bibliotek zewnętrznych # ----------------------------------------- #
+# ----------------------------------- # Import bibliotek zewnętrznych i modułów # ------------------------------------ #
 
-from tkinter import messagebox as TKmsb
+# Biblioteki zewnętrzne
 import sys as SS
+
+# Biblioteki zewnętrzne interfejsu graficznego
+from tkinter import messagebox as TKmsb
 
 
 
@@ -35,11 +38,15 @@ def Err(KodBledu):
     if KodBledu[1]:
         SS.exit(0)
 
+
+
 # Okno dialogowe informacyjne
 def Inf(KodInformacji):
     TKmsb.showinfo('Informacja', KodInformacji[0])
     if KodInformacji[1]:
         SS.exit(0)
+
+
 
 # Okno dialogowe zapytania
 def Ask(KodZapytania):

@@ -4,3 +4,12 @@
 - Dodanie zapisu opcji czarnego motywu do 'config.cfg'
 - Wstępne stworzenie skryptu pozwalającego na zapis do pliku 'config.cfg'
 - Błąd o braku głównego pliku składowego programu ('main.py') oraz modułu wywołującego okna dialogowe ('dialog.py')
+
+4.0 Alpha (Build 19346.1)
+- Przebudowanie skryptu odczytującego plik konfiguracyjny
+- Dodanie skryptu zapisującego ustawienia do pliku konfiguracyjnego
+- Scalenie dwóch powyższych skryptów do modułu 'load_config.py'
+- Przeprojektowanie kodu
+- Lekkie przeprojektowanie układu interfejsu
+- Stworzenie palety barw motywu jasnego i ciemnego
+- Wprowadzenie motywu jasnego i ciemnego (z możliwością zmiany jedynie przez plik 'config.cfg'

@@ -1,6 +1,6 @@
 """
 # GeneratorCSV
-# Wersja 4.0: UC 1
+# Wersja 4.0: UC 2
 # by Mateusz Skoczek
 # luty 2019 - grudzień 2019
 # dla ZSP Sobolew
@@ -28,7 +28,7 @@ E000x00 = "Brak głównego pliku składowego programu ('main.py').\nPrzywróć p
 
 
 
-# ---------------------------------------- # Import bibliotek zewnętrznych # ----------------------------------------- #
+# ----------------------------------- # Import bibliotek zewnętrznych i modułów # ------------------------------------ #
 
 import os as OS
 import sys as SS
