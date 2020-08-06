@@ -1,2 +1,10 @@
 1.0
 - Pierwsza wersja programu składająca się z 4 części
+
+2.0
+- Podstawowy tekstowy interfejs
+- Scalenie programu w jeden
+- Aktualizacja formatu plików z danymi
+- Wstępne przystosowanie do działania w czteroletnim liceum i w trzyletniej szkole branżowej
+- Aktualizacja kodowania
+
