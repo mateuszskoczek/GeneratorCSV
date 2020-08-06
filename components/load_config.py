@@ -45,7 +45,7 @@ except ModuleNotFoundError:
 def CheckConfig(settings):
     # Ilość wierszy
     try:
-        if len(settings) != 5:
+        if len(settings) != 7:
             error = int('x')
     except ValueError:
         MDdlg.err(1)
@@ -72,6 +72,17 @@ def CheckConfig(settings):
     except ValueError:
         MDdlg.err(17)
 
+    # Linia 6 (int)
+    try:
+        x = int(settings[5])
+    except ValueError:
+        MDdlg.err(18)
+
+    # Linia 7 (int)
+    try:
+        x = int(settings[6])
+    except ValueError:
+        MDdlg.err(19)
 
 
 # Odczytywanie ustawień z pliku konfiguracyjnego
@@ -104,8 +115,9 @@ def edit(settings):
         SettingsToSave.append('Kodowanie wyjsciowe: ' + str(settings[1]) + '\n')
         SettingsToSave.append('Domena: ' + str(settings[2]) + '\n')
         SettingsToSave.append('Quota: ' + str(settings[3]) + '\n')
-        SettingsToSave.append('Kraj: ' + str(settings[4]))
+        SettingsToSave.append('Kraj: ' + str(settings[4]) + '\n')
+        SettingsToSave.append('Dlugosc liceum: ' + str(settings[5]) + '\n')
+        SettingsToSave.append('Dlugosc branzowej: ' + str(settings[6]))
         with open('.\config.cfg', 'w') as cfg:
             for x in SettingsToSave:
                 cfg.write(x)
-            MDdlg.inf(0)

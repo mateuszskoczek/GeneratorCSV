@@ -37,3 +37,6 @@
 - Modyfikacja interfejsu
 - Dodanie możliwości dołączenia plików csv do eksportowanych plików (tylko kontrolki)
 - Usprawnienia kodu
+
+4.0 Alpha (Build 19353)
+- Ukończenie ustawień

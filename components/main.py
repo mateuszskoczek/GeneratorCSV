@@ -478,6 +478,7 @@ class Settings(TK.Toplevel):
         self.resizable(width = False, height = False)
         self.configure(bg = M_tlo)
 
+        liczbawierszy = 0
 
         # Tytuł
         Tytul = TK.Label(self)
@@ -490,6 +491,7 @@ class Settings(TK.Toplevel):
 
 
         # Frame1 - Motyw
+        liczbawierszy += 1
         Ramka1 = TK.LabelFrame(self)
         Ramka1.config(text = ' Motyw programu ')
         Ramka1.config(bg = M_tlo)
@@ -497,24 +499,22 @@ class Settings(TK.Toplevel):
         Ramka1.config(borderwidth = M_framewielkosc)
         Ramka1.grid(row = 1, pady = 5)
 
-        Motyw_var = TK.StringVar()
-        if int(MDlcg.read()[0]) == 1:
-            Motyw_var.set('Ciemny')
-            Motyw_list_set = 'Ciemny'
-        else:
-            Motyw_var.set('Jasny')
-            Motyw_list_set = 'Jasny'
 
+        if int(MDlcg.read()[0]) == 1:
+            Motyw_list_set = 1
+        else:
+            Motyw_list_set = 0
         Motyw_list = TKttk.Combobox(Ramka1)
-        Motyw_list.config(textvariable = Motyw_var)
+        Motyw_list.config(textvariable = TK.StringVar())
         Motyw_list.config(state = 'readonly')
         Motyw_list.config(width = 93)
         Motyw_list.grid(row = 0, pady = 5, padx = 5)
         Motyw_list['values'] = ('Jasny', 'Ciemny')
-        Motyw_list.set(Motyw_list_set)
+        Motyw_list.current(Motyw_list_set)
 
 
         # Frame2 - Kodowanie
+        liczbawierszy += 1
         Ramka2 = TK.LabelFrame(self)
         Ramka2.config(text = ' Kodowanie wyjściowe ')
         Ramka2.config(bg = M_tlo)
@@ -522,11 +522,8 @@ class Settings(TK.Toplevel):
         Ramka2.config(borderwidth = M_framewielkosc)
         Ramka2.grid(row = 2, pady = 5)
 
-        Code_var = TK.StringVar()
-        Code_var.set(MDlcg.read()[1])
-
         Code_list = TKttk.Combobox(Ramka2)
-        Code_list.config(textvariable = Code_var)
+        Code_list.config(textvariable = TK.StringVar())
         Code_list.config(state = 'readonly')
         Code_list.config(width = 93)
         Code_list.grid(row = 0, pady = 5, padx = 5)
@@ -538,6 +535,7 @@ class Settings(TK.Toplevel):
         SzerokoscPolaWej = 35
         WysokoscPolaWej = 8
 
+        liczbawierszy += 1
         Ramka3 = TK.LabelFrame(self)
         Ramka3.config(text = ' Format plików wejściowych ')
         Ramka3.config(bg = M_tlo)
@@ -579,49 +577,213 @@ class Settings(TK.Toplevel):
         NauczycieleFormat.grid(row = 1, column = 1, padx = 5, pady = 5)
         NauczycieleFormat.insert(TK.END, nczfmt)
 
+        OpisFmt = TK.LabelFrame(Ramka3)
+        OpisFmt.config(bg=M_tlo)
+        OpisFmt.config(fg=M_text)
+        OpisFmt.config(borderwidth=0)
+        OpisFmt.grid(row=2, pady=5, columnspan=4)
+
+        Opis1 = TK.Label(OpisFmt)
+        Opis1.config(text='Dozwolone znaki:')
+        Opis1.config(bg=M_tlo)
+        Opis1.config(fg=M_text)
+        Opis1.grid(row=0, columnspan=7)
+
+        Opis2_1 = TK.Label(OpisFmt)
+        Opis2_1.config(text='K - Klasa')
+        Opis2_1.config(bg=M_tlo)
+        Opis2_1.config(fg=M_text)
+        Opis2_1.grid(row=1, column=0)
+
+        Opis2_2 = TK.Label(OpisFmt)
+        Opis2_2.config(text='O - Oddzial')
+        Opis2_2.config(bg=M_tlo)
+        Opis2_2.config(fg=M_text)
+        Opis2_2.grid(row=1, column=1)
+
+        Opis2_3 = TK.Label(OpisFmt)
+        Opis2_3.config(text='N - Nazwisko')
+        Opis2_3.config(bg=M_tlo)
+        Opis2_3.config(fg=M_text)
+        Opis2_3.grid(row=1, column=2)
+
+        Opis2_4 = TK.Label(OpisFmt)
+        Opis2_4.config(text='I - Imię')
+        Opis2_4.config(bg=M_tlo)
+        Opis2_4.config(fg=M_text)
+        Opis2_4.grid(row=1, column=3)
+
+        Opis2_5 = TK.Label(OpisFmt)
+        Opis2_5.config(text='L - Login')
+        Opis2_5.config(bg=M_tlo)
+        Opis2_5.config(fg=M_text)
+        Opis2_5.grid(row=1, column=4)
+
+        Opis2_6 = TK.Label(OpisFmt)
+        Opis2_6.config(text = 'X - Dane nieznaczące')
+        Opis2_6.config(bg = M_tlo)
+        Opis2_6.config(fg = M_text)
+        Opis2_6.grid(row = 1, column = 5)
+
+        Opis2_6 = TK.Label(OpisFmt)
+        Opis2_6.config(text='Q - Pusta linia')
+        Opis2_6.config(bg=M_tlo)
+        Opis2_6.config(fg=M_text)
+        Opis2_6.grid(row=1, column=6)
+
+        Opis3 = TK.Label(OpisFmt)
+        Opis3.config(text='Pozostałe znaki oprócz cyfr i pozostałych liter')
+        Opis3.config(bg=M_tlo)
+        Opis3.config(fg=M_text)
+        Opis3.grid(row=2, columnspan = 7)
+
 
         # Frame4 - Stałe
+        liczbawierszy += 1
         Ramka4 = TK.LabelFrame(self)
-        Ramka4.config(text = ' Stałe ')
+        Ramka4.config(text = ' Ustawienia generowania ')
         Ramka4.config(bg = M_tlo)
         Ramka4.config(fg = M_text)
         Ramka4.config(borderwidth = M_framewielkosc)
         Ramka4.grid(row = 4, pady = 5)
 
+
+        # Długość liceum i branżowej
+        RamkaDl = TK.LabelFrame(Ramka4)
+        RamkaDl.config(bg = M_tlo)
+        RamkaDl.config(fg = M_text)
+        RamkaDl.config(borderwidth = 0)
+        RamkaDl.grid(row = 0, pady = 5, columnspan = 2)
+
+        DlLicLabel = TK.Label(RamkaDl)
+        DlLicLabel.config(text = 'Lata nauki w liceum')
+        DlLicLabel.config(width = SzerokoscOpisu + 5)
+        DlLicLabel.config(bg = M_tlo)
+        DlLicLabel.config(fg = M_text)
+        DlLicLabel.grid(row = 0, column = 0)
+
+        DlLicValue = TK.IntVar()
+        DlLicPole = TK.Spinbox(RamkaDl)
+        DlLicPole.config(textvariable = DlLicValue)
+        DlLicPole.config(from_ = 1, to = 10)
+        DlLicPole.config(width = 18)
+        DlLicPole.config(bg = M_entrytlo)
+        DlLicPole.config(fg = M_text)
+        DlLicPole.grid(row = 0, column = 1, padx = 5, pady = 5)
+        DlLicPole.delete(0, 'end')
+        DlLicPole.insert(0, int(MDlcg.read()[5]))
+
+        DlBrLabel = TK.Label(RamkaDl)
+        DlBrLabel.config(text='Lata nauki w branżowej')
+        DlBrLabel.config(width = SzerokoscOpisu + 5)
+        DlBrLabel.config(bg = M_tlo)
+        DlBrLabel.config(fg = M_text)
+        DlBrLabel.grid(row = 0, column = 2)
+
+        DlBrValue = TK.IntVar()
+        DlBrPole = TK.Spinbox(RamkaDl)
+        DlBrPole.config(textvariable = DlBrValue)
+        DlBrPole.config(from_ = 1, to=10)
+        DlBrPole.config(width = 18)
+        DlBrPole.config(bg = M_entrytlo)
+        DlBrPole.config(fg = M_text)
+        DlBrPole.grid(row = 0, column = 3, padx = 5, pady = 5)
+        DlBrPole.delete(0, 'end')
+        DlBrPole.insert(0, int(MDlcg.read()[6]))
+
+
+        # Domena
+
         DomenaLabel = TK.Label(Ramka4)
         DomenaLabel.config(text = 'Domena')
-        DomenaLabel.config(width = SzerokoscOpisu3)
+        DomenaLabel.config(width = SzerokoscOpisu + 5)
         DomenaLabel.config(bg = M_tlo)
         DomenaLabel.config(fg = M_text)
-        DomenaLabel.grid(row = 0, column = 0)
+        DomenaLabel.grid(row = 2, column = 0)
 
         text1 = TK.StringVar()
         PoleDomena = TK.Entry(Ramka4)
         PoleDomena.config(textvariable = text1)
-        PoleDomena.config(width = 83)
+        PoleDomena.config(width = 69)
         PoleDomena.config(bg = M_entrytlo)
         PoleDomena.config(fg = M_text)
-        PoleDomena.grid(row = 0, column = 1, padx = 5, pady = 5)
+        PoleDomena.grid(row = 2, column = 1, padx = 5, pady = 5)
         PoleDomena.insert(0, MDlcg.read()[2])
+
+
+        # Quota
 
         QuotaLabel = TK.Label(Ramka4)
         QuotaLabel.config(text = 'Quota (MB)')
-        QuotaLabel.config(width = SzerokoscOpisu3)
+        QuotaLabel.config(width = SzerokoscOpisu)
         QuotaLabel.config(bg = M_tlo)
         QuotaLabel.config(fg = M_text)
-        QuotaLabel.grid(row = 1, column = 0)
+        QuotaLabel.grid(row = 3, column = 0)
 
         value2 = TK.IntVar()
         PoleQuota = TK.Spinbox(Ramka4)
         PoleQuota.config(textvariable = value2)
         PoleQuota.config(from_ = 1, to = 100000)
-        PoleQuota.config(width = 81)
+        PoleQuota.config(width = 67)
         PoleQuota.config(bg = M_entrytlo)
         PoleQuota.config(fg = M_text)
-        PoleQuota.grid(row=1, column=1, padx=5, pady=5)
+        PoleQuota.grid(row = 3, column = 1, padx = 5, pady = 5)
+        PoleQuota.delete(0, 'end')
         PoleQuota.insert(0, int(MDlcg.read()[3]))
-        print(int(MDlcg.read()[3]))
 
+
+        # Kraj
+
+        KrajLabel = TK.Label(Ramka4)
+        KrajLabel.config(text = 'Kraj')
+        KrajLabel.config(width = SzerokoscOpisu + 5)
+        KrajLabel.config(bg = M_tlo)
+        KrajLabel.config(fg = M_text)
+        KrajLabel.grid(row = 4, column = 0)
+
+        KrajValue = TK.StringVar()
+        KrajPole = TK.Entry(Ramka4)
+        KrajPole.config(textvariable = KrajValue)
+        KrajPole.config(width = 69)
+        KrajPole.config(bg = M_entrytlo)
+        KrajPole.config(fg = M_text)
+        KrajPole.grid(row = 4, column = 1, padx = 5, pady = 5)
+        KrajPole.insert(0, MDlcg.read()[4])
+
+
+        # Przycisk ZAPISZ
+        def save():
+            if MDdlg.ask(1):
+                motyw = Motyw_list.get()
+                if motyw == 'Jasny':
+                    motyw = '0'
+                else:
+                    motyw = '1'
+                kodowanie = Code_list.get()
+                uczniowiefmt = UczniowieFormat.get('1.0', 'end')
+                nauczycielefmt = NauczycieleFormat.get('1.0', 'end')
+                liclata = DlLicPole.get()
+                brlata = DlBrPole.get()
+                domena = PoleDomena.get()
+                quota = PoleQuota.get()
+                kraj = KrajPole.get()
+                SettingsToSave = [motyw, kodowanie, domena, quota, kraj, liclata, brlata]
+                FormatToSave = [uczniowiefmt, nauczycielefmt]
+                if MDlfm.edit(FormatToSave):
+                    MDlcg.edit(SettingsToSave)
+                    MDdlg.inf(0)
+                    self.destroy()
+                else:
+                    pass
+        PrzyciskZAPISZ = TK.Button(self)
+        PrzyciskZAPISZ.config(text = 'ZAPISZ')
+        PrzyciskZAPISZ.config(command = save)
+        PrzyciskZAPISZ.config(width = 50)
+        PrzyciskZAPISZ.config(bg = M_przycisktlo)
+        PrzyciskZAPISZ.config(fg = M_przycisktext)
+        PrzyciskZAPISZ.config(relief = 'flat')
+        PrzyciskZAPISZ.config(activebackground = M_przycisktlo)
+        PrzyciskZAPISZ.grid(row = liczbawierszy + 1, pady = 15)
 
 
 
