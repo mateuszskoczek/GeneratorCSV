@@ -51,7 +51,7 @@ except ModuleNotFoundError:
 except Exception as exc:
     print('Wystąpił krytyczny błąd!')
     print('Nieznany błąd podczas ładowania jednego z modułów programu (dialog.py). Nie można załadować programu.')
-    print('Treść błędu: ' + exc)
+    print('Treść błędu: ' + str(exc))
     print('Kod błędu: E00x0010')
     wait = input('Naciśnij ENTER aby wyjść')
     SS.exit(0)
@@ -67,7 +67,7 @@ except ModuleNotFoundError:
 except Exception as exc:
     print('Wystąpił krytyczny błąd!')
     print('Nieznany błąd podczas ładowania jednego z modułów programu (load_config.py). Nie można załadować programu.')
-    print('Treść błędu: ' + exc)
+    print('Treść błędu: ' + str(exc))
     print('Kod błędu: E00x0020')
     wait = input('Naciśnij ENTER aby wyjść')
     SS.exit(0)
@@ -83,7 +83,7 @@ except ModuleNotFoundError:
 except Exception as exc:
     print('Wystąpił krytyczny błąd!')
     print('Nieznany błąd podczas ładowania jednego z modułów programu (load_format.py). Nie można załadować programu.')
-    print('Treść błędu: ' + exc)
+    print('Treść błędu: ' + str(exc))
     print('Kod błędu: E00x0030')
     wait = input('Naciśnij ENTER aby wyjść')
     SS.exit(0)
@@ -184,7 +184,7 @@ class Main(TK.Tk):
         Pole1.grid(row = wiersz, column = 1)
 
         def Pole1BrowseDialog():
-            Pole1Browse.filename = TKfld.askopenfilename(initialdir = "C:/", title = "Wybierz plik tekstowy z danymi", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
+            Pole1Browse.filename = TKfld.askopenfilename(title = "Wybierz plik tekstowy z danymi", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
             Pole1.delete(0, 'end')
             Pole1.insert(0, Pole1Browse.filename)
 
@@ -217,7 +217,7 @@ class Main(TK.Tk):
         Pole2.grid(row = wiersz, column = 1)
 
         def Pole2BrowseDialog():
-            Pole2Browse.filename = TKfld.askopenfilename(initialdir = "C:/", title = "Wybierz plik tekstowy z danymi", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
+            Pole2Browse.filename = TKfld.askopenfilename(title = "Wybierz plik tekstowy z danymi", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
             Pole2.delete(0, 'end')
             Pole2.insert(0, Pole2Browse.filename)
 
@@ -249,7 +249,7 @@ class Main(TK.Tk):
         Pole3.grid(row = wiersz, column = 1)
 
         def Pole3BrowseDialog():
-            Pole3Browse.filename = TKfld.askopenfilename(initialdir = "C:/", title = "Wybierz plik tekstowy z danymi", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
+            Pole3Browse.filename = TKfld.askopenfilename(title = "Wybierz plik tekstowy z danymi", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
             Pole3.delete(0, 'end')
             Pole3.insert(0, Pole3Browse.filename)
 
@@ -291,7 +291,7 @@ class Main(TK.Tk):
         PoleKonta.grid(row = wiersz, column = 1)
 
         def PoleKontaBrowseDialog():
-            PoleKontaBrowse.filename = TKfld.askopenfilename(initialdir="C:/", title="Wybierz plik .csv dla poczty", filetypes=(("Pliki csv", "*.csv"), ("Wszystkie pliki", "*.*")))
+            PoleKontaBrowse.filename = TKfld.askopenfilename(title="Wybierz plik .csv dla poczty", filetypes=(("Pliki csv", "*.csv"), ("Wszystkie pliki", "*.*")))
             PoleKonta.delete(0, 'end')
             PoleKonta.insert(0, PoleKontaBrowse.filename)
 
@@ -324,13 +324,13 @@ class Main(TK.Tk):
         PoleOffice.grid(row = wiersz, column = 1)
 
         def PoleOfficeBrowseDialog():
-            PoleOfficeBrowse.filename = TKfld.askopenfilename(initialdir = "C:/", title = "Wybierz plik .csv dla poczty", filetypes = (("Pliki csv", "*.csv"), ("Wszystkie pliki", "*.*")))
+            PoleOfficeBrowse.filename = TKfld.askopenfilename(title = "Wybierz plik .csv dla office365", filetypes = (("Pliki csv", "*.csv"), ("Wszystkie pliki", "*.*")))
             PoleOffice.delete(0, 'end')
             PoleOffice.insert(0, PoleOfficeBrowse.filename)
 
         PoleOfficeBrowse = TK.Button(Ramka2)
         PoleOfficeBrowse.config(text = '...')
-        PoleOfficeBrowse.config(command = PoleKontaBrowseDialog)
+        PoleOfficeBrowse.config(command = PoleOfficeBrowseDialog)
         PoleOfficeBrowse.config(bg = M_przycisktlo)
         PoleOfficeBrowse.config(fg = M_przycisktext)
         PoleOfficeBrowse.config(relief = 'flat')
@@ -366,7 +366,7 @@ class Main(TK.Tk):
         PoleKontaEksport.grid(row = wiersz, column = 1)
 
         def PoleKontaEksportBrowseDialog():
-            PoleKontaEksportBrowse.filename = TKfld.saveasfilename(initialdir = "C:/", title = "Zapisz", filetypes = (("Pliki csv", "*.csv"), ("Wszystkie pliki", "*.*")))
+            PoleKontaEksportBrowse.filename = TKfld.askdirectory(title = "Zapisz w...")
             PoleKontaEksport.delete(0, 'end')
             PoleKontaEksport.insert(0, PoleKontaEksportBrowse.filename)
 
@@ -398,7 +398,7 @@ class Main(TK.Tk):
         PoleOfficeEksport.grid(row = wiersz, column = 1)
 
         def PoleOfficeEksportBrowseDialog():
-            PoleOfficeEksportBrowse.filename = TKfld.saveasfilename(initialdir = "C:/", title = "Zapisz", filetypes = (("Pliki csv", "*.csv"), ("Wszystkie pliki", "*.*")))
+            PoleOfficeEksportBrowse.filename = TKfld.askdirectory(title = "Zapisz w...",)
             PoleOfficeEksport.delete(0, 'end')
             PoleOfficeEksport.insert(0, PoleOfficeEksportBrowse.filename)
 
@@ -443,11 +443,13 @@ class Main(TK.Tk):
 
         def InfoOpen():
             try:
-                x = open('.\instruction.txt')
+                x = open('readme.txt')
             except FileNotFoundError:
                 MDdlg.err(4)
+            except:
+                MDdlg.err(22)
             else:
-                OS.system("notepad .\instruction.txt")
+                OS.system("notepad readme.txt")
 
         PrzyciskINFO = TK.Button(PasekDolny)
         PrzyciskINFO.config(text = 'Instrukcja')

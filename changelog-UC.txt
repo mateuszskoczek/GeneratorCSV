@@ -45,3 +45,10 @@
 - Przeniesienie głównego modułu do folderu nadrzędnego zamiast pliku inicjacji
 - Zmieniony sposób ładowania modułów
 - Ulepszona obsługa wyjątków dla ładowania modułów
+
+4.0 Alpha (Build 19355)
+- Naprawienie przycisku instrukcji
+- Zmiana nazwy pliku instrukcji na 'readme.txt'
+- Naprawienie przycisków filedialog
+- Zmiana zmiennej treści błędu na string
+- Ulepszona obsługa wyjątków dla ładowania pliku konfiguracyjnego, formatu i 'readme.txt'

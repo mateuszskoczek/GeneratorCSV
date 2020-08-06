@@ -36,7 +36,7 @@ except ModuleNotFoundError:
 except Exception as exc:
     print('Wystąpił krytyczny błąd!')
     print('Nieznany błąd podczas ładowania jednego z modułów programu (dialog.py). Nie można załadować programu.')
-    print('Treść błędu: ' + exc)
+    print('Treść błędu: ' + str(exc))
     print('Kod błędu: E00x0010')
     wait = input('Naciśnij ENTER aby wyjść')
     SS.exit(0)
@@ -55,7 +55,7 @@ def CheckConfig(settings):
     try:
         if len(settings) != 7:
             error = int('x')
-    except ValueError:
+    except:
         MDdlg.err(1)
 
     # Linia 1 (0/1)
@@ -63,7 +63,7 @@ def CheckConfig(settings):
         check = int(settings[0])
         if 0 > check > 1:
             error = int('x')
-    except ValueError:
+    except:
         MDdlg.err(2)
     # Linia 2 (utf-8)
 
@@ -71,25 +71,25 @@ def CheckConfig(settings):
     try:
         if settings[1] not in DostepneKodowanieWyjsciowe:
             error = int('x')
-    except ValueError:
+    except:
         MDdlg.err(3)
 
     # Linia 4 (int)
     try:
         x = int(settings[3])
-    except ValueError:
+    except:
         MDdlg.err(17)
 
     # Linia 6 (int)
     try:
         x = int(settings[5])
-    except ValueError:
+    except:
         MDdlg.err(18)
 
     # Linia 7 (int)
     try:
         x = int(settings[6])
-    except ValueError:
+    except:
         MDdlg.err(19)
 
 
@@ -99,6 +99,8 @@ def read():
         check = open('.\config.cfg')
     except FileNotFoundError:
         MDdlg.err(0)
+    except:
+        MDdlg.err(20)
     else:
         with open('.\config.cfg', 'r') as cfg:
             config = cfg.read().split('\n')
@@ -117,6 +119,8 @@ def edit(settings):
         check = open('.\config.cfg')
     except FileNotFoundError:
         MDdlg.err(0)
+    except:
+        MDdlg.err(20)
     else:
         SettingsToSave = []
         SettingsToSave.append('Ciemny motyw(0/1): ' + str(settings[0]) + '\n')
