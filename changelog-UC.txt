@@ -40,3 +40,8 @@
 
 4.0 Alpha (Build 19353)
 - Ukończenie ustawień
+
+4.0 Alpha (Build 19354)
+- Przeniesienie głównego modułu do folderu nadrzędnego zamiast pliku inicjacji
+- Zmieniony sposób ładowania modułów
+- Ulepszona obsługa wyjątków dla ładowania modułów

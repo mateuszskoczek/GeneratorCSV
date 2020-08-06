@@ -22,11 +22,22 @@
 # Biblioteki zewnętrzne
 import sys as SS
 
+
+
 # Moduły składowe programu
 try:
-    import dialog as MDdlg
+    from modules import dialog as MDdlg
 except ModuleNotFoundError:
-    print('Nie znaleziono modułu programu (dialog.py)\nNie można załadować programu\nKod błędu: E00x0001')
+    print('Wystąpił krytyczny błąd!')
+    print('Nie znaleziono jednego z modułów programu (dialog.py). Nie można załadować programu')
+    print('Kod błędu: E00x0011')
+    wait = input('Naciśnij ENTER aby wyjść')
+    SS.exit(0)
+except Exception as exc:
+    print('Wystąpił krytyczny błąd!')
+    print('Nieznany błąd podczas ładowania jednego z modułów programu (dialog.py). Nie można załadować programu.')
+    print('Treść błędu: ' + exc)
+    print('Kod błędu: E00x0010')
     wait = input('Naciśnij ENTER aby wyjść')
     SS.exit(0)
 
