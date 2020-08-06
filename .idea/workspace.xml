@@ -78,6 +78,7 @@
       <workItem from="1575190894436" duration="18504000" />
       <workItem from="1575210569237" duration="2431000" />
       <workItem from="1575490006287" duration="48000" />
+      <workItem from="1576401956701" duration="4897000" />
     </task>
     <servers />
   </component>
@@ -100,5 +101,6 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/GeneratorCSV_3_1$generator.coverage" NAME="generator Coverage Results" MODIFIED="1575142941417" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Wersja_Under_Construction$generator.coverage" NAME="generator Coverage Results" MODIFIED="1575214162661" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Generator_CSV$generator.coverage" NAME="generator Coverage Results" MODIFIED="1576406807406" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

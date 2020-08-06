@@ -16,3 +16,6 @@
 
 4.0 Alpha (Build 19346.2)
 - Stworzenie okna ustawień programu
+
+4.0 Alpha (Build 19349)
+- Ukończenie okna ustawień

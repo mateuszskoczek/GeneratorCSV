@@ -1,6 +1,6 @@
 """
 # GeneratorCSV
-# Wersja 4.0: UC 2
+# Wersja 4.0 Experimental
 # by Mateusz Skoczek
 # luty 2019 - grudzień 2019
 # dla ZSP Sobolew
@@ -24,6 +24,8 @@ E001x01 = ["Brak pliku konfiguracyjnego ('config.cfg').\nPrzywróć plik. (E001x
 E002x00 = ["Bład pliku konfiguracyjnego ('config.cfg').\nNiepoprawna ilość wierszy w pliku\nPrzywróć plik. (E002x00)", True]
 E002x01 = ["Bład pliku konfiguracyjnego ('config.cfg').\nNiepoprawne dane w wierszu 1\nPrzywróć plik. (E002x01)", True]
 E002x02 = ["Bład pliku konfiguracyjnego ('config.cfg').\nNiepoprawne dane w wierszu 2\nPrzywróć plik. (E002x02)", True]
+
+I001 = ["Pomyślnie zapisano!\nDla niektórych zmian może być wymagane ponowne uruchomienie programu", False]
 
 
 
@@ -113,3 +115,4 @@ def edit(settings):
         with open('.\config.cfg', 'w') as cfg:
             for x in SettingsToSave:
                 cfg.write(x)
+            MDdlg.Inf(I001)

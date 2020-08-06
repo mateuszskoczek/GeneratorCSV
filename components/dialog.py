@@ -1,6 +1,6 @@
 """
 # GeneratorCSV
-# Wersja 4.0: UC 2
+# Wersja 4.0 Experimental
 # by Mateusz Skoczek
 # luty 2019 - grudzień 2019
 # dla ZSP Sobolew

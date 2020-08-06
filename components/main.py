@@ -1,6 +1,6 @@
 """
 # GeneratorCSV
-# Wersja 4.0: UC 2
+# Wersja 4.0 Experimental
 # by Mateusz Skoczek
 # luty 2019 - grudzień 2019
 # dla ZSP Sobolew
@@ -17,7 +17,7 @@
 # -------------------------------------------- # Informacje o programie # -------------------------------------------- #
 
 Nazwa = 'GeneratorCSV'
-Wersja = '4.0: UC 2'
+Wersja = '4.0 Experimental'
 
 
 
@@ -64,6 +64,7 @@ except ModuleNotFoundError:
 
 # Biblioteki zewnętrzne interfejsu graficznego
 from tkinter import filedialog as TKfld
+from tkinter import ttk as TKttk
 import tkinter as TK
 
 
@@ -126,25 +127,59 @@ def settings():
     Ramka1.config(text = ' Motyw programu ')
     Ramka1.config(bg = B_tlo, fg = B_text)
     Ramka1.config(borderwidth = B_framewielkosc)
-    Ramka1.grid(row = 1)
+    Ramka1.grid(row = 1, pady = 5)
+
+    Motyw_var = TK.StringVar()
+    if int(MDlcg.read()[0]) == 1:
+        Motyw_var.set('Ciemny')
+        Motyw_index = 1
+    else:
+        Motyw_var.set('Jasny')
+        Motyw_index = 0
+
+    Motyw_list = TKttk.Combobox(Ramka1)
+    Motyw_list.config(textvariable = Motyw_var, state = 'readonly')
+    Motyw_list.config(width = 43)
+    Motyw_list.grid(row = 0, pady = 5, padx = 5)
+    Motyw_list['values'] = ('Jasny', 'Ciemny')
+    Motyw_list.current(Motyw_index)
 
 
-    # Radiobutton (motyw)
-    RB_var = TK.StringVar()
-    RB_var.set(MDlcg.read()[0])
+    # Frame2 - Kodowanie
+    Ramka2 = TK.LabelFrame(SettingsWindow)
+    Ramka2.config(text = ' Kodowanie wyjściowe ')
+    Ramka2.config(bg = B_tlo, fg = B_text)
+    Ramka2.config(borderwidth = B_framewielkosc)
+    Ramka2.grid(row = 2, pady = 5)
 
-    RB_ciemny = TK.Radiobutton(Ramka1)
-    RB_ciemny.config(text = 'Ciemny')
-    RB_ciemny.config(variable = RB_var, value = '1')
-    RB_ciemny.config(bg = B_tlo, fg = B_text)
+    Code_var = TK.StringVar()
+    Code_var.set(MDlcg.read()[1])
 
-    RB_jasny = TK.Radiobutton(Ramka1)
-    RB_jasny.config(text = 'Jasny')
-    RB_jasny.config(variable = RB_var, value = '0')
-    RB_jasny.config(bg = B_tlo, fg = B_text)
+    Code_list = TKttk.Combobox(Ramka2)
+    Code_list.config(textvariable = Code_var, state = 'readonly')
+    Code_list.config(width = 43)
+    Code_list.grid(row = 0, pady = 5, padx = 5)
+    Code_list['values'] = ('utf-8')
+    Code_list.set(MDlcg.read()[1])
 
-    RB_ciemny.grid(row = 0, column = 0, padx = 40)
-    RB_jasny.grid(row = 0, column = 1, padx = 40)
+
+    # Przycisk ZAPISZ
+    def zapis():
+        X1 = Motyw_list.get()
+        if X1 == 'Jasny':
+            X1 = '0'
+        else:
+            X1 = '1'
+        X2 = Code_list.get()
+        ToSave = [X1, X2]
+        MDlcg.edit(ToSave)
+        SettingsWindow.destroy()
+    PrzyciskZAPISZ = TK.Button(SettingsWindow)
+    PrzyciskZAPISZ.config(text = 'ZAPISZ')
+    PrzyciskZAPISZ.config(command = zapis)
+    PrzyciskZAPISZ.config(width = 40)
+    PrzyciskZAPISZ.config(bg = B_przycisktlo, fg = B_przycisktext, relief = 'flat', activebackground = B_przycisktlo)
+    PrzyciskZAPISZ.grid(row = 3, pady = 8)
 
 
     SettingsWindow.mainloop()
