@@ -21,7 +21,7 @@ class prgInfo:
     school = 'ZSP Sobolew'  # Nazwa szkoły
     version = '4.0 Experimental'  # Wersja programu
     years = '2019 - 2020'  # Lata pracy na programem
-    authors = ['Mateusz Skoczek']  # Autorzy
+    authors = 'Mateusz Skoczek'  # Autorzy
 
 
 
@@ -42,7 +42,23 @@ class guiVars:
         tabHeaderHeight = 8  # Wysokość nagłówka
         tabHeaderWidth = 80  # Szerokość nagłówka
 
-        # Informacje
+        # Labelframe'y
+        lfBorderwidth = 1  # Szerokość obramowania
+
+        # Textbox'y
+        tbBorderwidth = 0  # Szerokość obramowania
+
+        # FORMATTAB
+        framePadY = 10
+        tbPad = 8
+        tbWidth = 42
+        tbHeight = 9
+        tbWidth2 = 56
+        bnHeight = 2
+        bnWidth = 30
+        bnWidth2 = 30
+
+        # INFOTAB
         programIconInInfo = 100  # Szerokość/wysokość ikony
         programIconInInfoPlace = 150  # Wysokość kontrolki zawierającej ikonę
         separator1Height = 2  # Wysokość separator1
@@ -60,9 +76,22 @@ class guiVars:
         selectedTabBG = '#333842'  # Wybrana karta
 
         # Nagłowki kart
-        headerBG = '#282C34'  # Tło
+        headerBG = '#323741'  # Tło
         headerText = '#C0C0C0'  # Tekst
 
+        # Labelframe'y
+        lfText = '#C0C0C0'  # Tekst
+
+        # Label'e
+        label1 = '#C0C0C0'  # Tekst
+
+        # Textbox'y
+        textboxBG = '#282B36'  # Tło
+        textboxText = '#C0C0C0'  # Tekst
+
+        # Button'y
+        buttonBG = '#323741'  # Tło
+        buttonText = '#C0C0C0'  # Tekst
 
     # Grafika
     class image:
@@ -76,6 +105,7 @@ class guiVars:
         linkTab = 'assets/tab_icons/link.png'
         mergeTab = 'assets/tab_icons/merge.png'
         settingsTab = 'assets/tab_icons/settings.png'
+        formatTab = 'assets/tab_icons/format.png'
         infoTab = 'assets/tab_icons/info.png'
     
 
@@ -84,7 +114,7 @@ class guiVars:
         # Główne
         tabHeader = ['Segoe UI', 12]  # Nagłowki
 
-        # Informacje
+        # INFOTAB
         info1 = ['Segoe UI']  # Czcionka
         info1.append(20)  # Wielkość tekstu - Nazwa programu
         info1.append(10)  # Wielkość tekstu - Wersja programu

@@ -59,3 +59,6 @@
 - Przywrócenie systemu crashlogów
 - Ukończenie karty 'informacje'
 - Użycie skryptu instalującego automatycznie bibliotekę PIL
+
+4.0 Alpha (Build 20017)
+- Ukończenie wizualnej części karty 'format'

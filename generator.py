@@ -125,7 +125,7 @@ def gui():
     iconTabImg = PLitk.PhotoImage(iconTabImg)
     mainMenu.add(iconTab, image = iconTabImg, state = TK.DISABLED)
 
-    # TAB2 - Generowanie plików
+    # Generowanie plików
     generateTab = TK.Frame(mainMenu)
     generateTab.config(background = SCvar_gui.color.mainBG)
     generateTabImg = PLimg.open(SCvar_gui.image.generateTab)
@@ -133,7 +133,7 @@ def gui():
     generateTabImg = PLitk.PhotoImage(generateTabImg)
     mainMenu.add(generateTab, image = generateTabImg)
 
-    # TAB3 - Dołącz do pliku
+    # Dołączanie do pliku
     linkTab = TK.Frame(mainMenu)
     linkTab.config(background = SCvar_gui.color.mainBG)
     linkTabImg = PLimg.open(SCvar_gui.image.linkTab)
@@ -141,7 +141,7 @@ def gui():
     linkTabImg = PLitk.PhotoImage(linkTabImg)
     mainMenu.add(linkTab, image = linkTabImg)
 
-    # TAB4 - Łączenie plików
+    # Łączenie plików
     mergeTab = TK.Frame(mainMenu)
     mergeTab.config(background = SCvar_gui.color.mainBG)
     mergeTabImg = PLimg.open(SCvar_gui.image.mergeTab)
@@ -149,7 +149,7 @@ def gui():
     mergeTabImg = PLitk.PhotoImage(mergeTabImg)
     mainMenu.add(mergeTab, image = mergeTabImg)
 
-    # TAB5 - Ustawienia
+    # Ustawienia
     settingsTab = TK.Frame(mainMenu)
     settingsTab.config(background = SCvar_gui.color.mainBG)
     settingsTabImg = PLimg.open(SCvar_gui.image.settingsTab)
@@ -157,7 +157,15 @@ def gui():
     settingsTabImg = PLitk.PhotoImage(settingsTabImg)
     mainMenu.add(settingsTab, image = settingsTabImg)
 
-    # TAB6 - Informacje
+    # Format danych
+    formatTab = TK.Frame(mainMenu)
+    formatTab.config(background = SCvar_gui.color.mainBG)
+    formatTabImg = PLimg.open(SCvar_gui.image.formatTab)
+    formatTabImg = formatTabImg.resize((SCvar_gui.dimension.iconTab, SCvar_gui.dimension.iconTab), PLimg.ANTIALIAS)
+    formatTabImg = PLitk.PhotoImage(formatTabImg)
+    mainMenu.add(formatTab, image = formatTabImg)
+
+    # Informacje
     infoTab = TK.Frame(mainMenu)
     infoTab.config(background = SCvar_gui.color.mainBG)
     infoTabImg = PLimg.open(SCvar_gui.image.infoTab)
@@ -207,28 +215,161 @@ def gui():
 
 
 
-    # TAB5
-    tab5Label = TK.Label(settingsTab)
-    tab5Label.config(text = 'USTAWIENIA')
-    tab5Label.config(font = (SCvar_gui.fonts.tabHeader[0], SCvar_gui.fonts.tabHeader[1]))
-    tab5Label.config(bg = SCvar_gui.color.headerBG)
-    tab5Label.config(fg = SCvar_gui.color.headerText)
-    tab5Label.config(bd = SCvar_gui.dimension.tabHeaderHeight)
-    tab5Label.config(width = SCvar_gui.dimension.tabHeaderWidth)
-    tab5Label.grid(row = 0)
+    # SETTINGSTAB
+    settingsTabLabel = TK.Label(settingsTab)
+    settingsTabLabel.config(text = 'USTAWIENIA')
+    settingsTabLabel.config(font = (SCvar_gui.fonts.tabHeader[0], SCvar_gui.fonts.tabHeader[1]))
+    settingsTabLabel.config(bg = SCvar_gui.color.headerBG)
+    settingsTabLabel.config(fg = SCvar_gui.color.headerText)
+    settingsTabLabel.config(bd = SCvar_gui.dimension.tabHeaderHeight)
+    settingsTabLabel.config(width = SCvar_gui.dimension.tabHeaderWidth)
+    settingsTabLabel.grid(row = 0)
 
 
 
 
-    # TAB6
-    tab6Label = TK.Label(infoTab)
-    tab6Label.config(text = 'INFORMACJE')
-    tab6Label.config(font = (SCvar_gui.fonts.tabHeader[0], SCvar_gui.fonts.tabHeader[1]))
-    tab6Label.config(bg = SCvar_gui.color.headerBG)
-    tab6Label.config(fg = SCvar_gui.color.headerText)
-    tab6Label.config(bd = SCvar_gui.dimension.tabHeaderHeight)
-    tab6Label.config(width = SCvar_gui.dimension.tabHeaderWidth)
-    tab6Label.grid(row = 0)
+    # FORMATTAB
+    formatTabLabel = TK.Label(formatTab)
+    formatTabLabel.config(text = 'FORMAT DANYCH')
+    formatTabLabel.config(font = (SCvar_gui.fonts.tabHeader[0], SCvar_gui.fonts.tabHeader[1]))
+    formatTabLabel.config(bg = SCvar_gui.color.headerBG)
+    formatTabLabel.config(fg = SCvar_gui.color.headerText)
+    formatTabLabel.config(bd = SCvar_gui.dimension.tabHeaderHeight)
+    formatTabLabel.config(width = SCvar_gui.dimension.tabHeaderWidth)
+    formatTabLabel.grid(row = 0)
+
+
+    # Labelframe - Pliki wejściowe
+    inFilesLabelFrame = TK.LabelFrame(formatTab)
+    inFilesLabelFrame.config(text = ' Pliki wejściowe ')
+    inFilesLabelFrame.config(bg = SCvar_gui.color.mainBG)
+    inFilesLabelFrame.config(fg = SCvar_gui.color.lfText)
+    inFilesLabelFrame.config(bd = SCvar_gui.dimension.lfBorderwidth)
+    inFilesLabelFrame.grid(row = 1, pady = SCvar_gui.dimension.framePadY)
+
+    # UczniowieLABEL
+    inStudentsLABEL = TK.Label(inFilesLabelFrame)
+    inStudentsLABEL.config(text = 'Uczniowie')
+    inStudentsLABEL.config(bg = SCvar_gui.color.mainBG)
+    inStudentsLABEL.config(fg = SCvar_gui.color.label1)
+    inStudentsLABEL.grid(row = 0, column = 0)
+
+    # Uczniowie inFormatInput
+    inStudentsFormatInput = TK.Text(inFilesLabelFrame)
+    inStudentsFormatInput.config(bg = SCvar_gui.color.textboxBG)
+    inStudentsFormatInput.config(fg = SCvar_gui.color.textboxText)
+    inStudentsFormatInput.config(bd = SCvar_gui.dimension.tbBorderwidth)
+    inStudentsFormatInput.config(width = SCvar_gui.dimension.tbWidth)
+    inStudentsFormatInput.config(height = SCvar_gui.dimension.tbHeight)
+    inStudentsFormatInput.grid(row = 1, column = 0, padx = SCvar_gui.dimension.tbPad, pady = SCvar_gui.dimension.tbPad)
+
+    # NauczycieleLABEL
+    inTeachersLABEL = TK.Label(inFilesLabelFrame)
+    inTeachersLABEL.config(text = 'Nauczyciele')
+    inTeachersLABEL.config(bg = SCvar_gui.color.mainBG)
+    inTeachersLABEL.config(fg = SCvar_gui.color.label1)
+    inTeachersLABEL.grid(row = 0, column = 1)
+
+    # Nauczyciele inFormatInput
+    inTeachersFormatInput = TK.Text(inFilesLabelFrame)
+    inTeachersFormatInput.config(bg = SCvar_gui.color.textboxBG)
+    inTeachersFormatInput.config(fg = SCvar_gui.color.textboxText)
+    inTeachersFormatInput.config(bd = SCvar_gui.dimension.tbBorderwidth)
+    inTeachersFormatInput.config(width = SCvar_gui.dimension.tbWidth)
+    inTeachersFormatInput.config(height = SCvar_gui.dimension.tbHeight)
+    inTeachersFormatInput.grid(row = 1, column = 1, padx = SCvar_gui.dimension.tbPad, pady = SCvar_gui.dimension.tbPad)
+
+
+    # Labelframe - Pliki wejściowe
+    outFilesLabelFrame = TK.LabelFrame(formatTab)
+    outFilesLabelFrame.config(text = ' Pliki wyjściowe ')
+    outFilesLabelFrame.config(bg = SCvar_gui.color.mainBG)
+    outFilesLabelFrame.config(fg = SCvar_gui.color.lfText)
+    outFilesLabelFrame.config(bd = SCvar_gui.dimension.lfBorderwidth)
+    outFilesLabelFrame.grid(row = 2, pady = SCvar_gui.dimension.framePadY)
+
+    # UczniowieLABEL
+    outStudentsLABEL = TK.Label(outFilesLabelFrame)
+    outStudentsLABEL.config(text = 'Uczniowie')
+    outStudentsLABEL.config(bg = SCvar_gui.color.mainBG)
+    outStudentsLABEL.config(fg = SCvar_gui.color.label1)
+    outStudentsLABEL.grid(row = 0, column = 0)
+
+    # Uczniowie outFormatInput
+    outStudentsFormatInput = TK.Entry(outFilesLabelFrame)
+    outStudentsFormatInput.config(bg = SCvar_gui.color.textboxBG)
+    outStudentsFormatInput.config(fg = SCvar_gui.color.textboxText)
+    outStudentsFormatInput.config(bd = SCvar_gui.dimension.tbBorderwidth)
+    outStudentsFormatInput.config(width = SCvar_gui.dimension.tbWidth2)
+    outStudentsFormatInput.grid(row = 1, column = 0, padx = SCvar_gui.dimension.tbPad, pady = SCvar_gui.dimension.tbPad)
+
+    # NauczycieleLABEL
+    outTeachersLABEL = TK.Label(outFilesLabelFrame)
+    outTeachersLABEL.config(text = 'Nauczyciele')
+    outTeachersLABEL.config(bg = SCvar_gui.color.mainBG)
+    outTeachersLABEL.config(fg = SCvar_gui.color.label1)
+    outTeachersLABEL.grid(row = 0, column = 1)
+
+    # Nauczyciele outFormatInput
+    outTeachersFormatInput = TK.Entry(outFilesLabelFrame)
+    outTeachersFormatInput.config(bg = SCvar_gui.color.textboxBG)
+    outTeachersFormatInput.config(fg = SCvar_gui.color.textboxText)
+    outTeachersFormatInput.config(bd = SCvar_gui.dimension.tbBorderwidth)
+    outTeachersFormatInput.config(width = SCvar_gui.dimension.tbWidth2)
+    outTeachersFormatInput.grid(row = 1, column = 1, padx = SCvar_gui.dimension.tbPad, pady = SCvar_gui.dimension.tbPad)
+
+
+    # Frame - Przyciski
+    formatButtonsFrame = TK.Frame(formatTab)
+    formatButtonsFrame.config(bg = SCvar_gui.color.mainBG)
+    formatButtonsFrame.grid(row = 3, pady = SCvar_gui.dimension.framePadY)
+
+    # Zapisz
+    saveFormatButton = TK.Button(formatButtonsFrame)
+    saveFormatButton.config(text = 'ZAPISZ')
+    saveFormatButton.config(bg = SCvar_gui.color.buttonBG)
+    saveFormatButton.config(fg = SCvar_gui.color.buttonText)
+    saveFormatButton.config(relief = TK.FLAT)
+    saveFormatButton.config(activebackground = SCvar_gui.color.buttonBG)
+    saveFormatButton.config(activeforeground = SCvar_gui.color.buttonText)
+    saveFormatButton.config(height = SCvar_gui.dimension.bnHeight)
+    saveFormatButton.config(width = SCvar_gui.dimension.bnWidth)
+    saveFormatButton.grid(row = 0, column = 0, padx = 5)
+
+    # Pomoc
+    def saveFormatButtonCommand():
+        try:
+            x = open('format_readme.txt')
+        except FileNotFoundError:
+            print('x')
+        except:
+            print('x')
+        else:
+            OS.system("notepad format_readme.txt")
+    instructionFormatButton = TK.Button(formatButtonsFrame)
+    instructionFormatButton.config(text = 'POMOC')
+    instructionFormatButton.config(bg = SCvar_gui.color.buttonBG)
+    instructionFormatButton.config(fg = SCvar_gui.color.buttonText)
+    instructionFormatButton.config(relief = TK.FLAT)
+    instructionFormatButton.config(activebackground = SCvar_gui.color.buttonBG)
+    instructionFormatButton.config(activeforeground = SCvar_gui.color.buttonText)
+    instructionFormatButton.config(height = SCvar_gui.dimension.bnHeight)
+    instructionFormatButton.config(width = SCvar_gui.dimension.bnWidth2)
+    instructionFormatButton.config(command = saveFormatButtonCommand)
+    instructionFormatButton.grid(row = 0, column = 1, padx = 5)
+
+
+
+
+    # INFOTAB
+    infoTabLabel = TK.Label(infoTab)
+    infoTabLabel.config(text = 'INFORMACJE')
+    infoTabLabel.config(font = (SCvar_gui.fonts.tabHeader[0], SCvar_gui.fonts.tabHeader[1]))
+    infoTabLabel.config(bg = SCvar_gui.color.headerBG)
+    infoTabLabel.config(fg = SCvar_gui.color.headerText)
+    infoTabLabel.config(bd = SCvar_gui.dimension.tabHeaderHeight)
+    infoTabLabel.config(width = SCvar_gui.dimension.tabHeaderWidth)
+    infoTabLabel.grid(row = 0)
 
     # Separator1
     separator1 = TK.Label(infoTab)
@@ -277,12 +418,8 @@ def gui():
     copyrightInfo.grid(row = 6)
 
     # Autorzy
-    authors = ''
-    for x in SCvar_inf.authors:
-        authors += (x + '\n')
-    authors += ('dla ' + SCvar_inf.school)
     authorsInfo = TK.Label(infoTab)
-    authorsInfo.config(text = authors)
+    authorsInfo.config(text = SCvar_inf.authors + '\ndla ' + SCvar_inf.school)
     authorsInfo.config(font = (SCvar_gui.fonts.info1[0], SCvar_gui.fonts.info1[4]))
     authorsInfo.config(background = SCvar_gui.color.mainBG)
     authorsInfo.config(foreground = SCvar_gui.color.headerText)
