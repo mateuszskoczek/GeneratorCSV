@@ -52,3 +52,10 @@
 - Naprawienie przycisków filedialog
 - Zmiana zmiennej treści błędu na string
 - Ulepszona obsługa wyjątków dla ładowania pliku konfiguracyjnego, formatu i 'readme.txt'
+
+4.0 Alpha (Build 20016)
+- Całkowite przeprojektowanie interfejsu
+- Całkowite przeprojektowanie struktury plików programu
+- Przywrócenie systemu crashlogów
+- Ukończenie karty 'informacje'
+- Użycie skryptu instalującego automatycznie bibliotekę PIL
