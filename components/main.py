@@ -21,6 +21,8 @@
 
 Nazwa = 'GeneratorCSV'
 Wersja = '4.0 Experimental'
+LataPracy = '2019'
+Autorzy = 'Mateusz Skoczek'
 
 
 
@@ -77,14 +79,14 @@ except ModuleNotFoundError:
     print('Nie znaleziono modułu programu (load_format.py)\nNie można załadować programu\nKod błędu: E00x0003')
     wait = input('Naciśnij ENTER aby wyjść')
     SS.exit(0)
-
+"""
 try:
     import processing as MDprc
 except ModuleNotFoundError:
     print('Nie znaleziono modułu programu (processing.py)\nNie można załadować programu\nKod błędu: E00x0004')
     wait = input('Naciśnij ENTER aby wyjść')
     SS.exit(0)
-
+"""
 
 
 # Biblioteki zewnętrzne interfejsu graficznego
@@ -99,7 +101,7 @@ import tkinter as TK
 
 
 
-#TODO
+
 # ------------------------------------- # Uruchomienie interfejsu graficznego # -------------------------------------- #
 
 # Zmienne globalne środowiska graficznego
@@ -108,390 +110,520 @@ if int(MDlcg.read()[0]) == 1:
 else:
     CiemnyMotyw = False
 SzerokoscOpisu = 17
+SzerokoscOpisu2 = 30
+SzerokoscOpisu3 = 10
 SzerokoscPola = 122
+SzerokoscPola2 = 107
+SzerokoscPola3 = 130
 
 
 
-# Kolorystyka okna
+# Motyw
 if CiemnyMotyw:
-    PaletaBarw = ['#1F1F1F', '#191919', '#B8B8B8', '#FFFFFF', '#404040', '#FFFFFF', '#1F1F1F', 1]
+    ZmienneMotywu = ['#1F1F1F', '#191919', '#B8B8B8', '#FFFFFF', '#404040', '#FFFFFF', '#1F1F1F', 1]
 else:
-    PaletaBarw = ['#F0F0F0', '#D4D4D4', '#000000', '#000000', '#A6A6A6', '#000000', '#FFFFFF', 2]
+    ZmienneMotywu = ['#F0F0F0', '#D4D4D4', '#000000', '#000000', '#A6A6A6', '#000000', '#FFFFFF', 2]
 
-B_tlo = PaletaBarw[0]
-B_tytultlo = PaletaBarw[1]
-B_tytultext = PaletaBarw[2]
-B_text = PaletaBarw[3]
-B_przycisktlo = PaletaBarw[4]
-B_przycisktext = PaletaBarw[5]
-B_entrytlo = PaletaBarw[6]
-B_framewielkosc = PaletaBarw[7]
-
-
-
-
-def settings():
-    # Tworzenie okna ustawień
-    SettingsWindow = TK.Tk()
-    SettingsWindow.title('Ustawienia programu')
-    SettingsWindow.resizable(width = False, height = False)
-    SettingsWindow.configure(background = B_tlo)
-
-
-    # Tytul
-    Tytul = TK.Label(SettingsWindow)
-    Tytul.config(text = 'Ustawienia')
-    Tytul.config(width = 20)
-    Tytul.config(bg = B_tytultlo, fg = B_tytultext)
-    Tytul.config(font = ('Segoe UI Semilight', 20))
-    Tytul.grid(row = 0)
-
-
-    # Frame1 - Motyw
-    Ramka1 = TK.LabelFrame(SettingsWindow)
-    Ramka1.config(text = ' Motyw programu ')
-    Ramka1.config(bg = B_tlo, fg = B_text)
-    Ramka1.config(borderwidth = B_framewielkosc)
-    Ramka1.grid(row = 1, pady = 5)
-
-    Motyw_var = TK.StringVar()
-    if int(MDlcg.read()[0]) == 1:
-        Motyw_var.set('Ciemny')
-        Motyw_index = 1
-    else:
-        Motyw_var.set('Jasny')
-        Motyw_index = 0
-
-    Motyw_list = TKttk.Combobox(Ramka1)
-    Motyw_list.config(textvariable = Motyw_var, state = 'readonly')
-    Motyw_list.config(width = 43)
-    Motyw_list.grid(row = 0, pady = 5, padx = 5)
-    Motyw_list['values'] = ('Jasny', 'Ciemny')
-    Motyw_list.current(Motyw_index)
-
-
-    # Frame2 - Kodowanie
-    Ramka2 = TK.LabelFrame(SettingsWindow)
-    Ramka2.config(text = ' Kodowanie wyjściowe ')
-    Ramka2.config(bg = B_tlo, fg = B_text)
-    Ramka2.config(borderwidth = B_framewielkosc)
-    Ramka2.grid(row = 2, pady = 5)
-
-    Code_var = TK.StringVar()
-    Code_var.set(MDlcg.read()[1])
-
-    Code_list = TKttk.Combobox(Ramka2)
-    Code_list.config(textvariable = Code_var, state = 'readonly')
-    Code_list.config(width = 43)
-    Code_list.grid(row = 0, pady = 5, padx = 5)
-    Code_list['values'] = ('utf-8')
-    Code_list.set(MDlcg.read()[1])
-
-
-    # Przycisk ZAPISZ
-    def zapis():
-        X1 = Motyw_list.get()
-        if X1 == 'Jasny':
-            X1 = '0'
-        else:
-            X1 = '1'
-        X2 = Code_list.get()
-        ToSave = [X1, X2]
-        MDlcg.edit(ToSave)
-        SettingsWindow.destroy()
-    PrzyciskZAPISZ = TK.Button(SettingsWindow)
-    PrzyciskZAPISZ.config(text = 'ZAPISZ')
-    PrzyciskZAPISZ.config(command = zapis)
-    PrzyciskZAPISZ.config(width = 40)
-    PrzyciskZAPISZ.config(bg = B_przycisktlo, fg = B_przycisktext, relief = 'flat', activebackground = B_przycisktlo)
-    PrzyciskZAPISZ.grid(row = 3, pady = 8)
-
-
-    SettingsWindow.mainloop()
+M_tlo = ZmienneMotywu[0]
+M_tytultlo = ZmienneMotywu[1]
+M_tytultext = ZmienneMotywu[2]
+M_text = ZmienneMotywu[3]
+M_przycisktlo = ZmienneMotywu[4]
+M_przycisktext = ZmienneMotywu[5]
+M_entrytlo = ZmienneMotywu[6]
+M_framewielkosc = ZmienneMotywu[7]
 
 
 
-
-def main():
-    # Tworzenie okna głównego
-    MainWindow = TK.Tk()
-    MainWindow.title(Nazwa + ' ' + Wersja)
-    MainWindow.resizable(width = False, height = False)
-    MainWindow.configure(background = B_tlo)
-
-
-    # Tytul
-    Tytul = TK.Label(MainWindow)
-    Tytul.config(text = Nazwa)
-    Tytul.config(width = 41)
-    Tytul.config(bg = B_tytultlo, fg = B_tytultext)
-    Tytul.config(font = ('Segoe UI Semilight', 30))
-    Tytul.grid(row = 0)
+class Main(TK.Tk):
+    def __init__(self):
+        # Ustawienia okna
+        TK.Tk.__init__(self)
+        self.title(Nazwa + " " + Wersja)
+        self.resizable(width = False, height = False)
+        self.configure(bg = M_tlo)
 
 
-    # Frame1 - Import
-    Ramka1 = TK.LabelFrame(MainWindow)
-    Ramka1.config(text = ' Pliki do importu zawierające dane ')
-    Ramka1.config(bg = B_tlo, fg = B_text)
-    Ramka1.config(borderwidth = B_framewielkosc)
-    Ramka1.grid(row = 1)
+        # Tytuł
+        Tytul = TK.Label(self)
+        Tytul.config(text = Nazwa)
+        Tytul.config(width = 41)
+        Tytul.config(bg = M_tytultlo)
+        Tytul.config(fg = M_tytultext)
+        Tytul.config(font = ('Segoe UI Semilight', 30))
+        Tytul.grid(row = 0)
 
 
-    # Ścieżka pliku do importu 1
-    wiersz = 1
-    text1 = TK.StringVar()
-
-    OpisPola1 = TK.Label(Ramka1)
-    OpisPola1.config(text = 'Plik z danymi (1)')
-    OpisPola1.config(width = SzerokoscOpisu)
-    OpisPola1.config(bg = B_tlo, fg = B_text)
-    OpisPola1.grid(row = wiersz, column = 0)
-
-    Pole1 = TK.Entry(Ramka1)
-    Pole1.config(textvariable = text1)
-    Pole1.config(width = SzerokoscPola)
-    Pole1.config(bg = B_entrytlo, fg = B_text)
-    Pole1.grid(row = wiersz, column = 1)
-
-    def Browse1_Dialog():
-        Browse1.filename = TKfld.askopenfilename(initialdir = "/", title = "Wybierz plik do importu", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
-        Pole1.delete(0, 'end')
-        Pole1.insert(0, Browse1.filename)
-
-    Browse1 = TK.Button(Ramka1)
-    Browse1.config(text = '...')
-    Browse1.config(command = Browse1_Dialog)
-    Browse1.config(bg = B_przycisktlo, fg = B_przycisktext, relief='flat', activebackground = B_przycisktlo)
-    Browse1.grid(row = wiersz, column = 2, padx=5, pady=3)
+        # Frame1 - Pliki z danymi
+        Ramka1 = TK.LabelFrame(self)
+        Ramka1.config(text=' Pliki tekstowe zawierające dane (wymagany przynajmniej jeden) ')
+        Ramka1.config(borderwidth = M_framewielkosc)
+        Ramka1.config(bg = M_tlo)
+        Ramka1.config(fg = M_text)
+        Ramka1.grid(row = 1)
 
 
-    # Ścieżka pliku do importu 2
-    wiersz = 2
-    text2 = TK.StringVar()
+        # Ścieżka pliku txt nr 1
+        wiersz = 1
+        text1 = TK.StringVar()
 
-    OpisPola2 = TK.Label(Ramka1)
-    OpisPola2.config(text = 'Plik z danymi (2)')
-    OpisPola2.config(width = SzerokoscOpisu)
-    OpisPola2.config(bg = B_tlo, fg = B_text)
-    OpisPola2.grid(row = wiersz, column = 0)
+        Pole1Label = TK.Label(Ramka1)
+        Pole1Label.config(text = 'Plik z danymi (1)')
+        Pole1Label.config(width = SzerokoscOpisu)
+        Pole1Label.config(bg = M_tlo)
+        Pole1Label.config(fg = M_text)
+        Pole1Label.grid(row = wiersz, column = 0)
 
-    Pole2 = TK.Entry(Ramka1)
-    Pole2.config(textvariable = text2)
-    Pole2.config(width = SzerokoscPola)
-    Pole2.config(bg = B_entrytlo, fg = B_text)
-    Pole2.grid(row = wiersz, column = 1)
+        Pole1 = TK.Entry(Ramka1)
+        Pole1.config(textvariable = text1)
+        Pole1.config(width = SzerokoscPola)
+        Pole1.config(bg = M_entrytlo)
+        Pole1.config(fg = M_text)
+        Pole1.grid(row = wiersz, column = 1)
 
-    def Browse2_Dialog():
-        Browse2.filename = TKfld.askopenfilename(initialdir = "/", title = "Wybierz plik do importu", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
-        Pole2.delete(0, 'end')
-        Pole2.insert(0, Browse2.filename)
+        def Pole1BrowseDialog():
+            Pole1Browse.filename = TKfld.askopenfilename(initialdir = "C:/", title = "Wybierz plik tekstowy z danymi", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
+            Pole1.delete(0, 'end')
+            Pole1.insert(0, Pole1Browse.filename)
 
-    Browse2 = TK.Button(Ramka1)
-    Browse2.config(text = '...')
-    Browse2.config(command = Browse1_Dialog)
-    Browse2.config(bg = B_przycisktlo, fg = B_przycisktext, relief = 'flat', activebackground = B_przycisktlo)
-    Browse2.grid(row = wiersz, column = 2, padx = 5, pady = 3)
+        Pole1Browse = TK.Button(Ramka1)
+        Pole1Browse.config(text = '...')
+        Pole1Browse.config(command = Pole1BrowseDialog)
+        Pole1Browse.config(bg = M_przycisktlo)
+        Pole1Browse.config(fg = M_przycisktext)
+        Pole1Browse.config(relief = 'flat')
+        Pole1Browse.config(activebackground = M_przycisktlo)
+        Pole1Browse.grid(row = wiersz, column = 2, padx=5, pady=3)
+    
+    
+        # Ścieżka pliku txt nr 2
+        wiersz = 2
+        text2 = TK.StringVar()
 
+        Pole2Label = TK.Label(Ramka1)
+        Pole2Label.config(text = 'Plik z danymi (2)')
+        Pole2Label.config(width = SzerokoscOpisu)
+        Pole2Label.config(bg = M_tlo)
+        Pole2Label.config(fg = M_text)
+        Pole2Label.grid(row = wiersz, column = 0)
 
-    # Ścieżka pliku do importu 3
-    wiersz = 3
-    text3 = TK.StringVar()
+        Pole2 = TK.Entry(Ramka1)
+        Pole2.config(textvariable = text2)
+        Pole2.config(width = SzerokoscPola)
+        Pole2.config(bg = M_entrytlo)
+        Pole2.config(fg = M_text)
+        Pole2.grid(row = wiersz, column = 1)
 
-    OpisPola3 = TK.Label(Ramka1)
-    OpisPola3.config(text = 'Plik z danymi (3)')
-    OpisPola3.config(width = SzerokoscOpisu)
-    OpisPola3.config(bg = B_tlo, fg = B_text)
-    OpisPola3.grid(row = wiersz, column = 0)
+        def Pole2BrowseDialog():
+            Pole2Browse.filename = TKfld.askopenfilename(initialdir = "C:/", title = "Wybierz plik tekstowy z danymi", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
+            Pole2.delete(0, 'end')
+            Pole2.insert(0, Pole2Browse.filename)
 
-    Pole3 = TK.Entry(Ramka1)
-    Pole3.config(textvariable = text3)
-    Pole3.config(width = SzerokoscPola)
-    Pole3.config(bg = B_entrytlo, fg = B_text)
-    Pole3.grid(row = wiersz, column = 1)
+        Pole2Browse = TK.Button(Ramka1)
+        Pole2Browse.config(text = '...')
+        Pole2Browse.config(command = Pole2BrowseDialog)
+        Pole2Browse.config(bg = M_przycisktlo)
+        Pole2Browse.config(fg = M_przycisktext)
+        Pole2Browse.config(relief = 'flat')
+        Pole2Browse.config(activebackground = M_przycisktlo)
+        Pole2Browse.grid(row = wiersz, column = 2, padx = 5, pady = 3)
 
-    def Browse3_Dialog():
-        Browse3.filename = TKfld.askopenfilename(initialdir = "/", title = "Wybierz plik do importu", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
-        Pole3.delete(0, 'end')
-        Pole3.insert(0, Browse3.filename)
+        # Ścieżka pliku txt nr 3
+        wiersz = 3
+        text3 = TK.StringVar()
 
-    Browse3 = TK.Button(Ramka1)
-    Browse3.config(text = '...')
-    Browse3.config(command = Browse1_Dialog)
-    Browse3.config(bg = B_przycisktlo, fg = B_przycisktext, relief = 'flat', activebackground = B_przycisktlo)
-    Browse3.grid(row = wiersz, column = 2, padx = 5, pady = 3)
+        Pole3Label = TK.Label(Ramka1)
+        Pole3Label.config(text = 'Plik z danymi (3)')
+        Pole3Label.config(width = SzerokoscOpisu)
+        Pole3Label.config(bg = M_tlo)
+        Pole3Label.config(fg = M_text)
+        Pole3Label.grid(row = wiersz, column = 0)
 
+        Pole3 = TK.Entry(Ramka1)
+        Pole3.config(textvariable = text3)
+        Pole3.config(width = SzerokoscPola)
+        Pole3.config(bg = M_entrytlo)
+        Pole3.config(fg = M_text)
+        Pole3.grid(row = wiersz, column = 1)
 
-    # Ścieżka pliku do importu 4
-    wiersz = 4
-    text4 = TK.StringVar()
+        def Pole3BrowseDialog():
+            Pole3Browse.filename = TKfld.askopenfilename(initialdir = "C:/", title = "Wybierz plik tekstowy z danymi", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
+            Pole3.delete(0, 'end')
+            Pole3.insert(0, Pole3Browse.filename)
 
-    OpisPola4 = TK.Label(Ramka1)
-    OpisPola4.config(text = 'Plik z danymi (4)')
-    OpisPola4.config(width = SzerokoscOpisu)
-    OpisPola4.config(bg = B_tlo, fg = B_text)
-    OpisPola4.grid(row = wiersz, column = 0)
-
-    Pole4 = TK.Entry(Ramka1)
-    Pole4.config(textvariable = text4)
-    Pole4.config(width = SzerokoscPola)
-    Pole4.config(bg = B_entrytlo, fg = B_text)
-    Pole4.grid(row = wiersz, column = 1)
-
-    def Browse4_Dialog():
-        Browse4.filename = TKfld.askopenfilename(initialdir = "/", title = "Wybierz plik do importu", filetypes = (("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
-        Pole4.delete(0, 'end')
-        Pole4.insert(0, Browse4.filename)
-
-    Browse4 = TK.Button(Ramka1)
-    Browse4.config(text = '...')
-    Browse4.config(command = Browse1_Dialog)
-    Browse4.config(bg = B_przycisktlo, fg = B_przycisktext, relief = 'flat', activebackground = B_przycisktlo)
-    Browse4.grid(row = wiersz, column = 2, padx = 5, pady = 3)
-
-
-    # Frame2 - Eksport
-    Ramka2 = TK.LabelFrame(MainWindow)
-    Ramka2.config(text = ' Ustawienia eksportu ')
-    Ramka2.config(bg = B_tlo, fg = B_text)
-    Ramka2.config(borderwidth = B_framewielkosc)
-    Ramka2.grid(row = 2)
-
-    # Ścieżka folderu do zapisu wygenerowanych plików
-    textExport = TK.StringVar()
-
-    OpisPolaExport = TK.Label(Ramka2)
-    OpisPolaExport.config(text = 'Lokalizacja')
-    OpisPolaExport.config(width = SzerokoscOpisu)
-    OpisPolaExport.config(bg = B_tlo, fg = B_text, relief = 'flat', activebackground = B_przycisktlo)
-    OpisPolaExport.grid(row=0, column=0)
-
-    PoleExport = TK.Entry(Ramka2)
-    PoleExport.config(textvariable = textExport)
-    PoleExport.config(width = SzerokoscPola)
-    PoleExport.config(bg = B_entrytlo, fg = B_text)
-    PoleExport.grid(row=0, column=1)
-
-    def BrowseExport_Dialog():
-        BrowseExport.filename = TKfld.askdirectory()
-        PoleExport.delete(0, 'end')
-        PoleExport.insert(0, BrowseExport.filename)
-
-    BrowseExport = TK.Button(Ramka2)
-    BrowseExport.config(text='...')
-    BrowseExport.config(command=BrowseExport_Dialog)
-    BrowseExport.config(bg = B_przycisktlo, fg = B_przycisktext, relief='flat', activebackground = B_przycisktlo)
-    BrowseExport.grid(row=0, column=2, padx=5, pady=3)
+        Pole3Browse = TK.Button(Ramka1)
+        Pole3Browse.config(text = '...')
+        Pole3Browse.config(command = Pole3BrowseDialog)
+        Pole3Browse.config(bg = M_przycisktlo)
+        Pole3Browse.config(fg = M_przycisktext)
+        Pole3Browse.config(relief = 'flat')
+        Pole3Browse.config(activebackground = M_przycisktlo)
+        Pole3Browse.grid(row = wiersz, column = 2, padx = 5, pady = 3)
 
 
-    # Przycisk START
-    def PathPreprocess():
-        if MDdlg.Ask(A001):
-            while True:
-                sciezka1 = Pole1.get()
-                sciezka1_puste = True
-                sciezka2 = Pole2.get()
-                sciezka2_puste = True
-                sciezka3 = Pole3.get()
-                sciezka3_puste = True
-                sciezka4 = Pole3.get()
-                sciezka4_puste = True
-                sciezkaExport = PoleExport.get()
-                sciezkaExport_puste = True
+        # Frame2 - Dołącz pliki .csv
+        Ramka2 = TK.LabelFrame(self)
+        Ramka2.config(text = ' Dołącz pliki .csv (opcjonalne) ')
+        Ramka2.config(borderwidth = M_framewielkosc)
+        Ramka2.config(bg = M_tlo)
+        Ramka2.config(fg = M_text)
+        Ramka2.grid(row = 2)
 
-                if sciezka1 != '':
-                    sciezka1_puste = False
-                if sciezka2 != '':
-                    sciezka2_puste = False
-                if sciezka3 != '':
-                    sciezka3_puste = False
-                if sciezka4 != '':
-                    sciezka4_puste = False
-                if sciezkaExport != '':
-                    sciezkaExport_puste = False
 
-                if sciezka1_puste and sciezka2_puste and sciezka3_puste and sciezka4_puste:
-                    MDdlg.Err(E003x01)
-                    break
-                if sciezkaExport_puste:
-                    MDdlg.Err(E003x02)
-                    break
-                KontenerDanych = []
-                if not sciezka1_puste:
-                    try:
-                        x = open(sciezka1)
-                    except FileNotFoundError:
-                        MDdlg.Err(E003x111)
-                    else:
-                        with open(sciezka1, 'r') as plik1:
-                            KontenerDanych += MDfmt.przetworz(plik1.read())
-                if not sciezka2_puste:
-                    try:
-                        x = open(sciezka2)
-                    except FileNotFoundError:
-                        MDdlg.Err(E003x112)
-                    else:
-                        with open(sciezka2, 'r') as plik2:
-                            KontenerDanych += MDfmt.przetworz(plik2.read())
-                if not sciezka3_puste:
-                    try:
-                        x = open(sciezka3)
-                    except FileNotFoundError:
-                        MDdlg.Err(E003x113)
-                    else:
-                        with open(sciezka3, 'r') as plik3:
-                            KontenerDanych += MDfmt.przetworz(plik3.read())
-                if not sciezka4_puste:
-                    try:
-                        x = open(sciezka4)
-                    except FileNotFoundError:
-                        MDdlg.Err(E003x114)
-                    else:
-                        with open(sciezka4, 'r') as plik4:
-                            KontenerDanych += MDfmt.przetworz(plik4.read())
-                break
-            MDprc.do(KontenerDanych, sciezkaExport)
-        else:
+        # Sciezka do konta.csv
+        wiersz = 1
+        textKonta = TK.StringVar()
+
+        PoleKontaLabel = TK.Label(Ramka2)
+        PoleKontaLabel.config(text = 'Ściezka do pliku .csv dla poczty')
+        PoleKontaLabel.config(width = SzerokoscOpisu2)
+        PoleKontaLabel.config(bg = M_tlo)
+        PoleKontaLabel.config(fg = M_text)
+        PoleKontaLabel.grid(row = wiersz, column = 0)
+
+        PoleKonta = TK.Entry(Ramka2)
+        PoleKonta.config(textvariable = textKonta)
+        PoleKonta.config(width = SzerokoscPola2)
+        PoleKonta.config(bg = M_entrytlo)
+        PoleKonta.config(fg = M_text)
+        PoleKonta.grid(row = wiersz, column = 1)
+
+        def PoleKontaBrowseDialog():
+            PoleKontaBrowse.filename = TKfld.askopenfilename(initialdir="C:/", title="Wybierz plik .csv dla poczty", filetypes=(("Pliki csv", "*.csv"), ("Wszystkie pliki", "*.*")))
+            PoleKonta.delete(0, 'end')
+            PoleKonta.insert(0, PoleKontaBrowse.filename)
+
+        PoleKontaBrowse = TK.Button(Ramka2)
+        PoleKontaBrowse.config(text = '...')
+        PoleKontaBrowse.config(command = PoleKontaBrowseDialog)
+        PoleKontaBrowse.config(bg = M_przycisktlo)
+        PoleKontaBrowse.config(fg = M_przycisktext)
+        PoleKontaBrowse.config(relief = 'flat')
+        PoleKontaBrowse.config(activebackground = M_przycisktlo)
+        PoleKontaBrowse.grid(row = wiersz, column = 2, padx = 5, pady = 3)
+
+
+        # Sciezka do office.csv
+        wiersz = 2
+        textOffice = TK.StringVar()
+
+        PoleOfficeLabel = TK.Label(Ramka2)
+        PoleOfficeLabel.config(text = 'Ściezka do pliku .csv dla office365')
+        PoleOfficeLabel.config(width = SzerokoscOpisu2)
+        PoleOfficeLabel.config(bg = M_tlo)
+        PoleOfficeLabel.config(fg = M_text)
+        PoleOfficeLabel.grid(row = wiersz, column = 0)
+
+        PoleOffice = TK.Entry(Ramka2)
+        PoleOffice.config(textvariable = textOffice)
+        PoleOffice.config(width = SzerokoscPola2)
+        PoleOffice.config(bg = M_entrytlo)
+        PoleOffice.config(fg = M_text)
+        PoleOffice.grid(row = wiersz, column = 1)
+
+        def PoleOfficeBrowseDialog():
+            PoleOfficeBrowse.filename = TKfld.askopenfilename(initialdir = "C:/", title = "Wybierz plik .csv dla poczty", filetypes = (("Pliki csv", "*.csv"), ("Wszystkie pliki", "*.*")))
+            PoleOffice.delete(0, 'end')
+            PoleOffice.insert(0, PoleOfficeBrowse.filename)
+
+        PoleOfficeBrowse = TK.Button(Ramka2)
+        PoleOfficeBrowse.config(text = '...')
+        PoleOfficeBrowse.config(command = PoleKontaBrowseDialog)
+        PoleOfficeBrowse.config(bg = M_przycisktlo)
+        PoleOfficeBrowse.config(fg = M_przycisktext)
+        PoleOfficeBrowse.config(relief = 'flat')
+        PoleOfficeBrowse.config(activebackground = M_przycisktlo)
+        PoleOfficeBrowse.grid(row = wiersz, column = 2, padx = 5, pady = 3)
+
+
+        # Frame3 - Eksport
+        Ramka3 = TK.LabelFrame(self)
+        Ramka3.config(text=' Eksport ')
+        Ramka3.config(borderwidth = M_framewielkosc)
+        Ramka3.config(bg = M_tlo)
+        Ramka3.config(fg = M_text)
+        Ramka3.grid(row = 3)
+
+
+        # Sciezka do pliku poczty
+        wiersz = 1
+        textKontaEksport = TK.StringVar()
+
+        PoleKontaEksportLabel = TK.Label(Ramka3)
+        PoleKontaEksportLabel.config(text = 'Poczta')
+        PoleKontaEksportLabel.config(width = SzerokoscOpisu3)
+        PoleKontaEksportLabel.config(bg = M_tlo)
+        PoleKontaEksportLabel.config(fg = M_text)
+        PoleKontaEksportLabel.grid(row = wiersz, column = 0)
+
+        PoleKontaEksport = TK.Entry(Ramka3)
+        PoleKontaEksport.config(textvariable = textKontaEksport)
+        PoleKontaEksport.config(width = SzerokoscPola3)
+        PoleKontaEksport.config(bg = M_entrytlo)
+        PoleKontaEksport.config(fg = M_text)
+        PoleKontaEksport.grid(row = wiersz, column = 1)
+
+        def PoleKontaEksportBrowseDialog():
+            PoleKontaEksportBrowse.filename = TKfld.saveasfilename(initialdir = "C:/", title = "Zapisz", filetypes = (("Pliki csv", "*.csv"), ("Wszystkie pliki", "*.*")))
+            PoleKontaEksport.delete(0, 'end')
+            PoleKontaEksport.insert(0, PoleKontaEksportBrowse.filename)
+
+        PoleKontaEksportBrowse = TK.Button(Ramka3)
+        PoleKontaEksportBrowse.config(text = '...')
+        PoleKontaEksportBrowse.config(command = PoleKontaEksportBrowseDialog)
+        PoleKontaEksportBrowse.config(bg = M_przycisktlo)
+        PoleKontaEksportBrowse.config(fg = M_przycisktext)
+        PoleKontaEksportBrowse.config(relief = 'flat')
+        PoleKontaEksportBrowse.config(activebackground = M_przycisktlo)
+        PoleKontaEksportBrowse.grid(row = wiersz, column = 2, padx = 5, pady = 3)
+
+        # Sciezka do pliku office
+        wiersz = 2
+        textOfficeEksport = TK.StringVar()
+
+        PoleOfficeEksportLabel = TK.Label(Ramka3)
+        PoleOfficeEksportLabel.config(text = 'Office')
+        PoleOfficeEksportLabel.config(width = SzerokoscOpisu3)
+        PoleOfficeEksportLabel.config(bg = M_tlo)
+        PoleOfficeEksportLabel.config(fg = M_text)
+        PoleOfficeEksportLabel.grid(row = wiersz, column = 0)
+
+        PoleOfficeEksport = TK.Entry(Ramka3)
+        PoleOfficeEksport.config(textvariable = textOfficeEksport)
+        PoleOfficeEksport.config(width = SzerokoscPola3)
+        PoleOfficeEksport.config(bg = M_entrytlo)
+        PoleOfficeEksport.config(fg = M_text)
+        PoleOfficeEksport.grid(row = wiersz, column = 1)
+
+        def PoleOfficeEksportBrowseDialog():
+            PoleOfficeEksportBrowse.filename = TKfld.saveasfilename(initialdir = "C:/", title = "Zapisz", filetypes = (("Pliki csv", "*.csv"), ("Wszystkie pliki", "*.*")))
+            PoleOfficeEksport.delete(0, 'end')
+            PoleOfficeEksport.insert(0, PoleOfficeEksportBrowse.filename)
+
+        PoleOfficeEksportBrowse = TK.Button(Ramka3)
+        PoleOfficeEksportBrowse.config(text = '...')
+        PoleOfficeEksportBrowse.config(command = PoleOfficeEksportBrowseDialog)
+        PoleOfficeEksportBrowse.config(bg = M_przycisktlo)
+        PoleOfficeEksportBrowse.config(fg = M_przycisktext)
+        PoleOfficeEksportBrowse.config(relief = 'flat')
+        PoleOfficeEksportBrowse.config(activebackground = M_przycisktlo)
+        PoleOfficeEksportBrowse.grid(row = wiersz, column = 2, padx = 5, pady = 3)
+
+        # Przycisk START
+        def PathPreprocess():
             pass
 
-    PrzyciskSTART = TK.Button(MainWindow)
-    PrzyciskSTART.config(text = 'START')
-    PrzyciskSTART.config(command = PathPreprocess)
-    PrzyciskSTART.config(width = 50)
-    PrzyciskSTART.config(bg = B_przycisktlo, fg = B_przycisktext, relief = 'flat', activebackground = B_przycisktlo)
-    PrzyciskSTART.grid(row = 3, pady = 15)
+        PrzyciskSTART = TK.Button(self)
+        PrzyciskSTART.config(text = 'START')
+        PrzyciskSTART.config(command = PathPreprocess)
+        PrzyciskSTART.config(width = 50)
+        PrzyciskSTART.config(bg = M_przycisktlo)
+        PrzyciskSTART.config(fg = M_przycisktext)
+        PrzyciskSTART.config(relief = 'flat')
+        PrzyciskSTART.config(activebackground = M_przycisktlo)
+        PrzyciskSTART.grid(row = 4, pady = 15)
+
+        # Pasek dolny
+        PasekDolny = TK.LabelFrame(self)
+        PasekDolny.config(bd = 0)
+        PasekDolny.config(bg = M_tytultlo)
+        PasekDolny.config(fg = M_tytultext)
+        PasekDolny.grid(row=5)
+
+        InfoLabel = TK.Label(PasekDolny)
+        InfoLabel.config(text = Nazwa + ' ' + Wersja + ' | © ' + Autorzy + ' ' + LataPracy + ' dla ZSP Sobolew')
+        InfoLabel.config(width = 107)
+        InfoLabel.config(justify = 'left')
+        InfoLabel.config(anchor='w')
+        InfoLabel.config(bg = M_tytultlo)
+        InfoLabel.config(fg = M_tytultext)
+        InfoLabel.grid(row = 0, column = 0)
+
+        def InfoOpen():
+            try:
+                x = open('.\instruction.txt')
+            except FileNotFoundError:
+                MDdlg.err(4)
+            else:
+                OS.system("notepad .\instruction.txt")
+
+        PrzyciskINFO = TK.Button(PasekDolny)
+        PrzyciskINFO.config(text = 'Instrukcja')
+        PrzyciskINFO.config(command = InfoOpen)
+        PrzyciskINFO.config(bg = M_przycisktlo)
+        PrzyciskINFO.config(fg = M_przycisktext)
+        PrzyciskINFO.config(relief = 'flat')
+        PrzyciskINFO.config(activebackground = M_przycisktlo)
+        PrzyciskINFO.grid(row = 0, column = 1, padx = 5, pady = 5)
+
+        PrzyciskUSTAWIENIA = TK.Button(PasekDolny)
+        PrzyciskUSTAWIENIA.config(text = 'Ustawienia')
+        PrzyciskUSTAWIENIA.config(command = self.settingsButton)
+        PrzyciskUSTAWIENIA.config(bg = M_przycisktlo)
+        PrzyciskUSTAWIENIA.config(fg = M_przycisktext)
+        PrzyciskUSTAWIENIA.config(relief = 'flat')
+        PrzyciskUSTAWIENIA.grid(row = 0, column = 2, padx = 5, pady = 5)
+
+    def settingsButton(self):
+        self.child = Settings(self)
+
+    def run(self):
+        self.mainloop()
+
+class Settings(TK.Toplevel):
+    def __init__(self, parent):
+        # Ustawienia okna
+        TK.Toplevel.__init__(self, parent)
+        self.title('Ustawienia')
+        self.resizable(width = False, height = False)
+        self.configure(bg = M_tlo)
 
 
-    # Pasek dolny
-    PasekDolny = TK.LabelFrame(MainWindow)
-    PasekDolny.config(bd = 0, bg = B_tytultlo, fg = B_tytultext)
-    PasekDolny.grid(row = 4)
+        # Tytuł
+        Tytul = TK.Label(self)
+        Tytul.config(text = 'Ustawienia')
+        Tytul.config(width = 40)
+        Tytul.config(bg = M_tytultlo)
+        Tytul.config(fg = M_tytultext)
+        Tytul.config(font = ('Segoe UI Semilight', 20))
+        Tytul.grid(row = 0)
 
-    InfoLabel = TK.Label(PasekDolny)
-    InfoLabel.config(text = 'GeneratorCSV 3.0 | © Mateusz Skoczek 2019 dla ZSP Sobolew')
-    InfoLabel.config(justify = 'left', anchor='w', width=107)
-    InfoLabel.config(bg = B_tytultlo, fg = B_tytultext)
-    InfoLabel.grid(row=0, column=0)
 
-    def InfoOpen():
-        try:
-            x = open('instrukcja.txt')
-        except FileNotFoundError:
-            MDdlg.Err(E001x02)
+        # Frame1 - Motyw
+        Ramka1 = TK.LabelFrame(self)
+        Ramka1.config(text = ' Motyw programu ')
+        Ramka1.config(bg = M_tlo)
+        Ramka1.config(fg = M_text)
+        Ramka1.config(borderwidth = M_framewielkosc)
+        Ramka1.grid(row = 1, pady = 5)
+
+        Motyw_var = TK.StringVar()
+        if int(MDlcg.read()[0]) == 1:
+            Motyw_var.set('Ciemny')
+            Motyw_list_set = 'Ciemny'
         else:
-            OS.system("notepad instrukcja.txt")
+            Motyw_var.set('Jasny')
+            Motyw_list_set = 'Jasny'
 
-    PrzyciskINFO = TK.Button(PasekDolny)
-    PrzyciskINFO.config(text = 'Instrukcja')
-    PrzyciskINFO.config(command = InfoOpen)
-    PrzyciskINFO.config(bg = B_przycisktlo, fg = B_przycisktext, relief = 'flat', activebackground = B_przycisktlo)
-    PrzyciskINFO.grid(row = 0, column = 1, padx = 5, pady = 5)
+        Motyw_list = TKttk.Combobox(Ramka1)
+        Motyw_list.config(textvariable = Motyw_var)
+        Motyw_list.config(state = 'readonly')
+        Motyw_list.config(width = 93)
+        Motyw_list.grid(row = 0, pady = 5, padx = 5)
+        Motyw_list['values'] = ('Jasny', 'Ciemny')
+        Motyw_list.set(Motyw_list_set)
 
-    PrzyciskUSTAWIENIA = TK.Button(PasekDolny)
-    PrzyciskUSTAWIENIA.config(text = 'Ustawienia')
-    PrzyciskUSTAWIENIA.config(command = settings)
-    PrzyciskUSTAWIENIA.config(bg = B_przycisktlo, fg = B_przycisktext, relief = 'flat')
-    PrzyciskUSTAWIENIA.grid(row = 0, column = 2, padx = 5, pady = 5)
 
-    MainWindow.mainloop()
+        # Frame2 - Kodowanie
+        Ramka2 = TK.LabelFrame(self)
+        Ramka2.config(text = ' Kodowanie wyjściowe ')
+        Ramka2.config(bg = M_tlo)
+        Ramka2.config(fg = M_text)
+        Ramka2.config(borderwidth = M_framewielkosc)
+        Ramka2.grid(row = 2, pady = 5)
 
-main()
+        Code_var = TK.StringVar()
+        Code_var.set(MDlcg.read()[1])
+
+        Code_list = TKttk.Combobox(Ramka2)
+        Code_list.config(textvariable = Code_var)
+        Code_list.config(state = 'readonly')
+        Code_list.config(width = 93)
+        Code_list.grid(row = 0, pady = 5, padx = 5)
+        Code_list['values'] = ('utf-8')
+        Code_list.set(MDlcg.read()[1])
+
+
+        # Frame3 - Format plików wejściowych
+        SzerokoscPolaWej = 35
+        WysokoscPolaWej = 8
+
+        Ramka3 = TK.LabelFrame(self)
+        Ramka3.config(text = ' Format plików wejściowych ')
+        Ramka3.config(bg = M_tlo)
+        Ramka3.config(fg = M_text)
+        Ramka3.config(borderwidth = M_framewielkosc)
+        Ramka3.grid(row = 3, pady = 5)
+
+        UczniowieLabel = TK.Label(Ramka3)
+        UczniowieLabel.config(text = 'Uczniowie')
+        UczniowieLabel.config(justify = 'center')
+        UczniowieLabel.config(bg = M_tlo)
+        UczniowieLabel.config(fg = M_text)
+        UczniowieLabel.grid(row = 0, column = 0)
+
+        uczfmt = MDlfm.read()[0]
+        uczfmt = '\n'.join(uczfmt)
+        UczniowieFormat = TK.Text(Ramka3)
+        UczniowieFormat.config(width = SzerokoscPolaWej)
+        UczniowieFormat.config(height = WysokoscPolaWej)
+        UczniowieFormat.config(bg = M_entrytlo)
+        UczniowieFormat.config(fg = M_text)
+        UczniowieFormat.grid(row = 1, column = 0, padx = 5, pady = 5)
+        UczniowieFormat.insert(TK.END, uczfmt)
+
+        NauczycieleLabel = TK.Label(Ramka3)
+        NauczycieleLabel.config(text = 'Nauczyciele')
+        NauczycieleLabel.config(justify = 'center')
+        NauczycieleLabel.config(bg = M_tlo)
+        NauczycieleLabel.config(fg = M_text)
+        NauczycieleLabel.grid(row = 0, column = 1)
+
+        nczfmt = MDlfm.read()[1]
+        nczfmt = '\n'.join(nczfmt)
+        NauczycieleFormat = TK.Text(Ramka3)
+        NauczycieleFormat.config(width = SzerokoscPolaWej)
+        NauczycieleFormat.config(height = WysokoscPolaWej)
+        NauczycieleFormat.config(bg = M_entrytlo)
+        NauczycieleFormat.config(fg = M_text)
+        NauczycieleFormat.grid(row = 1, column = 1, padx = 5, pady = 5)
+        NauczycieleFormat.insert(TK.END, nczfmt)
+
+
+        # Frame4 - Stałe
+        Ramka4 = TK.LabelFrame(self)
+        Ramka4.config(text = ' Stałe ')
+        Ramka4.config(bg = M_tlo)
+        Ramka4.config(fg = M_text)
+        Ramka4.config(borderwidth = M_framewielkosc)
+        Ramka4.grid(row = 4, pady = 5)
+
+        DomenaLabel = TK.Label(Ramka4)
+        DomenaLabel.config(text = 'Domena')
+        DomenaLabel.config(width = SzerokoscOpisu3)
+        DomenaLabel.config(bg = M_tlo)
+        DomenaLabel.config(fg = M_text)
+        DomenaLabel.grid(row = 0, column = 0)
+
+        text1 = TK.StringVar()
+        PoleDomena = TK.Entry(Ramka4)
+        PoleDomena.config(textvariable = text1)
+        PoleDomena.config(width = 83)
+        PoleDomena.config(bg = M_entrytlo)
+        PoleDomena.config(fg = M_text)
+        PoleDomena.grid(row = 0, column = 1, padx = 5, pady = 5)
+        PoleDomena.insert(0, MDlcg.read()[2])
+
+        QuotaLabel = TK.Label(Ramka4)
+        QuotaLabel.config(text = 'Quota (MB)')
+        QuotaLabel.config(width = SzerokoscOpisu3)
+        QuotaLabel.config(bg = M_tlo)
+        QuotaLabel.config(fg = M_text)
+        QuotaLabel.grid(row = 1, column = 0)
+
+        value2 = TK.IntVar()
+        PoleQuota = TK.Spinbox(Ramka4)
+        PoleQuota.config(textvariable = value2)
+        PoleQuota.config(from_ = 1, to = 100000)
+        PoleQuota.config(width = 81)
+        PoleQuota.config(bg = M_entrytlo)
+        PoleQuota.config(fg = M_text)
+        PoleQuota.grid(row=1, column=1, padx=5, pady=5)
+        PoleQuota.insert(0, int(MDlcg.read()[3]))
+        print(int(MDlcg.read()[3]))
+
+
+
+
+OknoGlowne = Main()
+OknoGlowne.run()

@@ -45,7 +45,7 @@ except ModuleNotFoundError:
 def CheckConfig(settings):
     # Ilość wierszy
     try:
-        if len(settings) != 2:
+        if len(settings) != 5:
             error = int('x')
     except ValueError:
         MDdlg.err(1)
@@ -65,6 +65,12 @@ def CheckConfig(settings):
             error = int('x')
     except ValueError:
         MDdlg.err(3)
+
+    # Linia 4 (int)
+    try:
+        x = int(settings[3])
+    except ValueError:
+        MDdlg.err(17)
 
 
 
@@ -95,7 +101,10 @@ def edit(settings):
     else:
         SettingsToSave = []
         SettingsToSave.append('Ciemny motyw(0/1): ' + str(settings[0]) + '\n')
-        SettingsToSave.append('Kodowanie wyjsciowe: ' + str(settings[1]))
+        SettingsToSave.append('Kodowanie wyjsciowe: ' + str(settings[1]) + '\n')
+        SettingsToSave.append('Domena: ' + str(settings[2]) + '\n')
+        SettingsToSave.append('Quota: ' + str(settings[3]) + '\n')
+        SettingsToSave.append('Kraj: ' + str(settings[4]))
         with open('.\config.cfg', 'w') as cfg:
             for x in SettingsToSave:
                 cfg.write(x)

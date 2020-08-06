@@ -30,3 +30,10 @@
 - Stworzenie pliku formatu
 - Usunięcie plików format.py i dataprocess.py
 - Przygotowanie do dalszych prac
+
+4.0 Alpha (Build 19350)
+- Zastosowanie klas
+- Wstępne stworzenie systemu formatu
+- Modyfikacja interfejsu
+- Dodanie możliwości dołączenia plików csv do eksportowanych plików (tylko kontrolki)
+- Usprawnienia kodu
