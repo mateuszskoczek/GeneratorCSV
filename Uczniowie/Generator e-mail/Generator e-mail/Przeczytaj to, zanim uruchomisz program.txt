@@ -1,0 +1,31 @@
+Program jest przystosowany tylko do tworzenia listy dla nowych klas w pierwszym półroczu (aby obliczyć rok matury, program pobiera aktualny rok i dodaje do niego 3)
+Plik 'lista.txt' musi wyglądać jak ten przykładowy, czyli w pierwszej linijce musi znajdować się klasa pierwszej osoby, a w ostatniej hasło ostatniej osoby. Pomiędzy osobami musi być jedna linijka odstępu.
+Aby przystosować program do działania w szkole po reformie edukacji należy w linii 90, 94 i 98 pliku 'generowanie_email.py' zmienić liczbę lat po których uczeń kończy szkołę (rok_ukoncz to ostatni rok w którym uczeń będzie uczęszczał do szkoły).
+
+
+3c LO          - klasa
+Kowalski, Jan  - nazwisko, imie
+12             - numer
+5435809u       - login do librusa
+*********      - hasło
+
+
+Program wygeneruje plik 'konta.csv'
+
+
+jan.kowalski2019c@losobolew.pl,5435809u,500
+
+<adres email>,<hasło>,500
+
+Emaile dla poszczególnych szkół:
+LO: <imie>.<nazwisko>(<rok_ukończenia_szkoły><litera_klasy>)@losobolew.pl
+BS: <imie>.<nazwisko>(<rok_ukończenia_szkoły>bs)@losobolew.pl
+ZSZ: <imie>.<nazwisko>(<rok_ukończenia_szkoły>zsz)@losobolew.pl
+LOD: <imie>.<nazwisko>(<rok_ukończenia_szkoły>lod)@losobolew.pl
+
+
+W wygenerowanym pliku 'konta.csv' na końcu znajduje się pusta linia. Należy ją wykasować aby uniknąć problemów.
+
+
+# W linii 98 pliku 'generowanie_email.py' może znajdować się błąd
+# Nie wiem po ilu latach nowe klasy LOD kończą szkołę, ale wydaje mi się, że po dwóch

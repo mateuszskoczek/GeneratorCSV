@@ -1,0 +1,2 @@
+1.0
+- Pierwsza wersja programu składająca się z 4 części
