@@ -73,3 +73,10 @@
 - Zastosowanie systemu zapisywania plików konfiguracyjnych i formatu w folderze %appdata%
 - Usunięcie konsoli w tle
 - Wiele mniejszych zmian
+
+4.0 Alpha (Build 20211)
+- Dodanie filtrowania dozwolonych znaków separatorów
+- Naprawienie kilku mniejszych bugów: nieresetowanie pól po błędzie podczas zapisu, dodanie <enter> do listy dozwolonych znaków
+- Dodanie instrukcji w karcie "FORMAT DANYCH"
+- Usprawnienia w kodzie
+- Naprawiono przyciski radiobutton

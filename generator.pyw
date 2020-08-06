@@ -100,11 +100,10 @@ def MSG(code, terminate, *optionalInfo):
 # ------------------------- # Sprawdzanie katalogu programu w APPDATA # ------------------------- #
 
 appdata = PT.Path.home() / 'Appdata/Roaming'
-"""
+
 #TODO
 SU.rmtree(str(appdata) + '/Generator CSV')
 #TODO
-"""
 if 'Generator CSV' not in [x for x in OS.listdir(appdata)]:
     try:
         OS.mkdir(str(appdata) + '/Generator CSV')
@@ -145,7 +144,23 @@ class CFG:
             return [True, content]
         else:
             class functions:
-                pass
+                def string(self, var):
+                    if var in list(content.keys()):
+                        return [True]
+                    else:
+                        return [False, 'Brak danych - klucz: %s' % var]
+                def array(self, var):
+                    if var in list(content.keys()):
+                        new_contentVar = (content[var])[1:-1].split(', ')
+                        xnew_contentVar = []
+                        for x in new_contentVar:
+                            xnew_contentVar.append(x[1:-1])
+                        content[var] = xnew_contentVar
+                    else:
+                        return [False, 'Brak danych - klucz: %s' % var]
+            functions = functions()
+            functions.string('secret')
+            functions.array('allowedCharactersInSeparator')
             return [True, content]
     
     def R(self):
@@ -471,6 +486,51 @@ class GUI:
         check = functions.fromArray('label3Anchor', ['center', 'nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'])
         if not check[0]:
             return check
+        check = functions.color('radiobutton1IndicatorBackground')
+        if not check[0]:
+            return check
+        check = functions.integer('loadingListPadX')
+        if not check[0]:
+            return check
+        check = functions.integer('EPOSTypeStudentRadiobuttonPadY')
+        if not check[0]:
+            return check
+        check = functions.integer('EPOSTypeStudentRadiobuttonWidth')
+        if not check[0]:
+            return check
+        check = functions.integer('EPOSTypeTeacherRadiobuttonWidth')
+        if not check[0]:
+            return check
+        check = functions.integer('EPOSTypeTeacherRadiobuttonPadY')
+        if not check[0]:
+            return check
+        check = functions.integer('EPOSPersonSeparatorEntryWidth')
+        if not check[0]:
+            return check
+        check = functions.integer('EPOSRowSeparatorEntryWidth')
+        if not check[0]:
+            return check
+        check = functions.integer('EPOSDataSeparatorTextWidth')
+        if not check[0]:
+            return check
+        check = functions.integer('EPOSDataSeparatorTextHeight')
+        if not check[0]:
+            return check
+        check = functions.integer('EPDataLocalizationPadX')
+        if not check[0]:
+            return check
+        check = functions.integer('EPDataLocalizationPadY')
+        if not check[0]:
+            return check
+        check = functions.color('label3BG')
+        if not check[0]:
+            return check
+        check = functions.color('label3TextColor')
+        if not check[0]:
+            return check
+        check = functions.font('label3Font')
+        if not check[0]:
+            return check
         return [True, content]
     
     def R(self):
@@ -520,14 +580,27 @@ class FMT:
                                 return [True]
                     else:
                         return [False, 'Brak danych - klucz: %s' % var]
-                def string(self, var):
+                def separator_string(self, var):
                     if var in list(content.keys()):
+                        allowedCharactersInSeparator = CFG.R()['allowedCharactersInSeparator']
+                        check = content[var]
+                        check = check.strip('<enter>')
+                        for x in check:
+                            if x not in allowedCharactersInSeparator:
+                                return [False, 'Niepoprawne dane - klucz: %s' % var]
                         return [True]
                     else:
                         return [False, 'Brak danych - klucz: %s' % var]
-                def array(self, var):
+                def separator_array(self, var):
                     if var in list(content.keys()):
-                        content[var] = 'I'.join(content[var])
+                        allowedCharactersInSeparator = CFG.R()['allowedCharactersInSeparator']
+                        check = content[var]
+                        for x in check:
+                            x = x.strip('<enter>')
+                            for y in x:
+                                if y not in allowedCharactersInSeparator:
+                                    return [False, 'Niepoprawne dane - klucz: %s' % var]
+                        content[var] = str(content[var])
                         return [True]
                     else:
                         return [False, 'Brak danych - klucz: %s' % var]
@@ -541,13 +614,13 @@ class FMT:
             check = functions.bool('student')
             if not check[0]:
                 return check
-            check = functions.string('personSeparator')
+            check = functions.separator_string('personSeparator')
             if not check[0]:
                 return check
-            check = functions.string('rowSeparator')
+            check = functions.separator_string('rowSeparator')
             if not check[0]:
                 return check
-            check = functions.array('dataSeparators')
+            check = functions.separator_array('dataSeparators')
             if not check[0]:
                 return check
             check = functions.integer('loginRow')
@@ -596,14 +669,31 @@ class FMT:
                                 return [True]
                     else:
                         return [False, 'Brak danych - klucz: %s' % var]
-                def string(self, var):
+                def separator_string(self, var):
                     if var in list(content.keys()):
+                        allowedCharactersInSeparator = CFG.R()['allowedCharactersInSeparator']
+                        check = content[var]
+                        check = check.strip('<enter>')
+                        for x in check:
+                            if x not in allowedCharactersInSeparator:
+                                return [False, 'Niepoprawne dane - klucz: %s' % var]
                         return [True]
                     else:
                         return [False, 'Brak danych - klucz: %s' % var]
-                def array(self, var):
+                def separator_array(self, var):
                     if var in list(content.keys()):
-                        content[var] = content[var].split('I')
+                        allowedCharactersInSeparator = CFG.R()['allowedCharactersInSeparator']
+                        new_contentVar = (content[var])[1:-1].split(', ')
+                        xnew_contentVar = []
+                        for x in new_contentVar:
+                            xnew_contentVar.append(x[1:-1])
+                        check = xnew_contentVar
+                        for x in check:
+                            x = x.strip('<enter>')
+                            for y in x:
+                                if y not in allowedCharactersInSeparator:
+                                    return [False, 'Niepoprawne dane - klucz: %s' % var]
+                        content[var] = xnew_contentVar
                         return [True]
                     else:
                         return [False, 'Brak danych - klucz: %s' % var]
@@ -622,13 +712,13 @@ class FMT:
             check = functions.bool('student')
             if not check[0]:
                 return check
-            check = functions.string('personSeparator')
+            check = functions.separator_string('personSeparator')
             if not check[0]:
                 return check
-            check = functions.string('rowSeparator')
+            check = functions.separator_string('rowSeparator')
             if not check[0]:
                 return check
-            check = functions.array('dataSeparators')
+            check = functions.separator_array('dataSeparators')
             if not check[0]:
                 return check
             check = functions.integer('loginRow')
@@ -716,8 +806,10 @@ class FMT:
             with CD.open(str(appdata) + '/Generator CSV/format-presets/%s.fmt' % preset, 'w', 'utf-8') as file:
                 for x in contentToSave:
                     file.write(x + ' = ' + content[x] + '\n')
+            return True
         else:
             MSG('E0006', False, contentCheckingOutput[1])
+            return False
 FMT = FMT()
 
 
@@ -797,6 +889,13 @@ def window():
                 "width": GUI.R()['label2Width'],
             },
         },
+        "label3.TLabel": {
+            "configure": {
+                "background": GUI.R()['label3BG'],
+                "foreground": GUI.R()['label3TextColor'],
+                "font" : GUI.R()['label3Font'],
+            },
+        },
         "combobox1.TCombobox": {
             "configure": {
                 "arrowcolor": GUI.R()['combobox1ArrowColor'],
@@ -830,12 +929,6 @@ def window():
                 "borderwidth": GUI.R()['spinbox1BorderWidth'],
                 "foreground": GUI.R()['spinbox1TextColor'],
                 "background": GUI.R()['spinbox1ButtonColor']
-            },
-        },
-        'radiobutton1.TRadiobutton': {
-            "configure": {
-                "background": GUI.R()['radiobutton1Background'],
-                "foreground": GUI.R()['radiobutton1TextColor'],
             },
         },
         "entry1.TEntry": {
@@ -937,7 +1030,7 @@ def window():
     loadingList.option_add("*TCombobox*Listbox.foreground", GUI.R()['combobox1ListBoxForeground'])
     loadingList.option_add("*TCombobox*Listbox.selectBackground", GUI.R()['combobox1ListBoxSelectBackground'])
     loadingList.option_add("*TCombobox*Listbox.selectForeground", GUI.R()['combobox1ListBoxSelectForeground'])
-    loadingList.pack(side = 'left', padx = 5)
+    loadingList.pack(side = 'left', padx = GUI.R()['loadingListPadX'])
     loadingList['values'] = tuple(FMT.getList())
 
     # Przycisk "WCZYTAJ"
@@ -961,12 +1054,9 @@ def window():
         formatFileContent = FMT.R(loadingList.get())
         loadingList['state'] = TK.DISABLED
         loadingButton['state'] = TK.DISABLED
+        EPOSTypeVar.set(formatFileContent['student'])
         EPOSTypeStudentRadiobutton['state'] = TK.NORMAL
         EPOSTypeTeacherRadiobutton['state'] = TK.NORMAL
-        if formatFileContent['student']:
-            EPOSTypeVar.set('s')
-        else:
-            EPOSTypeVar.set('t')
         EPOSPersonSeparatorEntry['state'] = TK.NORMAL
         EPOSPersonSeparatorVar.set(formatFileContent['personSeparator'])
         EPOSRowSeparatorEntry['state'] = TK.NORMAL
@@ -1044,26 +1134,33 @@ def window():
     EPOSTypeLabel.grid(row = 0, column = 0, pady = 5, sticky = 'w')
 
     # Typ osoby - Radiobutton
-    EPOSTypeVar = TK.StringVar()
+    EPOSTypeVar = TK.BooleanVar(value = True)
 
-    EPOSTypeStudentRadiobutton = TKttk.Radiobutton(editingPresetOSFrame)
-    EPOSTypeStudentRadiobutton.config(style = 'radiobutton1.TRadiobutton')
+    EPOSTypeStudentRadiobutton = TK.Radiobutton(editingPresetOSFrame)
+    EPOSTypeStudentRadiobutton.config(background = GUI.R()['radiobutton1Background'])
+    EPOSTypeStudentRadiobutton.config(foreground = GUI.R()['radiobutton1TextColor'])
+    EPOSTypeStudentRadiobutton.config(selectcolor = GUI.R()['radiobutton1IndicatorBackground'])
+    EPOSTypeStudentRadiobutton.config(activebackground = GUI.R()['radiobutton1Background'])
+    EPOSTypeStudentRadiobutton.config(activeforeground = GUI.R()['radiobutton1TextColor'])
     EPOSTypeStudentRadiobutton.config(variable = EPOSTypeVar)
-    EPOSTypeStudentRadiobutton.config(value = 's')
+    EPOSTypeStudentRadiobutton.config(value = True)
     EPOSTypeStudentRadiobutton.config(state = TK.DISABLED)
-    EPOSTypeStudentRadiobutton.config(width = 20)
+    EPOSTypeStudentRadiobutton.config(width = GUI.R()['EPOSTypeStudentRadiobuttonWidth'])
     EPOSTypeStudentRadiobutton.config(text = 'Uczniowie')
+    EPOSTypeStudentRadiobutton.grid(row = 0, column = 1, pady = GUI.R()['EPOSTypeStudentRadiobuttonPadY'])
 
-    EPOSTypeTeacherRadiobutton = TKttk.Radiobutton(editingPresetOSFrame)
-    EPOSTypeTeacherRadiobutton.config(style = 'radiobutton1.TRadiobutton')
+    EPOSTypeTeacherRadiobutton = TK.Radiobutton(editingPresetOSFrame)
+    EPOSTypeTeacherRadiobutton.config(background = GUI.R()['radiobutton1Background'])
+    EPOSTypeTeacherRadiobutton.config(foreground = GUI.R()['radiobutton1TextColor'])
+    EPOSTypeTeacherRadiobutton.config(selectcolor = GUI.R()['radiobutton1IndicatorBackground'])
+    EPOSTypeTeacherRadiobutton.config(activebackground = GUI.R()['radiobutton1Background'])
+    EPOSTypeTeacherRadiobutton.config(activeforeground = GUI.R()['radiobutton1TextColor'])
     EPOSTypeTeacherRadiobutton.config(variable = EPOSTypeVar)
-    EPOSTypeTeacherRadiobutton.config(value = 't')
+    EPOSTypeTeacherRadiobutton.config(value = False)
     EPOSTypeTeacherRadiobutton.config(state = TK.DISABLED)
-    EPOSTypeTeacherRadiobutton.config(width = 20)
+    EPOSTypeTeacherRadiobutton.config(width = GUI.R()['EPOSTypeTeacherRadiobuttonWidth'])
     EPOSTypeTeacherRadiobutton.config(text = 'Nauczyciele')
-    
-    EPOSTypeStudentRadiobutton.grid(row = 0, column = 1, pady = 5)
-    EPOSTypeTeacherRadiobutton.grid(row = 0, column = 2, pady = 5)
+    EPOSTypeTeacherRadiobutton.grid(row = 0, column = 2, pady = GUI.R()['EPOSTypeTeacherRadiobuttonPadY'])
 
     # "Separator pomiędzy osobami"
     EPOSPersonSeparatorLabel = TKttk.Label(editingPresetOSFrame)
@@ -1077,7 +1174,7 @@ def window():
     EPOSPersonSeparatorEntry.config(style = 'entry1.TEntry')
     EPOSPersonSeparatorEntry.config(textvariable = EPOSPersonSeparatorVar)
     EPOSPersonSeparatorEntry.config(state = TK.DISABLED)
-    EPOSPersonSeparatorEntry.config(width = 56)
+    EPOSPersonSeparatorEntry.config(width = GUI.R()['EPOSPersonSeparatorEntryWidth'])
     EPOSPersonSeparatorEntry.grid(row = 1, column = 1, columnspan = 2, padx = 5, pady = 5)
 
     # "Separator pomiędzy wierszami"
@@ -1092,7 +1189,7 @@ def window():
     EPOSRowSeparatorEntry.config(style = 'entry1.TEntry')
     EPOSRowSeparatorEntry.config(textvariable = EPOSRowSeparatorVar)
     EPOSRowSeparatorEntry.config(state = TK.DISABLED)
-    EPOSRowSeparatorEntry.config(width = 56)
+    EPOSRowSeparatorEntry.config(width = GUI.R()['EPOSRowSeparatorEntryWidth'])
     EPOSRowSeparatorEntry.grid(row = 2, column = 1, columnspan = 2, padx = 5, pady = 5)
 
     # "Separatory pomiędzy danymi"
@@ -1104,8 +1201,8 @@ def window():
     # Entry - Separator pomiedzy wierszami
     EPOSDataSeparatorText = TK.Text(editingPresetOSFrame)
     EPOSDataSeparatorText.config(state = TK.DISABLED)
-    EPOSDataSeparatorText.config(width = 42)
-    EPOSDataSeparatorText.config(height = 19)
+    EPOSDataSeparatorText.config(width = GUI.R()['EPOSDataSeparatorTextWidth'])
+    EPOSDataSeparatorText.config(height = GUI.R()['EPOSDataSeparatorTextHeight'])
     EPOSDataSeparatorText.config(background = GUI.R()['text1Background'])
     EPOSDataSeparatorText.config(foreground = GUI.R()['text1TextColor'])
     EPOSDataSeparatorText.config(relief = GUI.R()['text1Relief'])
@@ -1114,7 +1211,7 @@ def window():
     # "<enter> - nowa linia | wciśnięcie przycisku ENTER | \n"
     EPOSSeparatorEnterInfoLabel = TKttk.Label(editingPresetOSFrame)
     EPOSSeparatorEnterInfoLabel.config(style = 'label1.TLabel')
-    EPOSSeparatorEnterInfoLabel.config(text = r'<enter> - nowa linia | wciśnięcie przycisku ENTER | \n')
+    EPOSSeparatorEnterInfoLabel.config(text = (r'<enter> - nowa linia | wciśnięcie przycisku ENTER | \n' + '\n' + 'Niedozwolone znaki: litery, cyfry, *'))
     EPOSSeparatorEnterInfoLabel.grid(row = 4, column = 1, columnspan = 2)
 
     ###############
@@ -1140,19 +1237,19 @@ def window():
     editingPresetDataLocalizationC1Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
     editingPresetDataLocalizationC1Label.config(style = 'label1.TLabel')
     editingPresetDataLocalizationC1Label.config(text = 'Wiersz')
-    editingPresetDataLocalizationC1Label.grid(row = 0, column = 1, padx = 5, pady = 5)
+    editingPresetDataLocalizationC1Label.grid(row = 0, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # C2 - "Pozycja w wierszu"
     editingPresetDataLocalizationC2Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
     editingPresetDataLocalizationC2Label.config(style = 'label1.TLabel')
     editingPresetDataLocalizationC2Label.config(text = 'Pozycja w wierszu')
-    editingPresetDataLocalizationC2Label.grid(row = 0, column = 2, padx = 5, pady = 5)
+    editingPresetDataLocalizationC2Label.grid(row = 0, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # W1 - "Login"
     editingPresetDataLocalizationW1Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
     editingPresetDataLocalizationW1Label.config(style = 'label2.TLabel')
     editingPresetDataLocalizationW1Label.config(text = 'Login')
-    editingPresetDataLocalizationW1Label.grid(row = 1, column = 0, padx = 5, pady = 5)
+    editingPresetDataLocalizationW1Label.grid(row = 1, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # Lokalizacja loginu (wiersz)
     EPDataLocalizationLoginRowVar = TK.IntVar()
@@ -1160,8 +1257,9 @@ def window():
     EPDataLocalizationLoginRowSpinbox.config(textvariable = EPDataLocalizationLoginRowVar)
     EPDataLocalizationLoginRowSpinbox.config(from_ = 0)
     EPDataLocalizationLoginRowSpinbox.config(to = 1000000)
+    EPDataLocalizationLoginRowSpinbox.config(state = TK.DISABLED)
     EPDataLocalizationLoginRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationLoginRowSpinbox.grid(row = 1, column = 1, padx = 5, pady = 5)
+    EPDataLocalizationLoginRowSpinbox.grid(row = 1, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # Lokalizacja loginu (pozycja w wierszu)
     EPDataLocalizationLoginPosInRowVar = TK.IntVar()
@@ -1169,14 +1267,15 @@ def window():
     EPDataLocalizationLoginPosInRowSpinbox.config(textvariable = EPDataLocalizationLoginPosInRowVar)
     EPDataLocalizationLoginPosInRowSpinbox.config(from_ = 0)
     EPDataLocalizationLoginPosInRowSpinbox.config(to = 1000000)
+    EPDataLocalizationLoginPosInRowSpinbox.config(state = TK.DISABLED)
     EPDataLocalizationLoginPosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationLoginPosInRowSpinbox.grid(row = 1, column = 2, padx = 5, pady = 5)
+    EPDataLocalizationLoginPosInRowSpinbox.grid(row = 1, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # W2 - "Imię"
     editingPresetDataLocalizationW2Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
     editingPresetDataLocalizationW2Label.config(style = 'label2.TLabel')
     editingPresetDataLocalizationW2Label.config(text = 'Imię')
-    editingPresetDataLocalizationW2Label.grid(row = 2, column = 0, padx = 5, pady = 5)
+    editingPresetDataLocalizationW2Label.grid(row = 2, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # Lokalizacja imienia (wiersz)
     EPDataLocalizationFnameRowVar = TK.IntVar()
@@ -1184,8 +1283,9 @@ def window():
     EPDataLocalizationFnameRowSpinbox.config(textvariable = EPDataLocalizationFnameRowVar)
     EPDataLocalizationFnameRowSpinbox.config(from_ = 0)
     EPDataLocalizationFnameRowSpinbox.config(to = 1000000)
+    EPDataLocalizationFnameRowSpinbox.config(state = TK.DISABLED)
     EPDataLocalizationFnameRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationFnameRowSpinbox.grid(row = 2, column = 1, padx = 5, pady = 5)
+    EPDataLocalizationFnameRowSpinbox.grid(row = 2, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # Lokalizacja imienia (pozycja w wierszu)
     EPDataLocalizationFnamePosInRowVar = TK.IntVar()
@@ -1193,14 +1293,15 @@ def window():
     EPDataLocalizationFnamePosInRowSpinbox.config(textvariable = EPDataLocalizationFnamePosInRowVar)
     EPDataLocalizationFnamePosInRowSpinbox.config(from_ = 0)
     EPDataLocalizationFnamePosInRowSpinbox.config(to = 1000000)
+    EPDataLocalizationFnamePosInRowSpinbox.config(state = TK.DISABLED)
     EPDataLocalizationFnamePosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationFnamePosInRowSpinbox.grid(row = 2, column = 2, padx = 5, pady = 5)
+    EPDataLocalizationFnamePosInRowSpinbox.grid(row = 2, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # W3 - "Nazwisko"
     editingPresetDataLocalizationW3Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
     editingPresetDataLocalizationW3Label.config(style = 'label2.TLabel')
     editingPresetDataLocalizationW3Label.config(text = 'Nazwisko')
-    editingPresetDataLocalizationW3Label.grid(row = 3, column = 0, padx = 5, pady = 5)
+    editingPresetDataLocalizationW3Label.grid(row = 3, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # Lokalizacja nazwiska (wiersz)
     EPDataLocalizationLnameRowVar = TK.IntVar()
@@ -1208,8 +1309,9 @@ def window():
     EPDataLocalizationLnameRowSpinbox.config(textvariable = EPDataLocalizationLnameRowVar)
     EPDataLocalizationLnameRowSpinbox.config(from_ = 0)
     EPDataLocalizationLnameRowSpinbox.config(to = 1000000)
+    EPDataLocalizationLnameRowSpinbox.config(state = TK.DISABLED)
     EPDataLocalizationLnameRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationLnameRowSpinbox.grid(row = 3, column = 1, padx = 5, pady = 5)
+    EPDataLocalizationLnameRowSpinbox.grid(row = 3, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # Lokalizacja nazwiska (pozycja w wierszu)
     EPDataLocalizationLnamePosInRowVar = TK.IntVar()
@@ -1217,14 +1319,15 @@ def window():
     EPDataLocalizationLnamePosInRowSpinbox.config(textvariable = EPDataLocalizationLnamePosInRowVar)
     EPDataLocalizationLnamePosInRowSpinbox.config(from_ = 0)
     EPDataLocalizationLnamePosInRowSpinbox.config(to = 1000000)
+    EPDataLocalizationLnamePosInRowSpinbox.config(state = TK.DISABLED)
     EPDataLocalizationLnamePosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationLnamePosInRowSpinbox.grid(row = 3, column = 2, padx = 5, pady = 5)
+    EPDataLocalizationLnamePosInRowSpinbox.grid(row = 3, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # W4 - "Szkoła"
     editingPresetDataLocalizationW4Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
     editingPresetDataLocalizationW4Label.config(style = 'label2.TLabel')
     editingPresetDataLocalizationW4Label.config(text = 'Szkoła')
-    editingPresetDataLocalizationW4Label.grid(row = 4, column = 0, padx = 5, pady = 5)
+    editingPresetDataLocalizationW4Label.grid(row = 4, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # Lokalizacja nazwiska (wiersz)
     EPDataLocalizationSchoolRowVar = TK.IntVar()
@@ -1232,8 +1335,9 @@ def window():
     EPDataLocalizationSchoolRowSpinbox.config(textvariable = EPDataLocalizationSchoolRowVar)
     EPDataLocalizationSchoolRowSpinbox.config(from_ = 0)
     EPDataLocalizationSchoolRowSpinbox.config(to = 1000000)
+    EPDataLocalizationSchoolRowSpinbox.config(state = TK.DISABLED)
     EPDataLocalizationSchoolRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationSchoolRowSpinbox.grid(row = 4, column = 1, padx = 5, pady = 5)
+    EPDataLocalizationSchoolRowSpinbox.grid(row = 4, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # Lokalizacja nazwiska (pozycja w wierszu)
     EPDataLocalizationSchoolPosInRowVar = TK.IntVar()
@@ -1241,14 +1345,15 @@ def window():
     EPDataLocalizationSchoolPosInRowSpinbox.config(textvariable = EPDataLocalizationSchoolPosInRowVar)
     EPDataLocalizationSchoolPosInRowSpinbox.config(from_ = 0)
     EPDataLocalizationSchoolPosInRowSpinbox.config(to = 1000000)
+    EPDataLocalizationSchoolPosInRowSpinbox.config(state = TK.DISABLED)
     EPDataLocalizationSchoolPosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationSchoolPosInRowSpinbox.grid(row = 4, column = 2, padx = 5, pady = 5)
+    EPDataLocalizationSchoolPosInRowSpinbox.grid(row = 4, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # W5 - "Klasa"
     editingPresetDataLocalizationW5Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
     editingPresetDataLocalizationW5Label.config(style = 'label2.TLabel')
     editingPresetDataLocalizationW5Label.config(text = 'Klasa')
-    editingPresetDataLocalizationW5Label.grid(row = 5, column = 0, padx = 5, pady = 5)
+    editingPresetDataLocalizationW5Label.grid(row = 5, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # Lokalizacja nazwiska (wiersz)
     EPDataLocalizationClassRowVar = TK.IntVar()
@@ -1256,8 +1361,9 @@ def window():
     EPDataLocalizationClassRowSpinbox.config(textvariable = EPDataLocalizationClassRowVar)
     EPDataLocalizationClassRowSpinbox.config(from_ = 0)
     EPDataLocalizationClassRowSpinbox.config(to = 1000000)
+    EPDataLocalizationClassRowSpinbox.config(state = TK.DISABLED)
     EPDataLocalizationClassRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationClassRowSpinbox.grid(row = 5, column = 1, padx = 5, pady = 5)
+    EPDataLocalizationClassRowSpinbox.grid(row = 5, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     # Lokalizacja nazwiska (pozycja w wierszu)
     EPDataLocalizationClassPosInRowVar = TK.IntVar()
@@ -1265,8 +1371,16 @@ def window():
     EPDataLocalizationClassPosInRowSpinbox.config(textvariable = EPDataLocalizationClassPosInRowVar)
     EPDataLocalizationClassPosInRowSpinbox.config(from_ = 0)
     EPDataLocalizationClassPosInRowSpinbox.config(to = 1000000)
+    EPDataLocalizationClassPosInRowSpinbox.config(state = TK.DISABLED)
     EPDataLocalizationClassPosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationClassPosInRowSpinbox.grid(row = 5, column = 2, padx = 5, pady = 5)
+    EPDataLocalizationClassPosInRowSpinbox.grid(row = 5, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+
+    # Informacje
+    EPDataLocalizationInfoLabel = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
+    EPDataLocalizationInfoLabel.config(style = 'label3.TLabel')
+    EPDataLocalizationInfoLabel.config(justify = 'center')
+    EPDataLocalizationInfoLabel.config(text = "1234567u\nAdam Nowak, 18\n1a LO\n*******\n\n7654321u\nJan Kowalski, 11\n2a BS\n**********\n\n------------------\n\nTyp osoby: Uczniowie\nSeparator pomiedzy osobami: '<enter><enter>'\nSeparator pomiedzy wierszami: '<enter>'\nSeparator pomiedzy danymi: ' *enter*, '\nLogin: 1 | 1\nImię: 2 | 1\nNazwisko: 2 | 2\nSzkoła: 3 | 2\nKlasa: 3 | 1")
+    EPDataLocalizationInfoLabel.grid(row = 6, column = 0, columnspan = 3, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
 
     #########################
 
@@ -1278,167 +1392,94 @@ def window():
     editingPresetButtonsFrame.config(style = 'layoutFrame.TFrame')
     editingPresetButtonsFrame.pack(fill = TK.X, side = TK.BOTTOM, pady = 10)
 
-    def editingPresetSaveAction():
+    def editingPresetSave():
+        studentVar = EPOSTypeVar.get()
+        if studentVar == 's':
+            studentVar = True
+        else:
+            studentVar = False
+        formatFileContentToSave = {
+            "student" : studentVar,
+            "personSeparator" : EPOSPersonSeparatorEntry.get(),
+            "rowSeparator" : EPOSRowSeparatorEntry.get(),
+            "dataSeparators" : (EPOSDataSeparatorText.get("1.0", TK.END)).split('\n')[:-1],
+            "loginRow" : int(EPDataLocalizationLoginRowSpinbox.get()),
+            "loginPositionInRow" : int(EPDataLocalizationLoginPosInRowSpinbox.get()),
+            "fnameRow" : int(EPDataLocalizationFnameRowSpinbox.get()),
+            "fnamePositionInRow" : int(EPDataLocalizationFnamePosInRowSpinbox.get()),
+            "lnameRow" : int(EPDataLocalizationLnameRowSpinbox.get()),
+            "lnamePositionInRow" : int(EPDataLocalizationLnamePosInRowSpinbox.get()),
+            "schoolRow" : int(EPDataLocalizationSchoolRowSpinbox.get()),
+            "schoolPositionInRow" : int(EPDataLocalizationSchoolPosInRowSpinbox.get()),
+            "classRow" : int(EPDataLocalizationClassRowSpinbox.get()),
+            "classPositionInRow" : int(EPDataLocalizationClassPosInRowSpinbox.get()),
+        }
+        if not FMT.W(loadingList.get(), formatFileContentToSave):
+            return
+        formatFileContent = {
+            "student" : True,
+            "personSeparator" : '',
+            "rowSeparator" : '',
+            "dataSeparators" : [],
+            "loginRow" : 0,
+            "loginPositionInRow" : 0,
+            "fnameRow" : 0,
+            "fnamePositionInRow" : 0,
+            "lnameRow" : 0,
+            "lnamePositionInRow" : 0,
+            "schoolRow" : 0,
+            "schoolPositionInRow" : 0,
+            "classRow" : 0,
+            "classPositionInRow" : 0,
+        }
+        loadingList['state'] = TK.NORMAL
+        loadingButton['state'] = TK.NORMAL
+        EPOSTypeVar.set(formatFileContent['student'])
+        EPOSTypeStudentRadiobutton['state'] = TK.DISABLED
+        EPOSTypeTeacherRadiobutton['state'] = TK.DISABLED
+        EPOSPersonSeparatorEntry['state'] = TK.DISABLED
+        EPOSPersonSeparatorVar.set(formatFileContent['personSeparator'])
+        EPOSRowSeparatorEntry['state'] = TK.DISABLED
+        EPOSRowSeparatorVar.set(formatFileContent['rowSeparator'])
+        EPOSDataSeparatorText.delete('1.0', TK.END)
+        EPOSDataSeparatorText['state'] = TK.DISABLED
+        EPDataLocalizationLoginRowSpinbox['state'] = TK.DISABLED
+        EPDataLocalizationLoginRowVar.set(formatFileContent['loginRow'])
+        EPDataLocalizationLoginPosInRowSpinbox['state'] = TK.DISABLED
+        EPDataLocalizationLoginPosInRowVar.set(formatFileContent['loginPositionInRow'])
+        EPDataLocalizationFnameRowSpinbox['state'] = TK.DISABLED
+        EPDataLocalizationFnameRowVar.set(formatFileContent['fnameRow'])
+        EPDataLocalizationFnamePosInRowSpinbox['state'] = TK.DISABLED
+        EPDataLocalizationFnamePosInRowVar.set(formatFileContent['fnamePositionInRow'])
+        EPDataLocalizationLnameRowSpinbox['state'] = TK.DISABLED
+        EPDataLocalizationLnameRowVar.set(formatFileContent['lnameRow'])
+        EPDataLocalizationLnamePosInRowSpinbox['state'] = TK.DISABLED
+        EPDataLocalizationLnamePosInRowVar.set(formatFileContent['lnamePositionInRow'])
+        EPDataLocalizationSchoolRowSpinbox['state'] = TK.DISABLED
+        EPDataLocalizationSchoolRowVar.set(formatFileContent['schoolRow'])
+        EPDataLocalizationSchoolPosInRowSpinbox['state'] = TK.DISABLED
+        EPDataLocalizationSchoolPosInRowVar.set(formatFileContent['schoolPositionInRow'])
+        EPDataLocalizationClassRowSpinbox['state'] = TK.DISABLED
+        EPDataLocalizationClassRowVar.set(formatFileContent['classRow'])
+        EPDataLocalizationClassPosInRowSpinbox['state'] = TK.DISABLED
+        EPDataLocalizationClassPosInRowVar.set(formatFileContent['classPositionInRow'])
+        editingPresetSaveButton['state'] = TK.DISABLED
+        editingPresetCancelButton['state'] = TK.DISABLED
+        loadingList['values'] = tuple(FMT.getList())
+
+    def editingPresetSaveButtonAction():
         if loadingList.get() not in FMT.getList():
             if MSG('A0001', False):
-                studentVar = EPOSTypeVar.get()
-                if studentVar == 's':
-                    studentVar = True
-                else:
-                    studentVar = False
-                formatFileContentToSave = {
-                    "student" : studentVar,
-                    "personSeparator" : EPOSPersonSeparatorEntry.get(),
-                    "rowSeparator" : EPOSRowSeparatorEntry.get(),
-                    "dataSeparators" : (EPOSDataSeparatorText.get("1.0", TK.END)).split('\n')[:-1],
-                    "loginRow" : int(EPDataLocalizationLoginRowSpinbox.get()),
-                    "loginPositionInRow" : int(EPDataLocalizationLoginPosInRowSpinbox.get()),
-                    "fnameRow" : int(EPDataLocalizationFnameRowSpinbox.get()),
-                    "fnamePositionInRow" : int(EPDataLocalizationFnamePosInRowSpinbox.get()),
-                    "lnameRow" : int(EPDataLocalizationLnameRowSpinbox.get()),
-                    "lnamePositionInRow" : int(EPDataLocalizationLnamePosInRowSpinbox.get()),
-                    "schoolRow" : int(EPDataLocalizationSchoolRowSpinbox.get()),
-                    "schoolPositionInRow" : int(EPDataLocalizationSchoolPosInRowSpinbox.get()),
-                    "classRow" : int(EPDataLocalizationClassRowSpinbox.get()),
-                    "classPositionInRow" : int(EPDataLocalizationClassPosInRowSpinbox.get()),
-                }
-                FMT.W(loadingList.get(), formatFileContentToSave)
-                formatFileContent = {
-                    "student" : True,
-                    "personSeparator" : '',
-                    "rowSeparator" : '',
-                    "dataSeparators" : [],
-                    "loginRow" : 0,
-                    "loginPositionInRow" : 0,
-                    "fnameRow" : 0,
-                    "fnamePositionInRow" : 0,
-                    "lnameRow" : 0,
-                    "lnamePositionInRow" : 0,
-                    "schoolRow" : 0,
-                    "schoolPositionInRow" : 0,
-                    "classRow" : 0,
-                    "classPositionInRow" : 0,
-                }
-                loadingList['state'] = TK.NORMAL
-                loadingButton['state'] = TK.NORMAL
-                EPOSTypeStudentRadiobutton['state'] = TK.DISABLED
-                EPOSTypeTeacherRadiobutton['state'] = TK.DISABLED
-                if formatFileContent['student']:
-                    EPOSTypeVar.set('s')
-                else:
-                    EPOSTypeVar.set('t')
-                EPOSPersonSeparatorEntry['state'] = TK.DISABLED
-                EPOSPersonSeparatorVar.set(formatFileContent['personSeparator'])
-                EPOSRowSeparatorEntry['state'] = TK.DISABLED
-                EPOSRowSeparatorVar.set(formatFileContent['rowSeparator'])
-                EPOSDataSeparatorText.delete('1.0', TK.END)
-                EPOSDataSeparatorText['state'] = TK.DISABLED
-                EPDataLocalizationLoginRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationLoginRowVar.set(formatFileContent['loginRow'])
-                EPDataLocalizationLoginPosInRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationLoginPosInRowVar.set(formatFileContent['loginPositionInRow'])
-                EPDataLocalizationFnameRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationFnameRowVar.set(formatFileContent['fnameRow'])
-                EPDataLocalizationFnamePosInRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationFnamePosInRowVar.set(formatFileContent['fnamePositionInRow'])
-                EPDataLocalizationLnameRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationLnameRowVar.set(formatFileContent['lnameRow'])
-                EPDataLocalizationLnamePosInRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationLnamePosInRowVar.set(formatFileContent['lnamePositionInRow'])
-                EPDataLocalizationSchoolRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationSchoolRowVar.set(formatFileContent['schoolRow'])
-                EPDataLocalizationSchoolPosInRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationSchoolPosInRowVar.set(formatFileContent['schoolPositionInRow'])
-                EPDataLocalizationClassRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationClassRowVar.set(formatFileContent['classRow'])
-                EPDataLocalizationClassPosInRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationClassPosInRowVar.set(formatFileContent['classPositionInRow'])
-                editingPresetSaveButton['state'] = TK.DISABLED
-                editingPresetCancelButton['state'] = TK.DISABLED
-                loadingList['values'] = tuple(FMT.getList())
+                editingPresetSave()
             else:
                 return
         else:
             if MSG('A0002', False):
-                studentVar = EPOSTypeVar.get()
-                if studentVar == 's':
-                    studentVar = True
-                else:
-                    studentVar = False
-                formatFileContentToSave = {
-                    "student" : studentVar,
-                    "personSeparator" : EPOSPersonSeparatorEntry.get(),
-                    "rowSeparator" : EPOSRowSeparatorEntry.get(),
-                    "dataSeparators" : (EPOSDataSeparatorText.get("1.0", TK.END)).split('\n')[:-1],
-                    "loginRow" : int(EPDataLocalizationLoginRowSpinbox.get()),
-                    "loginPositionInRow" : int(EPDataLocalizationLoginPosInRowSpinbox.get()),
-                    "fnameRow" : int(EPDataLocalizationFnameRowSpinbox.get()),
-                    "fnamePositionInRow" : int(EPDataLocalizationFnamePosInRowSpinbox.get()),
-                    "lnameRow" : int(EPDataLocalizationLnameRowSpinbox.get()),
-                    "lnamePositionInRow" : int(EPDataLocalizationLnamePosInRowSpinbox.get()),
-                    "schoolRow" : int(EPDataLocalizationSchoolRowSpinbox.get()),
-                    "schoolPositionInRow" : int(EPDataLocalizationSchoolPosInRowSpinbox.get()),
-                    "classRow" : int(EPDataLocalizationClassRowSpinbox.get()),
-                    "classPositionInRow" : int(EPDataLocalizationClassPosInRowSpinbox.get()),
-                }
-                FMT.W(loadingList.get(), formatFileContentToSave)
-                formatFileContent = {
-                    "student" : True,
-                    "personSeparator" : '',
-                    "rowSeparator" : '',
-                    "dataSeparators" : [],
-                    "loginRow" : 0,
-                    "loginPositionInRow" : 0,
-                    "fnameRow" : 0,
-                    "fnamePositionInRow" : 0,
-                    "lnameRow" : 0,
-                    "lnamePositionInRow" : 0,
-                    "schoolRow" : 0,
-                    "schoolPositionInRow" : 0,
-                    "classRow" : 0,
-                    "classPositionInRow" : 0,
-                }
-                loadingList['state'] = TK.NORMAL
-                loadingButton['state'] = TK.NORMAL
-                EPOSTypeStudentRadiobutton['state'] = TK.DISABLED
-                EPOSTypeTeacherRadiobutton['state'] = TK.DISABLED
-                if formatFileContent['student']:
-                    EPOSTypeVar.set('s')
-                else:
-                    EPOSTypeVar.set('t')
-                EPOSPersonSeparatorEntry['state'] = TK.DISABLED
-                EPOSPersonSeparatorVar.set(formatFileContent['personSeparator'])
-                EPOSRowSeparatorEntry['state'] = TK.DISABLED
-                EPOSRowSeparatorVar.set(formatFileContent['rowSeparator'])
-                EPOSDataSeparatorText.delete('1.0', TK.END)
-                EPOSDataSeparatorText['state'] = TK.DISABLED
-                EPDataLocalizationLoginRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationLoginRowVar.set(formatFileContent['loginRow'])
-                EPDataLocalizationLoginPosInRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationLoginPosInRowVar.set(formatFileContent['loginPositionInRow'])
-                EPDataLocalizationFnameRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationFnameRowVar.set(formatFileContent['fnameRow'])
-                EPDataLocalizationFnamePosInRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationFnamePosInRowVar.set(formatFileContent['fnamePositionInRow'])
-                EPDataLocalizationLnameRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationLnameRowVar.set(formatFileContent['lnameRow'])
-                EPDataLocalizationLnamePosInRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationLnamePosInRowVar.set(formatFileContent['lnamePositionInRow'])
-                EPDataLocalizationSchoolRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationSchoolRowVar.set(formatFileContent['schoolRow'])
-                EPDataLocalizationSchoolPosInRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationSchoolPosInRowVar.set(formatFileContent['schoolPositionInRow'])
-                EPDataLocalizationClassRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationClassRowVar.set(formatFileContent['classRow'])
-                EPDataLocalizationClassPosInRowSpinbox['state'] = TK.DISABLED
-                EPDataLocalizationClassPosInRowVar.set(formatFileContent['classPositionInRow'])
-                editingPresetSaveButton['state'] = TK.DISABLED
-                editingPresetCancelButton['state'] = TK.DISABLED
-                loadingList['values'] = tuple(FMT.getList())
+                editingPresetSave()
             else:
                 return
     editingPresetSaveButton = TKttk.Button(editingPresetButtonsFrame)
-    editingPresetSaveButton.config(command = editingPresetSaveAction)
+    editingPresetSaveButton.config(command = editingPresetSaveButtonAction)
     editingPresetSaveButton.config(state = TK.DISABLED)
     editingPresetSaveButton.config(style = 'button1.TButton')
     editingPresetSaveButton.config(width = GUI.R()['editingPresetSaveButtonWidth'])
@@ -1466,10 +1507,7 @@ def window():
         loadingButton['state'] = TK.NORMAL
         EPOSTypeStudentRadiobutton['state'] = TK.DISABLED
         EPOSTypeTeacherRadiobutton['state'] = TK.DISABLED
-        if formatFileContent['student']:
-            EPOSTypeVar.set('s')
-        else:
-            EPOSTypeVar.set('t')
+        EPOSTypeVar.set(formatFileContent['student'])
         EPOSPersonSeparatorEntry['state'] = TK.DISABLED
         EPOSPersonSeparatorVar.set(formatFileContent['personSeparator'])
         EPOSRowSeparatorEntry['state'] = TK.DISABLED
