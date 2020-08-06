@@ -1,308 +1,412 @@
-"""
-Generator plików csv dla office i losobolew
-Mateusz Skoczek
-Zespół Szkół Ponadgimnazjalnych im. T. Kościuszki w Sobolewie
-luty 2019
-"""
+# GeneratorCSV
+# Wersja 3.0
+# by Mateusz Skoczek
+# luty 2019 - grudzień 2019
+# dla ZSP Sobolew
 
 
 
 
-## Import bibliotek ##
 
 
-import time as tm
+
+
+
+
+## Defincja błędów ##############################################################################
+
+# E001 - Brak pliku składowego
+E001x00 = "Brak pliku formatu 'moduly.py'.\nPrzywróć plik. (E001x00)"
+E001x01 = "Brak pliku formatu 'format.py'.\nPrzywróć plik. (E001x01)"
+E001x02 = "Brak pliku konfiguracyjnego 'config.cfg'.\nPrzywróć plik. (E001x02)"
+E001x03 = "Brak pliku 'instrukcja.txt'.\nPrzywróć plik. (E001x03)"
+
+# E002 - Błąd pliku składowego
+E002x02 = "Nieokreślony błąd pliku konfiguracyjnego 'config.cfg'.\nPrzywróć domyślny plik lub popraw ustawienia. (E002x02)"
+E002x021 = "Błąd pliku konfiguracyjnego 'config.cfg'.\nPodane kodowanie nie jest obsługiwane\nPrzywróć domyślny plik lub popraw ustawienia. (E002x021)"
+
+# E003 - Błąd lokalizacji plików I/O
+E003x01 = "Nie podano lokalizacji plików do importu. (E003x01)"
+E003x02 = "Nie podano lokalizacji zapisu wygenerowanych plików. (E003x02)"
+E003x111 = "Plik podany w sciezce 1 nie istnieje (E003x111)"
+E003x112 = "Plik podany w sciezce 2 nie istnieje (E003x112)"
+E003x113 = "Plik podany w sciezce 3 nie istnieje (E003x113)"
+E003x114 = "Plik podany w sciezce 4 nie istnieje (E003x114)"
+
+#_______________________________________________________________________________________________#
+
+
+
+
+
+
+
+
+
+
+## Import bibliotek zewnętrznych ################################################################
+
+import tkinter as tk
 import codecs as cd
+import os
+import time as tm
+import sys as ss
 
-######################
+# Definicja składowych biblioteki interfejsu graficznego
+from tkinter import filedialog as TKfld
+from tkinter import messagebox as TKmsb
 
-
-
-
-## Określanie kodowania plików ##
-
-
-code = 'utf-8'
-
-#################################
+#_______________________________________________________________________________________________#
 
 
 
 
-## Funkcje ##
 
 
-# Konwertowanie liter #
-
-def duze_na_male(text):
-    # Funkcja zmienia duże litery na małe
-
-    return text.lower()
-
-def polskie_na_lacinskie(text):
-    # Funkcja zamienia małe polskie litery na małe łacińskie litery
-    # oraz duże polskie litery na małe łacińskie litery
-
-    text1 = text.replace('ę', 'e')
-    text2 = text1.replace('ó', 'o')
-    text3 = text2.replace('ą', 'a')
-    text4 = text3.replace('ś', 's')
-    text5 = text4.replace('ł', 'l')
-    text6 = text5.replace('ż', 'z')
-    text7 = text6.replace('ź', 'z')
-    text8 = text7.replace('ć', 'c')
-    text9 = text8.replace('ń', 'n')
-    text10 = text9.replace('Ę', 'e')
-    text11 = text10.replace('Ó', 'o')
-    text12 = text11.replace('Ą', 'a')
-    text13 = text12.replace('Ś', 's')
-    text14 = text13.replace('Ł', 'l')
-    text15 = text14.replace('Ż', 'z')
-    text16 = text15.replace('Ź', 'z')
-    text17 = text16.replace('Ć', 'c')
-    text = text17.replace('Ń', 'n')
-    return text
-
-def konwersja_liter(text):
-    # Funkcja zamienia jednocześnie duże litery na małe oraz polskie na łacińskie
-    # Wymaga funkcji: 'duze_na_male' i 'polskie_na_lacinskie'
-
-    text = duze_na_male(text)
-    text = polskie_na_lacinskie(text)
-    return text
 
 
-# Funkcje tworzące #
-
-def inicjaly(imie, nazwisko):
-    # Funkcja tworzy inicjały z podanego imienia i nazwiska
-
-    nazwisko_tab = nazwisko.split(' ')
-    nazwisko_inicjaly = ''
-    for fragment_nazwiska in nazwisko_tab:
-        nazwisko_inicjaly += fragment_nazwiska[0]
-    return imie[0] + nazwisko_inicjaly
 
 
-# Inne #
+## Weryfikacja istnienia plików składowych programu #############################################
 
-def ostrzezenie(czy_uczniowie):
-    # Ostrzeżenie przed rozpoczęciem generowania plików
+try:
+    x = open('moduly.py')
+except FileNotFoundError:
+    Message = 'Wystąpił błąd!\n' + E001x00
+    tk.showerror('Błąd', Message)
+    ss.exit(0)
 
-    if czy_uczniowie == True:
-        print("Upewnij się, że w folderze 'pliki_zrodlowe' znajduje się plik 'lista.txt' z danymi uczniów")
+try:
+    x = open('format.py')
+except FileNotFoundError:
+    Message = 'Wystąpił błąd!\n' + E001x01
+    tk.showerror('Błąd', Message)
+    ss.exit(0)
+
+#_______________________________________________________________________________________________#
+
+
+
+
+
+
+
+
+
+
+## Import modułów programu ######################################################################
+
+# Import modułów składowych programu
+from moduly import ErrorDialog as MDerr
+from moduly import FileCheck as MDfck
+from moduly import PolishLetterRemover as MDplr
+from moduly import ClassTagCreator as MDctc
+
+# Import skryptu przetwarzającego dane
+import format as ft
+
+#_______________________________________________________________________________________________#
+
+
+
+
+
+
+
+
+
+
+
+## Weryfikacja istnienia plików składowych ######################################################
+
+MDfck('format.py', E001x01)
+MDfck('config.cfg', E001x02)
+MDfck('instrukcja.txt', E001x03)
+
+#_______________________________________________________________________________________________#
+
+
+
+
+
+
+
+
+
+
+
+## Wczytywanie pliku konfiguracyjnego ###########################################################
+
+try:
+    with open('config.cfg', 'r') as config:
+        config = config.read().split('\n')
+        Kodowanie = str(config[0].strip('Kodowanie: '))
+        TypyKodowania = ['utf-8', 'cp1252', 'iso-8859-1']
+        if Kodowanie not in TypyKodowania:
+            MDerr(E002x021)
+except:
+    MDerr(E002x02)
+
+#_______________________________________________________________________________________________#
+
+
+
+
+
+
+
+
+
+
+
+## Inicjacja skryptu przetwarzającego dane ######################################################
+
+def Main():
+    if TKmsb.askokcancel('Ostrzeżenie', "Czy na pewno chcesz rozpocząć generowanie?\nProgram utworzy w podanej lokalizacji pliki 'email.csv' i 'office.csv'.\nJeżeli w podanej lokalizacji istnieją pliki o takich nazwach zostaną one nadpisane."):
+        sciezka1 = Pole1.get()
+        sciezka1_puste = True
+        sciezka2 = Pole2.get()
+        sciezka2_puste = True
+        sciezka3 = Pole3.get()
+        sciezka3_puste = True
+        sciezka4 = Pole3.get()
+        sciezka4_puste = True
+        sciezkaExport = PoleExport.get()
+        sciezkaExport_puste = True
+
+        if sciezka1 != '':
+            sciezka1_puste = False
+        if sciezka2 != '':
+            sciezka2_puste = False
+        if sciezka3 != '':
+            sciezka3_puste = False
+        if sciezka4 != '':
+            sciezka4_puste = False
+        if sciezkaExport != '':
+            sciezkaExport_puste = False
+
+        if sciezka1_puste and sciezka2_puste and sciezka3_puste and sciezka4_puste:
+            MDerr(E003x01)
+        if sciezkaExport_puste:
+            MDerr(E003x02)
+
+        KontenerDanych = []
+        if not sciezka1_puste:
+            try:
+                x = open(sciezka1)
+            except FileNotFoundError:
+                MDerr(E003x111)
+            else:
+                with open(sciezka1, 'r') as plik1:
+                    KontenerDanych += ft.przetworz(plik1.read())
+        if not sciezka2_puste:
+            try:
+                x = open(sciezka2)
+            except FileNotFoundError:
+                MDerr(E003x112)
+            else:
+                with open(sciezka2, 'r') as plik2:
+                    KontenerDanych += ft.przetworz(plik2.read())
+        if not sciezka3_puste:
+            try:
+                x = open(sciezka3)
+            except FileNotFoundError:
+                MDerr(E003x113)
+            else:
+                with open(sciezka3, 'r') as plik3:
+                    KontenerDanych += ft.przetworz(plik3.read())
+        if not sciezka4_puste:
+            try:
+                x = open(sciezka4)
+            except FileNotFoundError:
+                MDerr(E003x114)
+            else:
+                with open(sciezka4, 'r') as plik4:
+                    KontenerDanych += ft.przetworz(plik4.read())
+
+        KontenerEmail = []
+        KontenerOffice = []
+        for osoba in KontenerDanych:
+            if osoba[-1]:
+                Klasa = osoba[0]
+                Imie = osoba[2]
+                Inicjaly = Imie[0]
+                Nazwisko = ''
+                NazwiskoDoEmaila = ''
+                for x in osoba[1]:
+                    Nazwisko += x + ' '
+                    NazwiskoDoEmaila += ('.' + x)
+                    Inicjaly += x[0]
+                Nazwisko = Nazwisko[:-1]
+                ZnacznikKlasy = MDctc(Klasa)
+                Login = osoba[3]
+                Adres = MDplr(Imie).lower() + MDplr(NazwiskoDoEmaila).lower() + ZnacznikKlasy + '@losobolew.pl'
+                Email = Adres + ',' + Login + ':' + MDplr(Inicjaly) + ',500'
+                Office = Adres + ',' + Imie + ',' + Nazwisko + ',' + Imie + ' ' + Nazwisko + ',uczeń,' + Klasa + ',,,,,,,,,Rzeczypospolita Polska'
+                KontenerEmail.append(Email)
+                KontenerOffice.append(Office)
+            else:
+                Imie = osoba[1]
+                Inicjaly = Imie[0]
+                Nazwisko = ''
+                NazwiskoDoEmaila = ''
+                for x in osoba[0]:
+                    Nazwisko += x + ' '
+                    NazwiskoDoEmaila += ('.' + x)
+                    Inicjaly += x[0]
+                Nazwisko = Nazwisko[:-1]
+                Login = osoba[2]
+                Adres = MDplr(Imie).lower() + MDplr(NazwiskoDoEmaila).lower() + '@losobolew.pl'
+                Email = Adres + ',' + Login + ':' + MDplr(Inicjaly) + ',500'
+                Office = Adres + ',' + Imie + ',' + Nazwisko + ',' + Imie + ' ' + Nazwisko + ',nauczyciel,,,,,,,,,,Rzeczpospolita Polska'
+                KontenerEmail.append(Email)
+                KontenerOffice.append(Office)
+        sciezkaEmail = sciezkaExport + '/email.csv'
+        sciezkaOffice = sciezkaExport + '/office.csv'
+        with cd.open(sciezkaEmail, 'w', Kodowanie) as plikEmail:
+            for x in KontenerEmail:
+                plikEmail.writelines(x + '\n')
+            plikEmail.close()
+        with cd.open(sciezkaOffice, 'w', Kodowanie) as plikOffice:
+            for x in KontenerOffice:
+                plikOffice.writelines(x + '\n')
+            plikOffice.close()
+        TKmsb.showinfo('Zakończono', 'Operacja zakończona pomyślnie')
+        ss.exit(0)
     else:
-        print("Upewnij się, że w folderze 'pliki_zrodlowe' znajduje się plik 'lista nauczycieli.txt' z danymi nauczycieli")
-    print("Jeżeli w folderze 'pliki_wyjsciowe' znajdują się pliki 'konta.csv' i 'office.csv' zostaną one usunięte")
-    print()
-    czekaj = input('Naciśnij ENTER, gdy będziesz gotowy')
+        ss.exit(0)
 
-#############
+
+#_______________________________________________________________________________________________#
 
 
 
 
-## Komponenty ##
-
-def uczniowie():
-    ostrzezenie(True)
-
-
-    try:
-        listatxt = open('pliki_zrodlowe/lista.txt')
-    except FileNotFoundError:
-        print()
-        print("BŁĄD! Plik 'lista.txt' nie został znaleziony")
-        print()
-        print()
-        print('############################')
-        print()
-        print()
-
-        uczniowie()
-
-
-    try:
-        zawartosc_lista = listatxt.read()
-    finally:
-        listatxt.close()
-
-    kontacsv = cd.open('pliki_wyjsciowe/konta.csv', 'w', code)
-    officecsv = cd.open('pliki_wyjsciowe/office.csv', 'w', code)
-
-    ciagi_danych_lista = zawartosc_lista.split('\n\n')
-
-    for ciag_danych in ciagi_danych_lista:
-        dane = ciag_danych.split('\n')
-
-        klasa = dane[0]
-        imie = ((dane[1]).split(', '))[1]
-        nazwisko = ((dane[1]).split(', '))[0]
-        login = dane[3]
-
-        imie_male = konwersja_liter(imie)
-        nazwisko_male = konwersja_liter(nazwisko).replace(' ', '.')
-
-        rok = tm.localtime()[0]
-        nr_klasy = klasa[0]
-        lit_klasy = klasa[1]
-        szkola = klasa.split(' ')[1]
-
-        if klasa[3:] == 'LO':
-            numer_klasy = int(klasa[0])
-
-            if numer_klasy == 1:
-                rok_ukoncz = '2021'
-            elif numer_klasy == 2:
-                rok_ukoncz = '2020'
-            elif numer_klasy == 3:
-                rok_ukoncz = '2019'
-
-            znacznik_klasy = rok_ukoncz + klasa[1]
-        elif klasa[3:] == 'BS':
-            numer_klasy = int(klasa[0])
-
-            if numer_klasy == 1:
-                rok_ukoncz = '2021'
-            elif numer_klasy == 2:
-                rok_ukoncz = '2020'
-            elif numer_klasy == 3:
-                rok_ukoncz = '2019'
-
-            znacznik_klasy = rok_ukoncz + 'bs'
-        elif klasa[3:] == 'ZSZ':
-            znacznik_klasy = '2019zsz'
-        elif klasa[3:] == 'LOD':
-            numer_klasy = int(klasa[0])
-
-            if numer_klasy == 3:
-                rok_ukoncz = '2020'
-            elif numer_klasy == 5:
-                rok_ukoncz = '2019'
-
-            znacznik_klasy = rok_ukoncz + 'lod'
-
-        haslo = login + ':' + inicjaly(imie, nazwisko)
-
-        email = imie_male + '.' + nazwisko_male + znacznik_klasy + '@losobolew.pl'
-
-        dane_do_konta = email + ',' + haslo + ',500\n'
-
-        # <email>,<hasło (login do librusa)>,500
-
-        # email:
-        # LO: <imie>.<nazwisko>(<rok_ukończenia_szkoły><litera_klasy>)@losobolew.pl
-        # BS: <imie>.<nazwisko>(<rok_ukończenia_szkoły>bs)@losobolew.pl
-        # ZSZ: <imie>.<nazwisko>(<rok_ukończenia_szkoły>zsz)@losobolew.pl
-        # LOD: <imie>.<nazwisko>(<rok_ukończenia_szkoły>lod)@losobolew.pl
-
-        kontacsv.write(dane_do_konta)
-
-
-        ##############
-
-
-        nazwa = imie + ' ' + nazwisko
-        stanowisko = 'uczeń'
-        kraj = 'Rzeczpospolita Polska'
-
-        officecsv.write(email + ',' + imie + ',' + nazwisko + ',' + nazwa + ',' + stanowisko + ',' + klasa + ',,,,,,,,,' + kraj + '\n')
-    kontacsv.close()
-    officecsv.close()
-
-    print()
-    print()
-    print('############################')
-    print()
-    print()
-
-    print('Pliki zostały wygenerowane pomyślnie')
-    print()
-    czekaj = input('Naciśnij ENTER aby wyjść')
-
-def nauczyciele():
-    ostrzezenie(False)
-
-
-    try:
-        listatxt = open('pliki_zrodlowe/lista nauczycieli.txt')
-    except FileNotFoundError:
-        print()
-        print("BŁĄD! Plik 'lista nauczycieli.txt' nie został znaleziony")
-        print()
-        print()
-        print('############################')
-        print()
-        print()
-
-        nauczyciele()
-
-
-    try:
-        zawartosc_lista = listatxt.read()
-    finally:
-        listatxt.close()
-
-    kontacsv = cd.open('pliki_wyjsciowe/konta.csv', 'w', code)
-    officecsv = cd.open('pliki_wyjsciowe/office.csv', 'w', code)
-
-    ciagi_danych_lista = zawartosc_lista.split('\n\n')
-
-    for ciag_danych in ciagi_danych_lista:
-        ciag_danych = ciag_danych.strip('*')
-        nazwisko_i_reszta = ciag_danych.split(', ')
-        nazwisko = nazwisko_i_reszta[0]
-        nazwisko_male = konwersja_liter(nazwisko).replace(' ', '.')
-        reszta = nazwisko_i_reszta[1].split(' ')
-        imie = reszta[-4]
-        imie_male = konwersja_liter(imie)
-        haslo = reszta[-2] + ':' + inicjaly(imie, nazwisko)
-        email = imie_male + '.' + nazwisko_male + '@losobolew.pl'
-
-        kontacsv.write(email + ',' + haslo + ',500\n')
-
-
-        #################
-
-
-        nazwa = imie + ' ' + nazwisko
-        stanowisko = 'nauczyciel'
-        kraj = 'Rzeczpospolita Polska'
-
-        officecsv.write(email + ',' + imie + ',' + nazwisko + ',' + nazwa + ',' + stanowisko + ',,,,,,,,,,' + kraj + '\n')
-    kontacsv.close()
-    officecsv.close()
-
-    print()
-    print()
-    print('############################')
-    print()
-    print()
-
-    print('Pliki zostały wygenerowane pomyślnie')
-    print()
-    czekaj = input('Naciśnij ENTER aby wyjść')
-
-################
 
 
 
 
-## START ##
 
-print('### GENERATOR PLIKÓW CSV ###')
-print()
-print('1 - Uczniowie')
-print('2 - Nauczyciele')
-print()
-wybor = input('Wybór: ')
-print()
-print()
-print('############################')
-print()
-print()
 
-if wybor == '1':
-    uczniowie()
-else:
-    nauczyciele()
+
+## Inicjacja okna ###############################################################################
+def GUI():
+    # Stałe
+    SzerokoscOpisu = 17
+    SzerokoscPola = 91
+
+    # Tworzenie okna
+    OknoGlowne = tk.Tk()
+    OknoGlowne.title('GeneratorCSV')
+    OknoGlowne.resizable(width = False, height = False)
+
+    # Nazwa programu
+    Tytul = tk.Label(OknoGlowne, text = 'GeneratorCSV', font = ('Segoe UI Semilight', 20), borderwidth = 7, justify = 'center', bg = 'Gainsboro', width = 47)
+    Tytul.grid(row = 0)
+
+
+    # Tworzenie frame dla ścieżek plików do importu
+    Ramka1 = tk.LabelFrame(OknoGlowne, text = 'Pliki do importu zawierające dane')
+    Ramka1.grid(row = 1)
+
+    # Ścieżka pliku do importu 1
+    wiersz1 = 0
+    text1 = tk.StringVar()
+    OpisPola1 = tk.Label(Ramka1, text = 'Plik z danymi (1)', justify = 'left', width = SzerokoscOpisu)
+    OpisPola1.grid(row = wiersz1, column = 0)
+    Pole1 = tk.Entry(Ramka1, textvariable = text1, width = SzerokoscPola)
+    Pole1.grid(row = wiersz1, column = 1)
+    def Browse1_Dialog():
+        Browse1.filename = TKfld.askopenfilename(initialdir="/", title="Wybierz plik", filetypes=(("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
+        Pole1.delete(0, 'end')
+        Pole1.insert(0, Browse1.filename)
+    Browse1 = tk.Button(Ramka1, text = '...', command = Browse1_Dialog, background = 'silver', relief = 'flat')
+    Browse1.grid(row = wiersz1, column = 2, padx = 5, pady = 3)
+
+    # Ścieżka pliku do importu 2
+    wiersz2 = 1
+    text2 = tk.StringVar()
+    OpisPola2 = tk.Label(Ramka1, text = 'Plik z danymi (2)', justify = 'left', width = SzerokoscOpisu)
+    OpisPola2.grid(row = wiersz2, column = 0)
+    Pole2 = tk.Entry(Ramka1, textvariable = text2, width = SzerokoscPola)
+    Pole2.grid(row = wiersz2, column = 1)
+    def Browse2_Dialog():
+        Browse2.filename = TKfld.askopenfilename(initialdir="/", title="Wybierz plik", filetypes=(("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
+        Pole2.delete(0, 'end')
+        Pole2.insert(0, Browse2.filename)
+    Browse2 = tk.Button(Ramka1, text = '...', command = Browse2_Dialog, background = 'silver', relief = 'flat')
+    Browse2.grid(row = wiersz2, column = 2, padx = 5, pady = 3)
+
+    # Ścieżka pliku do importu 3
+    wiersz3 = 2
+    text3 = tk.StringVar()
+    OpisPola3 = tk.Label(Ramka1, text = 'Plik z danymi (3)', justify = 'left', width = SzerokoscOpisu)
+    OpisPola3.grid(row = wiersz3, column = 0)
+    Pole3 = tk.Entry(Ramka1, textvariable = text3, width = SzerokoscPola)
+    Pole3.grid(row = wiersz3, column = 1)
+    def Browse3_Dialog():
+        Browse3.filename = TKfld.askopenfilename(initialdir="/", title="Wybierz plik", filetypes=(("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
+        Pole3.delete(0, 'end')
+        Pole3.insert(0, Browse3.filename)
+    Browse3 = tk.Button(Ramka1, text = '...', command = Browse3_Dialog, background = 'silver', relief = 'flat')
+    Browse3.grid(row = wiersz3, column = 2, padx = 5, pady = 3)
+
+    # Ścieżka pliku do importu 4
+    wiersz4 = 3
+    text4 = tk.StringVar()
+    OpisPola4 = tk.Label(Ramka1, text = 'Plik z danymi (4)', justify = 'left', width = SzerokoscOpisu)
+    OpisPola4.grid(row = wiersz4, column = 0)
+    Pole4 = tk.Entry(Ramka1, textvariable = text3, width = SzerokoscPola)
+    Pole4.grid(row = wiersz4, column = 1)
+    def Browse4_Dialog():
+        Browse4.filename = TKfld.askopenfilename(initialdir="/", title="Wybierz plik", filetypes=(("Pliki txt", "*.txt"), ("Wszystkie pliki", "*.*")))
+        Pole4.delete(0, 'end')
+        Pole4.insert(0, Browse4.filename)
+    Browse4 = tk.Button(Ramka1, text = '...', command = Browse4_Dialog, background = 'silver', relief = 'flat')
+    Browse4.grid(row = wiersz4, column = 2, padx = 5, pady = 3)
+
+
+    # Tworzenie frame dla plików export
+    Ramka2 = tk.LabelFrame(OknoGlowne, text = 'Ustawienia eksportu')
+    Ramka2.grid(row = 2)
+
+    # Ścieżka folderu do zapisu wygenerowanych plików
+    text4 = tk.StringVar()
+    OpisPolaExport = tk.Label(Ramka2, text = 'Lokalizacja', justify = 'left', width = SzerokoscOpisu)
+    OpisPolaExport.grid(row = 0, column = 0)
+    PoleExport = tk.Entry(Ramka2, textvariable = text4, width = SzerokoscPola)
+    PoleExport.grid(row = 0, column = 1)
+    def BrowseExport_Dialog():
+        BrowseExport.filename = TKfld.askdirectory()
+        PoleExport.delete(0, 'end')
+        PoleExport.insert(0, BrowseExport.filename)
+    BrowseExport = tk.Button(Ramka2, text = '...', command = BrowseExport_Dialog, background = 'silver', relief = 'flat')
+    BrowseExport.grid(row = 0, column = 2, padx = 5, pady = 3)
+
+
+    # Przycisk START
+    Przycisk = tk.Button(OknoGlowne, text = 'START', justify = 'center', width = 50, command = Main, relief = 'flat', background = 'silver')
+    Przycisk.grid(row = 3, pady = 15)
+
+
+    # Pasek dolny
+    PasekDolny = tk.LabelFrame(OknoGlowne, bd = 0, background = 'Gainsboro')
+    PasekDolny.grid(row = 4)
+    InfoLabel = tk.Label(PasekDolny, text = 'GeneratorCSV 3.0 | © Mateusz Skoczek 2019 dla ZSP Sobolew', justify = 'left', width = 93, anchor = 'w', background = 'Gainsboro')
+    InfoLabel.grid(row= 0, column = 0)
+    def InfoOpen():
+        try:
+            x = open('instrukcja.txt')
+        except FileNotFoundError:
+            MDerr(E001x03)
+        else:
+            os.system("notepad instrukcja.txt")
+    Przycisk = tk.Button(PasekDolny, text = 'Instrukcja', justify = 'center', foreground = 'blue', relief = 'flat', command = InfoOpen, background = 'Gainsboro')
+    Przycisk.grid(row = 0, column = 1)
+
+
+    tk.mainloop()
+
+GUI()
+
+#_______________________________________________________________________________________________#
