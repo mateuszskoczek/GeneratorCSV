@@ -13,3 +13,6 @@
 - Lekkie przeprojektowanie układu interfejsu
 - Stworzenie palety barw motywu jasnego i ciemnego
 - Wprowadzenie motywu jasnego i ciemnego (z możliwością zmiany jedynie przez plik 'config.cfg'
+
+4.0 Alpha (Build 19346.2)
+- Stworzenie okna ustawień programu

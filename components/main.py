@@ -105,12 +105,50 @@ B_framewielkosc = PaletaBarw[7]
 
 
 def settings():
+    # Tworzenie okna ustawień
     SettingsWindow = TK.Tk()
     SettingsWindow.title('Ustawienia programu')
     SettingsWindow.resizable(width = False, height = False)
-    SettingsWindow.configure()
+    SettingsWindow.configure(background = B_tlo)
+
+
+    # Tytul
+    Tytul = TK.Label(SettingsWindow)
+    Tytul.config(text = 'Ustawienia')
+    Tytul.config(width = 20)
+    Tytul.config(bg = B_tytultlo, fg = B_tytultext)
+    Tytul.config(font = ('Segoe UI Semilight', 20))
+    Tytul.grid(row = 0)
+
+
+    # Frame1 - Motyw
+    Ramka1 = TK.LabelFrame(SettingsWindow)
+    Ramka1.config(text = ' Motyw programu ')
+    Ramka1.config(bg = B_tlo, fg = B_text)
+    Ramka1.config(borderwidth = B_framewielkosc)
+    Ramka1.grid(row = 1)
+
+
+    # Radiobutton (motyw)
+    RB_var = TK.StringVar()
+    RB_var.set(MDlcg.read()[0])
+
+    RB_ciemny = TK.Radiobutton(Ramka1)
+    RB_ciemny.config(text = 'Ciemny')
+    RB_ciemny.config(variable = RB_var, value = '1')
+    RB_ciemny.config(bg = B_tlo, fg = B_text)
+
+    RB_jasny = TK.Radiobutton(Ramka1)
+    RB_jasny.config(text = 'Jasny')
+    RB_jasny.config(variable = RB_var, value = '0')
+    RB_jasny.config(bg = B_tlo, fg = B_text)
+
+    RB_ciemny.grid(row = 0, column = 0, padx = 40)
+    RB_jasny.grid(row = 0, column = 1, padx = 40)
+
 
     SettingsWindow.mainloop()
+
 
 
 
