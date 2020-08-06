@@ -14,6 +14,9 @@
 
 
 
+
+
+
 # -------------------------------------------- # Informacje o programie # -------------------------------------------- #
 
 Nazwa = 'GeneratorCSV'
@@ -28,10 +31,6 @@ Wersja = '4.0 Experimental'
 
 # ----------------------------------------- # Definicja kodów dialogowych # ------------------------------------------ #
 
-E000x01 = "Brak modułu wywołującego okna dialogowe ('dialog.py').\nPrzywróć plik. (E000x01)"
-E000x02 = ["Brak modułu zarządzającego plikiem konfiguracyjnym ('load_config.py').\nPrzywróć plik. (E000x02)", True]
-E001x01 = ["Brak pliku formatu 'format.py'.\nPrzywróć plik. (E001x01)", True]
-E001x02 = ["Brak pliku instrukcji ('instruction.txt').\nPrzywróć plik. (E001x02)", False]
 E003x01 = ["Nie podano lokalizacji plików do importu. (E003x01)", False]
 E003x02 = ["Nie podano lokalizacji zapisu wygenerowanych plików. (E003x02)", False]
 
@@ -61,24 +60,31 @@ import sys as SS
 try:
     import dialog as MDdlg
 except ModuleNotFoundError:
-    print('Nieoczekiwany wyjatek - nie mozna wygenerowac okna dialogowego bledu\n\nBŁĄD KRYTYCZNY!\n%s') %E000x01
-    wait = input('Naciśnij ENTER aby zakończyć')
+    print('Nie znaleziono modułu programu (dialog.py)\nNie można załadować programu\nKod błędu: E00x0001')
+    wait = input('Naciśnij ENTER aby wyjść')
     SS.exit(0)
 
 try:
     import load_config as MDlcg
 except ModuleNotFoundError:
-    MDdlg.Err(E000x02)
+    print('Nie znaleziono modułu programu (load_config.py)\nNie można załadować programu\nKod błędu: E00x0002')
+    wait = input('Naciśnij ENTER aby wyjść')
+    SS.exit(0)
 
 try:
-    import format as MDfmt
+    import load_format as MDlfm
 except ModuleNotFoundError:
-    MDdlg.Err(E000x02)
+    print('Nie znaleziono modułu programu (load_format.py)\nNie można załadować programu\nKod błędu: E00x0003')
+    wait = input('Naciśnij ENTER aby wyjść')
+    SS.exit(0)
 
 try:
     import processing as MDprc
 except ModuleNotFoundError:
-    MDdlg.Err(E000x02)
+    print('Nie znaleziono modułu programu (processing.py)\nNie można załadować programu\nKod błędu: E00x0004')
+    wait = input('Naciśnij ENTER aby wyjść')
+    SS.exit(0)
+
 
 
 # Biblioteki zewnętrzne interfejsu graficznego
@@ -93,7 +99,7 @@ import tkinter as TK
 
 
 
-
+#TODO
 # ------------------------------------- # Uruchomienie interfejsu graficznego # -------------------------------------- #
 
 # Zmienne globalne środowiska graficznego

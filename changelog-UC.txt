@@ -24,3 +24,9 @@
 - Doprowadzenie programu do podstawowego stanu użyteczności (występuje błąd: nie można dodać drugiej ścieżki poprzez wybór)
 - Utworzenie systemu crashlogów
 - Zastosowanie systemu crashlogów dla głównego modułu
+
+4.0 Alpha (Build 19349.2)
+- Nowy system dialogowy
+- Stworzenie pliku formatu
+- Usunięcie plików format.py i dataprocess.py
+- Przygotowanie do dalszych prac
