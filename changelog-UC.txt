@@ -62,3 +62,14 @@
 
 4.0 Alpha (Build 20017)
 - Ukończenie wizualnej części karty 'format'
+
+4.0 Alpha (Build 20181)
+- Zmiana ikony
+- Zmniejszenie liczby kart
+- Wstępne ukończenie karty "FORMAT DANYCH"
+- Zintegrowanie wszystkich plików składowych do głównego pliku programu
+- Przeprojektowanie sposobu ładowania plików konfiguracyjnych
+- Zastosowanie systemu styli do interfejsu
+- Zastosowanie systemu zapisywania plików konfiguracyjnych i formatu w folderze %appdata%
+- Usunięcie konsoli w tle
+- Wiele mniejszych zmian
