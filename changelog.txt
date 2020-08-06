@@ -19,3 +19,4 @@
 - Poprawka błędu - pole 3 i 4 nie mają już przypisanej tej samej zmiennej tekstowej
 - Przydzielenie wersji, autorów, tytułu programu i lat pracy do zmiennych globalnych środowiska graficznego
 
+4.0 - Work in progress

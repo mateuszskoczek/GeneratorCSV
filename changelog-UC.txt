@@ -1,0 +1,6 @@
+4.0 Alpha (Build 19346)
+- Wstępne podzielenie programu na kilka modułów i przeniesienie ich do folderu 'components'
+- Dodanie w głównym (nadrzędnym) folderze programu, skryptu inicjującego główny moduł programu
+- Dodanie zapisu opcji czarnego motywu do 'config.cfg'
+- Wstępne stworzenie skryptu pozwalającego na zapis do pliku 'config.cfg'
+- Błąd o braku głównego pliku składowego programu ('main.py') oraz modułu wywołującego okna dialogowe ('dialog.py')
