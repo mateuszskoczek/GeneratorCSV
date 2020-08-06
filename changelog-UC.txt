@@ -80,3 +80,8 @@
 - Dodanie instrukcji w karcie "FORMAT DANYCH"
 - Usprawnienia w kodzie
 - Naprawiono przyciski radiobutton
+
+4.0 Alpha (Build 20219)
+- Ukończenie karty "GENERATOR CSV" (poza przyciskiem "START")
+- Usunięcie instrukcji w karcie "FORMAT DANYCH" w celu późniejszego umieszczenia ich w pliku readme
+- Przekształcenie interfejsu na podstawie funkcji w interfejs na podstawie klasy

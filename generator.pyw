@@ -39,6 +39,7 @@ import shutil as SU
 import tkinter as TK
 from tkinter import ttk as TKttk
 from tkinter import messagebox as TKmsb
+from tkinter import filedialog as TKfld
 
 from PIL import ImageTk as PLitk
 from PIL import Image as PLimg
@@ -60,6 +61,7 @@ MSGlist = {
     'E0006' : 'Niepoprawne dane w pliku formatu',
     'A0001' : 'Czy chcesz zapisać? Zostanie utworzony nowy plik',
     'A0002' : 'Czy chcesz zapisać? Plik zostanie nadpisany',
+    'A0003' : 'Czy chcesz rozpocząć przetwarzanie plików?'
 }
 
 def MSG(code, terminate, *optionalInfo):
@@ -102,7 +104,7 @@ def MSG(code, terminate, *optionalInfo):
 appdata = PT.Path.home() / 'Appdata/Roaming'
 
 #TODO
-SU.rmtree(str(appdata) + '/Generator CSV')
+#SU.rmtree(str(appdata) + '/Generator CSV')
 #TODO
 if 'Generator CSV' not in [x for x in OS.listdir(appdata)]:
     try:
@@ -417,10 +419,10 @@ class GUI:
         check = functions.integer('loadingListWidth')
         if not check[0]:
             return check
-        check = functions.integer('label2Width')
+        check = functions.integer('generateFilesLabelWidth')
         if not check[0]:
             return check
-        check = functions.fromArray('label2Anchor', ['center', 'nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'])
+        check = functions.fromArray('generateFilesLabelAnchor', ['center', 'nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'])
         if not check[0]:
             return check
         check = functions.color('spinbox1ArrowColor')
@@ -529,6 +531,24 @@ class GUI:
         if not check[0]:
             return check
         check = functions.font('label3Font')
+        if not check[0]:
+            return check
+        check = functions.integer('GIFSLocalizationEntryWidth')
+        if not check[0]:
+            return check
+        check = functions.integer('GIFFrameSeparators')
+        if not check[0]:
+            return check
+        check = functions.integer('generateInputFilesPlusMinusButtonsWidth')
+        if not check[0]:
+            return check
+        check = functions.integer('generateResetButtonWidth')
+        if not check[0]:
+            return check
+        check = functions.integer('generateInputFilesPadding')
+        if not check[0]:
+            return check
+        check = functions.integer('generateOutputFilesPadding')
         if not check[0]:
             return check
         return [True, content]
@@ -683,17 +703,14 @@ class FMT:
                 def separator_array(self, var):
                     if var in list(content.keys()):
                         allowedCharactersInSeparator = CFG.R()['allowedCharactersInSeparator']
-                        new_contentVar = (content[var])[1:-1].split(', ')
-                        xnew_contentVar = []
-                        for x in new_contentVar:
-                            xnew_contentVar.append(x[1:-1])
-                        check = xnew_contentVar
+                        new_contentVar = (content[var])[2:-2].split("', '")
+                        check = new_contentVar
                         for x in check:
                             x = x.strip('<enter>')
                             for y in x:
                                 if y not in allowedCharactersInSeparator:
                                     return [False, 'Niepoprawne dane - klucz: %s' % var]
-                        content[var] = xnew_contentVar
+                        content[var] = new_contentVar
                         return [True]
                     else:
                         return [False, 'Brak danych - klucz: %s' % var]
@@ -816,606 +833,1132 @@ FMT = FMT()
 
 
 
+# ---------------------------------- # Przetwarzanie plików # ----------------------------------- #
+
+class dataProcess:
+    def start(self, files):
+        pass
+dataProcess = dataProcess()
+
+
+
+
+
 # ------------------------------------------- # GUI # ------------------------------------------- #
 
-def window():
-    # Ustawienia okna
-    window = TK.Tk()
-    window.title('%s %s' % (VARS.programName, VARS.programVersion))
-    window.geometry('%sx%s' % (str(GUI.R()['windowWidth']), str(GUI.R()['windowHeight'])))
-    window.resizable(width = GUI.R()['windowWidthResizable'], height = GUI.R()['windowHeightResizable'])
-    window.configure(bg = GUI.R()['windowMainBG'])
-    window.iconbitmap(GUI.R()['mainIcon'])
+class mainWindow:
+    def __init__(self, master):
+        # Okno
+        self.master = master
+        master.title('%s %s' % (VARS.programName, VARS.programVersion))
+        master.geometry('%sx%s' % (str(GUI.R()['windowWidth']), str(GUI.R()['windowHeight'])))
+        master.resizable(width = GUI.R()['windowWidthResizable'], height = GUI.R()['windowHeightResizable'])
+        master.configure(bg = GUI.R()['windowMainBG'])
+        master.iconbitmap(GUI.R()['mainIcon'])
 
 
 
-    # Theme
-    TKttk.Style().theme_create("main", parent = "default", settings = {
-        "mainMenu.TNotebook": {
-            "configure": {
-                "background": GUI.R()['mainMenuBG'],
-                "tabposition": GUI.R()['mainMenuPosition'],
-                "borderwidth": GUI.R()['tabFramesBorderWidth'],
+
+        # Theme
+        TKttk.Style().theme_create("main", parent = "default", settings = {
+            "mainMenu.TNotebook": {
+                "configure": {
+                    "background": GUI.R()['mainMenuBG'],
+                    "tabposition": GUI.R()['mainMenuPosition'],
+                    "borderwidth": GUI.R()['tabFramesBorderWidth'],
+                },
             },
-        },
-        "mainMenu.TNotebook.Tab": {
-            "configure": {
-                "background": GUI.R()['unselectedTabBG'],
-                "borderwidth": GUI.R()['menuTabsBorderWidth'],
-                "padding": GUI.R()['menuTabsPadding'],
+            "mainMenu.TNotebook.Tab": {
+                "configure": {
+                    "background": GUI.R()['unselectedTabBG'],
+                    "borderwidth": GUI.R()['menuTabsBorderWidth'],
+                    "padding": GUI.R()['menuTabsPadding'],
+                },
+                "map": {
+                    "background": [
+                        ("selected", GUI.R()['selectedTabBG']),
+                        ("disabled", GUI.R()['disabledTabBG']),
+                    ]
+                }
             },
-            "map": {
-                "background": [
-                    ("selected", GUI.R()['selectedTabBG']),
-                    ("disabled", GUI.R()['disabledTabBG']),
-                ]
-            }
-        },
-        "mainMenuTabFrame.TFrame": {
-            "configure": {
-                "background": GUI.R()['tabFrameBG'],
+            "mainMenuTabFrame.TFrame": {
+                "configure": {
+                    "background": GUI.R()['tabFrameBG'],
+                },
             },
-        },
-        "tabHeader.TLabel": {
-            "configure": {
-                "font": GUI.R()['headerFont'],
-                "background": GUI.R()['headerBG'],
-                "foreground": GUI.R()['headerTextColor'],
-                "padding": GUI.R()['headerPadding'],
-                "anchor": GUI.R()['headerTextAnchor'],
+            "tabHeader.TLabel": {
+                "configure": {
+                    "font": GUI.R()['headerFont'],
+                    "background": GUI.R()['headerBG'],
+                    "foreground": GUI.R()['headerTextColor'],
+                    "padding": GUI.R()['headerPadding'],
+                    "anchor": GUI.R()['headerTextAnchor'],
+                },
             },
-        },
-        "tabFrame.TFrame": {
-            "configure": {
-                "background": GUI.R()['tabFrameBG'],
+            "tabFrame.TFrame": {
+                "configure": {
+                    "background": GUI.R()['tabFrameBG'],
+                },
             },
-        },
-        "layoutFrame.TFrame": {
-            "configure": {
-                "background": GUI.R()['tabFrameBG'],
+            "layoutFrame.TFrame": {
+                "configure": {
+                    "background": GUI.R()['tabFrameBG'],
+                },
             },
-        },
-        "label1.TLabel": {
-            "configure": {
-                "background": GUI.R()['label1BG'],
-                "foreground": GUI.R()['label1TextColor']
+            "label1.TLabel": {
+                "configure": {
+                    "background": GUI.R()['label1BG'],
+                    "foreground": GUI.R()['label1TextColor'],
+                    "font": ('Segoe UI', 10)
+                },
             },
-        },
-        "label2.TLabel": {
-            "configure": {
-                "background": GUI.R()['label2BG'],
-                "foreground": GUI.R()['label2TextColor'],
-                "anchor": GUI.R()['label2Anchor'],
-                "width": GUI.R()['label2Width'],
+            "label2.TLabel": {
+                "configure": {
+                    "background": GUI.R()['label2BG'],
+                    "foreground": GUI.R()['label2TextColor'],
+                },
             },
-        },
-        "label3.TLabel": {
-            "configure": {
-                "background": GUI.R()['label3BG'],
-                "foreground": GUI.R()['label3TextColor'],
-                "font" : GUI.R()['label3Font'],
+            "combobox1.TCombobox": {
+                "configure": {
+                    "arrowcolor": GUI.R()['combobox1ArrowColor'],
+                    "background": GUI.R()['combobox1ButtonColor'],
+                    "bordercolor": GUI.R()['combobox1BorderColor'],
+                    "fieldbackground": GUI.R()['combobox1FieldBackground'],
+                    "foreground": GUI.R()['combobox1TextColor'],
+                    "relief": GUI.R()['combobox1Relief'],
+                    "borderwidth": GUI.R()['combobox1BorderWidth'],
+                    "padding": GUI.R()['combobox1Padding'],
+                },
             },
-        },
-        "combobox1.TCombobox": {
-            "configure": {
-                "arrowcolor": GUI.R()['combobox1ArrowColor'],
-                "background": GUI.R()['combobox1ButtonColor'],
-                "bordercolor": GUI.R()['combobox1BorderColor'],
-                "fieldbackground": GUI.R()['combobox1FieldBackground'],
-                "foreground": GUI.R()['combobox1TextColor'],
-                "relief": GUI.R()['combobox1Relief'],
-                "borderwidth": GUI.R()['combobox1BorderWidth'],
-                "padding": GUI.R()['combobox1Padding'],
+            "combobox2.TCombobox": {
+                "configure": {
+                    "arrowcolor": GUI.R()['combobox2ArrowColor'],
+                    "background": GUI.R()['combobox2ButtonColor'],
+                    "bordercolor": GUI.R()['combobox2BorderColor'],
+                    "fieldbackground": GUI.R()['combobox2FieldBackground'],
+                    "foreground": GUI.R()['combobox2TextColor'],
+                    "relief": GUI.R()['combobox2Relief'],
+                    "borderwidth": GUI.R()['combobox2BorderWidth'],
+                    "padding": GUI.R()['combobox2Padding'],
+                },
             },
-        },
-        "button1.TButton": {
-            "configure": {
-                "anchor": GUI.R()['button1TextAnchor'],
-                "background": GUI.R()['button1Background'],
-                "foreground": GUI.R()['button1Foreground'],
-                "padding": GUI.R()['button1Padding'],
+            "button1.TButton": {
+                "configure": {
+                    "anchor": GUI.R()['button1TextAnchor'],
+                    "background": GUI.R()['button1Background'],
+                    "foreground": GUI.R()['button1Foreground'],
+                    "padding": GUI.R()['button1Padding'],
+                },
             },
-        },
-        "separator1.TSeparator": {
-            "configure": {
-                "background": GUI.R()['tabFrameBG'],
+            "separator1.TSeparator": {
+                "configure": {
+                    "background": GUI.R()['tabFrameBG'],
+                },
             },
-        },
-        "spinbox1.TSpinbox": {
-            "configure": {
-                "arrowcolor": GUI.R()['spinbox1ArrowColor'],
-                "fieldbackground": GUI.R()['spinbox1FieldBackground'],
-                "relief": GUI.R()['spinbox1Relief'],
-                "borderwidth": GUI.R()['spinbox1BorderWidth'],
-                "foreground": GUI.R()['spinbox1TextColor'],
-                "background": GUI.R()['spinbox1ButtonColor']
+            "spinbox1.TSpinbox": {
+                "configure": {
+                    "arrowcolor": GUI.R()['spinbox1ArrowColor'],
+                    "fieldbackground": GUI.R()['spinbox1FieldBackground'],
+                    "relief": GUI.R()['spinbox1Relief'],
+                    "borderwidth": GUI.R()['spinbox1BorderWidth'],
+                    "foreground": GUI.R()['spinbox1TextColor'],
+                    "background": GUI.R()['spinbox1ButtonColor'],
+                    "padding" : GUI.R()['spinbox1Padding'],
+                },
             },
-        },
-        "entry1.TEntry": {
-            "configure": {
-                "fieldbackground": GUI.R()['entry1FieldBackground'],
-                "relief": GUI.R()['entry1Relief'],
-                "borderwidth": GUI.R()['entry1BorderWidth'],
-                "padding": GUI.R()['entry1Padding'],
-                "foreground": GUI.R()['entry1TextColor']
-            }
-        }
-    })
-    TKttk.Style().theme_use("main")
-
-
-
-    # Menu główne
-    mainMenu = TKttk.Notebook(window, width = window.winfo_width() - (2 * GUI.R()['menuTabsPadding'] + GUI.R()['tabIconsSize']), height = window.winfo_height())
-    mainMenu.config(style = "mainMenu.TNotebook")
-    mainMenu.grid(row = 0)
-
-    # Ikona
-    iconTab = TKttk.Frame(mainMenu)
-    iconTabImg = PLimg.open(GUI.R()['mainIcon'])
-    iconTabImg = iconTabImg.resize((GUI.R()['tabIconsSize'], GUI.R()['tabIconsSize']), PLimg.ANTIALIAS)
-    iconTabImg = PLitk.PhotoImage(iconTabImg)
-    mainMenu.add(iconTab, image = iconTabImg, state = TK.DISABLED)
-
-
-
-    # TAB2 - Generator ###################################################
-
-    generateTab = TKttk.Frame(mainMenu)
-    generateTab.config(style = "mainMenuTabFrame.TFrame")
-    generateTabImg = PLimg.open(GUI.R()['generateTabIcon'])
-    generateTabImg = generateTabImg.resize((GUI.R()['tabIconsSize'], GUI.R()['tabIconsSize']), PLimg.ANTIALIAS)
-    generateTabImg = PLitk.PhotoImage(generateTabImg)
-    mainMenu.add(generateTab, image = generateTabImg, state = TK.NORMAL)
-
-
-    # Nagłówek
-    generateHeader = TKttk.Label(generateTab)
-    generateHeader.config(style = 'tabHeader.TLabel')
-    generateHeader.config(text = 'GENERATOR CSV')
-    generateHeader.pack(fill = TK.X)
-
-
-    # Zawartość
-    generateFrame = TKttk.Frame(generateTab)
-    generateFrame.config(style = 'tabFrame.TFrame')
-    generateFrame.pack(fill = TK.BOTH, expand = 1, padx = GUI.R()['tabFramePadding'], pady = GUI.R()['tabFramePadding'])
-
-    ######################################################################
-
-
-
-    # TAB3 - Format ######################################################
-
-    formatTab = TKttk.Frame(mainMenu)
-    formatTab.config(style = "mainMenuTabFrame.TFrame")
-    formatTabImg = PLimg.open(GUI.R()['formatTabIcon'])
-    formatTabImg = formatTabImg.resize((GUI.R()['tabIconsSize'], GUI.R()['tabIconsSize']), PLimg.ANTIALIAS)
-    formatTabImg = PLitk.PhotoImage(formatTabImg)
-    mainMenu.add(formatTab, image = formatTabImg, state = TK.NORMAL)
-
-
-    # Nagłówek
-    formatHeader = TKttk.Label(formatTab)
-    formatHeader.config(style = 'tabHeader.TLabel')
-    formatHeader.config(text = 'FORMAT DANYCH')
-    formatHeader.pack(fill = TK.X)
-
-
-    # Zawartość
-    formatFrame = TKttk.Frame(formatTab)
-    formatFrame.config(style = 'tabFrame.TFrame')
-    formatFrame.pack(fill = TK.BOTH, expand = 1, padx = GUI.R()['tabFramePadding'], pady = GUI.R()['tabFramePadding'])
-
-
-    # (1) Ładowanie presetu #####################
-
-    loadingPresetFrame = TKttk.Frame(formatFrame)
-    loadingPresetFrame.config(style = 'layoutFrame.TFrame')
-    loadingPresetFrame.pack(fill = TK.X)
-
-    # "Wybierz preset do edycji lub wpisz nazwę nowego"
-    loadingListLabel = TKttk.Label(loadingPresetFrame)
-    loadingListLabel.config(style = 'label1.TLabel')
-    loadingListLabel.config(text = 'Wybierz preset do edycji lub wpisz nazwę nowego')
-    loadingListLabel.pack(side = 'left')
-
-    # Rozwijana lista presetów
-    loadingListVar = TK.StringVar()
-    loadingList = TKttk.Combobox(loadingPresetFrame)
-    loadingList.config(textvariable = loadingListVar)
-    loadingList.config(style = 'combobox1.TCombobox')
-    loadingList.config(width = GUI.R()['loadingListWidth'])
-    loadingList.option_add("*TCombobox*Listbox.background", GUI.R()['combobox1ListBoxBackground'])
-    loadingList.option_add("*TCombobox*Listbox.foreground", GUI.R()['combobox1ListBoxForeground'])
-    loadingList.option_add("*TCombobox*Listbox.selectBackground", GUI.R()['combobox1ListBoxSelectBackground'])
-    loadingList.option_add("*TCombobox*Listbox.selectForeground", GUI.R()['combobox1ListBoxSelectForeground'])
-    loadingList.pack(side = 'left', padx = GUI.R()['loadingListPadX'])
-    loadingList['values'] = tuple(FMT.getList())
-
-    # Przycisk "WCZYTAJ"
-    formatFileContent = {
-        "student" : True,
-        "personSeparator" : '',
-        "rowSeparator" : '',
-        "dataSeparators" : [],
-        "loginRow" : 0,
-        "loginPositionInRow" : 0,
-        "fnameRow" : 0,
-        "fnamePositionInRow" : 0,
-        "lnameRow" : 0,
-        "lnamePositionInRow" : 0,
-        "schoolRow" : 0,
-        "schoolPositionInRow" : 0,
-        "classRow" : 0,
-        "classPositionInRow" : 0,
-    }
-    def loadingButtonAction():
-        formatFileContent = FMT.R(loadingList.get())
-        loadingList['state'] = TK.DISABLED
-        loadingButton['state'] = TK.DISABLED
-        EPOSTypeVar.set(formatFileContent['student'])
-        EPOSTypeStudentRadiobutton['state'] = TK.NORMAL
-        EPOSTypeTeacherRadiobutton['state'] = TK.NORMAL
-        EPOSPersonSeparatorEntry['state'] = TK.NORMAL
-        EPOSPersonSeparatorVar.set(formatFileContent['personSeparator'])
-        EPOSRowSeparatorEntry['state'] = TK.NORMAL
-        EPOSRowSeparatorVar.set(formatFileContent['rowSeparator'])
-        EPOSDataSeparatorText['state'] = TK.NORMAL
-        EPOSDataSeparatorText.insert(TK.END, '\n'.join(formatFileContent['dataSeparators']))
-        EPDataLocalizationLoginRowSpinbox['state'] = TK.NORMAL
-        EPDataLocalizationLoginRowVar.set(formatFileContent['loginRow'])
-        EPDataLocalizationLoginPosInRowSpinbox['state'] = TK.NORMAL
-        EPDataLocalizationLoginPosInRowVar.set(formatFileContent['loginPositionInRow'])
-        EPDataLocalizationFnameRowSpinbox['state'] = TK.NORMAL
-        EPDataLocalizationFnameRowVar.set(formatFileContent['fnameRow'])
-        EPDataLocalizationFnamePosInRowSpinbox['state'] = TK.NORMAL
-        EPDataLocalizationFnamePosInRowVar.set(formatFileContent['fnamePositionInRow'])
-        EPDataLocalizationLnameRowSpinbox['state'] = TK.NORMAL
-        EPDataLocalizationLnameRowVar.set(formatFileContent['lnameRow'])
-        EPDataLocalizationLnamePosInRowSpinbox['state'] = TK.NORMAL
-        EPDataLocalizationLnamePosInRowVar.set(formatFileContent['lnamePositionInRow'])
-        EPDataLocalizationSchoolRowSpinbox['state'] = TK.NORMAL
-        EPDataLocalizationSchoolRowVar.set(formatFileContent['schoolRow'])
-        EPDataLocalizationSchoolPosInRowSpinbox['state'] = TK.NORMAL
-        EPDataLocalizationSchoolPosInRowVar.set(formatFileContent['schoolPositionInRow'])
-        EPDataLocalizationClassRowSpinbox['state'] = TK.NORMAL
-        EPDataLocalizationClassRowVar.set(formatFileContent['classRow'])
-        EPDataLocalizationClassPosInRowSpinbox['state'] = TK.NORMAL
-        EPDataLocalizationClassPosInRowVar.set(formatFileContent['classPositionInRow'])
-        editingPresetSaveButton['state'] = TK.NORMAL
-        editingPresetCancelButton['state'] = TK.NORMAL
-    loadingButton = TKttk.Button(loadingPresetFrame)
-    loadingButton.config(style = 'button1.TButton')
-    loadingButton.config(command = loadingButtonAction)
-    loadingButton.config(width = GUI.R()['loadingButtonWidth'])
-    loadingButton.config(text = 'WCZYTAJ')
-    loadingButton.pack(side = 'right')
-
-    #############################################
-
-    # (1) Separator 1 ###########################
-
-    formatSeparator1 = TKttk.Separator(formatFrame)
-    formatSeparator1.config(style = 'separator1.TSeparator')
-    formatSeparator1.config(orient = TK.HORIZONTAL)
-    formatSeparator1.pack(fill = TK.X, pady = 10)
-
-    #############################################
-
-    # (1) Edycja presetu ########################
-
-    editingPresetFrame = TKttk.Frame(formatFrame)
-    editingPresetFrame.config(style = 'layoutFrame.TFrame')
-    editingPresetFrame.pack(fill = TK.BOTH, expand = 1)
-
-    # (2) Ustawienia ##################
-
-    editingPresetSettingsFrame = TKttk.Frame(editingPresetFrame)
-    editingPresetSettingsFrame.config(style = 'layoutFrame.TFrame')
-    editingPresetSettingsFrame.pack(fill = TK.BOTH, expand = 1)
-
-    # (3) Inne ustawienia ###
-
-    editingPresetOtherSettingsFrame = TKttk.Frame(editingPresetSettingsFrame)
-    editingPresetOtherSettingsFrame.config(style = 'layoutFrame.TFrame')
-    editingPresetOtherSettingsFrame.pack(fill = TK.BOTH, expand = 1, side = TK.LEFT)
-
-    # (4) Typ osoby
-
-    editingPresetOSFrame = TKttk.Frame(editingPresetOtherSettingsFrame)
-    editingPresetOSFrame.config(style = 'layoutFrame.TFrame')
-    editingPresetOSFrame.pack(fill = TK.BOTH, expand = 1, side = TK.BOTTOM, pady = 5)
-
-    # "Typ osoby"
-    EPOSTypeLabel = TKttk.Label(editingPresetOSFrame)
-    EPOSTypeLabel.config(style = 'label1.TLabel')
-    EPOSTypeLabel.config(text = 'Typ osoby')
-    EPOSTypeLabel.grid(row = 0, column = 0, pady = 5, sticky = 'w')
-
-    # Typ osoby - Radiobutton
-    EPOSTypeVar = TK.BooleanVar(value = True)
-
-    EPOSTypeStudentRadiobutton = TK.Radiobutton(editingPresetOSFrame)
-    EPOSTypeStudentRadiobutton.config(background = GUI.R()['radiobutton1Background'])
-    EPOSTypeStudentRadiobutton.config(foreground = GUI.R()['radiobutton1TextColor'])
-    EPOSTypeStudentRadiobutton.config(selectcolor = GUI.R()['radiobutton1IndicatorBackground'])
-    EPOSTypeStudentRadiobutton.config(activebackground = GUI.R()['radiobutton1Background'])
-    EPOSTypeStudentRadiobutton.config(activeforeground = GUI.R()['radiobutton1TextColor'])
-    EPOSTypeStudentRadiobutton.config(variable = EPOSTypeVar)
-    EPOSTypeStudentRadiobutton.config(value = True)
-    EPOSTypeStudentRadiobutton.config(state = TK.DISABLED)
-    EPOSTypeStudentRadiobutton.config(width = GUI.R()['EPOSTypeStudentRadiobuttonWidth'])
-    EPOSTypeStudentRadiobutton.config(text = 'Uczniowie')
-    EPOSTypeStudentRadiobutton.grid(row = 0, column = 1, pady = GUI.R()['EPOSTypeStudentRadiobuttonPadY'])
-
-    EPOSTypeTeacherRadiobutton = TK.Radiobutton(editingPresetOSFrame)
-    EPOSTypeTeacherRadiobutton.config(background = GUI.R()['radiobutton1Background'])
-    EPOSTypeTeacherRadiobutton.config(foreground = GUI.R()['radiobutton1TextColor'])
-    EPOSTypeTeacherRadiobutton.config(selectcolor = GUI.R()['radiobutton1IndicatorBackground'])
-    EPOSTypeTeacherRadiobutton.config(activebackground = GUI.R()['radiobutton1Background'])
-    EPOSTypeTeacherRadiobutton.config(activeforeground = GUI.R()['radiobutton1TextColor'])
-    EPOSTypeTeacherRadiobutton.config(variable = EPOSTypeVar)
-    EPOSTypeTeacherRadiobutton.config(value = False)
-    EPOSTypeTeacherRadiobutton.config(state = TK.DISABLED)
-    EPOSTypeTeacherRadiobutton.config(width = GUI.R()['EPOSTypeTeacherRadiobuttonWidth'])
-    EPOSTypeTeacherRadiobutton.config(text = 'Nauczyciele')
-    EPOSTypeTeacherRadiobutton.grid(row = 0, column = 2, pady = GUI.R()['EPOSTypeTeacherRadiobuttonPadY'])
-
-    # "Separator pomiędzy osobami"
-    EPOSPersonSeparatorLabel = TKttk.Label(editingPresetOSFrame)
-    EPOSPersonSeparatorLabel.config(style = 'label1.TLabel')
-    EPOSPersonSeparatorLabel.config(text = 'Separator pomiędzy osobami')
-    EPOSPersonSeparatorLabel.grid(row = 1, column = 0, pady = 5, sticky = 'w')
-
-    # Entry - Separator pomiedzy osobami
-    EPOSPersonSeparatorVar = TK.StringVar()
-    EPOSPersonSeparatorEntry = TKttk.Entry(editingPresetOSFrame)
-    EPOSPersonSeparatorEntry.config(style = 'entry1.TEntry')
-    EPOSPersonSeparatorEntry.config(textvariable = EPOSPersonSeparatorVar)
-    EPOSPersonSeparatorEntry.config(state = TK.DISABLED)
-    EPOSPersonSeparatorEntry.config(width = GUI.R()['EPOSPersonSeparatorEntryWidth'])
-    EPOSPersonSeparatorEntry.grid(row = 1, column = 1, columnspan = 2, padx = 5, pady = 5)
-
-    # "Separator pomiędzy wierszami"
-    EPOSRowSeparatorLabel = TKttk.Label(editingPresetOSFrame)
-    EPOSRowSeparatorLabel.config(style = 'label1.TLabel')
-    EPOSRowSeparatorLabel.config(text = 'Separator pomiędzy wierszami')
-    EPOSRowSeparatorLabel.grid(row = 2, column = 0, pady = 5, sticky = 'w')
-
-    # Entry - Separator pomiedzy wierszami
-    EPOSRowSeparatorVar = TK.StringVar()
-    EPOSRowSeparatorEntry = TKttk.Entry(editingPresetOSFrame)
-    EPOSRowSeparatorEntry.config(style = 'entry1.TEntry')
-    EPOSRowSeparatorEntry.config(textvariable = EPOSRowSeparatorVar)
-    EPOSRowSeparatorEntry.config(state = TK.DISABLED)
-    EPOSRowSeparatorEntry.config(width = GUI.R()['EPOSRowSeparatorEntryWidth'])
-    EPOSRowSeparatorEntry.grid(row = 2, column = 1, columnspan = 2, padx = 5, pady = 5)
-
-    # "Separatory pomiędzy danymi"
-    EPOSDataSeparatorLabel = TKttk.Label(editingPresetOSFrame)
-    EPOSDataSeparatorLabel.config(style = 'label1.TLabel')
-    EPOSDataSeparatorLabel.config(text = 'Separatory pomiędzy danymi')
-    EPOSDataSeparatorLabel.grid(row = 3, column = 0, pady = 5, sticky = 'nw')
-
-    # Entry - Separator pomiedzy wierszami
-    EPOSDataSeparatorText = TK.Text(editingPresetOSFrame)
-    EPOSDataSeparatorText.config(state = TK.DISABLED)
-    EPOSDataSeparatorText.config(width = GUI.R()['EPOSDataSeparatorTextWidth'])
-    EPOSDataSeparatorText.config(height = GUI.R()['EPOSDataSeparatorTextHeight'])
-    EPOSDataSeparatorText.config(background = GUI.R()['text1Background'])
-    EPOSDataSeparatorText.config(foreground = GUI.R()['text1TextColor'])
-    EPOSDataSeparatorText.config(relief = GUI.R()['text1Relief'])
-    EPOSDataSeparatorText.grid(row = 3, column = 1, columnspan = 2, padx = 5, pady = 5)
-
-    # "<enter> - nowa linia | wciśnięcie przycisku ENTER | \n"
-    EPOSSeparatorEnterInfoLabel = TKttk.Label(editingPresetOSFrame)
-    EPOSSeparatorEnterInfoLabel.config(style = 'label1.TLabel')
-    EPOSSeparatorEnterInfoLabel.config(text = (r'<enter> - nowa linia | wciśnięcie przycisku ENTER | \n' + '\n' + 'Niedozwolone znaki: litery, cyfry, *'))
-    EPOSSeparatorEnterInfoLabel.grid(row = 4, column = 1, columnspan = 2)
-
-    ###############
-
-    #########################
-
-    # (3) Separator 2 #######
-
-    formatSeparator2 = TKttk.Separator(editingPresetSettingsFrame)
-    formatSeparator2.config(style = 'separator1.TSeparator')
-    formatSeparator2.config(orient = TK.VERTICAL)
-    formatSeparator2.pack(fill = TK.Y, padx = 10, side = TK.LEFT)
-
-    #########################
-
-    # (3) Lokalizacja danych
-
-    editingPresetDataLocalizationSettingsFrame = TKttk.Frame(editingPresetSettingsFrame)
-    editingPresetDataLocalizationSettingsFrame.config(style = 'layoutFrame.TFrame')
-    editingPresetDataLocalizationSettingsFrame.pack(fill = TK.BOTH, side = TK.RIGHT)
-
-    # C1 - "Wiersz"
-    editingPresetDataLocalizationC1Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
-    editingPresetDataLocalizationC1Label.config(style = 'label1.TLabel')
-    editingPresetDataLocalizationC1Label.config(text = 'Wiersz')
-    editingPresetDataLocalizationC1Label.grid(row = 0, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # C2 - "Pozycja w wierszu"
-    editingPresetDataLocalizationC2Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
-    editingPresetDataLocalizationC2Label.config(style = 'label1.TLabel')
-    editingPresetDataLocalizationC2Label.config(text = 'Pozycja w wierszu')
-    editingPresetDataLocalizationC2Label.grid(row = 0, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # W1 - "Login"
-    editingPresetDataLocalizationW1Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
-    editingPresetDataLocalizationW1Label.config(style = 'label2.TLabel')
-    editingPresetDataLocalizationW1Label.config(text = 'Login')
-    editingPresetDataLocalizationW1Label.grid(row = 1, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # Lokalizacja loginu (wiersz)
-    EPDataLocalizationLoginRowVar = TK.IntVar()
-    EPDataLocalizationLoginRowSpinbox = TKttk.Spinbox(editingPresetDataLocalizationSettingsFrame)
-    EPDataLocalizationLoginRowSpinbox.config(textvariable = EPDataLocalizationLoginRowVar)
-    EPDataLocalizationLoginRowSpinbox.config(from_ = 0)
-    EPDataLocalizationLoginRowSpinbox.config(to = 1000000)
-    EPDataLocalizationLoginRowSpinbox.config(state = TK.DISABLED)
-    EPDataLocalizationLoginRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationLoginRowSpinbox.grid(row = 1, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # Lokalizacja loginu (pozycja w wierszu)
-    EPDataLocalizationLoginPosInRowVar = TK.IntVar()
-    EPDataLocalizationLoginPosInRowSpinbox = TKttk.Spinbox(editingPresetDataLocalizationSettingsFrame)
-    EPDataLocalizationLoginPosInRowSpinbox.config(textvariable = EPDataLocalizationLoginPosInRowVar)
-    EPDataLocalizationLoginPosInRowSpinbox.config(from_ = 0)
-    EPDataLocalizationLoginPosInRowSpinbox.config(to = 1000000)
-    EPDataLocalizationLoginPosInRowSpinbox.config(state = TK.DISABLED)
-    EPDataLocalizationLoginPosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationLoginPosInRowSpinbox.grid(row = 1, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # W2 - "Imię"
-    editingPresetDataLocalizationW2Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
-    editingPresetDataLocalizationW2Label.config(style = 'label2.TLabel')
-    editingPresetDataLocalizationW2Label.config(text = 'Imię')
-    editingPresetDataLocalizationW2Label.grid(row = 2, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # Lokalizacja imienia (wiersz)
-    EPDataLocalizationFnameRowVar = TK.IntVar()
-    EPDataLocalizationFnameRowSpinbox = TKttk.Spinbox(editingPresetDataLocalizationSettingsFrame)
-    EPDataLocalizationFnameRowSpinbox.config(textvariable = EPDataLocalizationFnameRowVar)
-    EPDataLocalizationFnameRowSpinbox.config(from_ = 0)
-    EPDataLocalizationFnameRowSpinbox.config(to = 1000000)
-    EPDataLocalizationFnameRowSpinbox.config(state = TK.DISABLED)
-    EPDataLocalizationFnameRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationFnameRowSpinbox.grid(row = 2, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # Lokalizacja imienia (pozycja w wierszu)
-    EPDataLocalizationFnamePosInRowVar = TK.IntVar()
-    EPDataLocalizationFnamePosInRowSpinbox = TKttk.Spinbox(editingPresetDataLocalizationSettingsFrame)
-    EPDataLocalizationFnamePosInRowSpinbox.config(textvariable = EPDataLocalizationFnamePosInRowVar)
-    EPDataLocalizationFnamePosInRowSpinbox.config(from_ = 0)
-    EPDataLocalizationFnamePosInRowSpinbox.config(to = 1000000)
-    EPDataLocalizationFnamePosInRowSpinbox.config(state = TK.DISABLED)
-    EPDataLocalizationFnamePosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationFnamePosInRowSpinbox.grid(row = 2, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # W3 - "Nazwisko"
-    editingPresetDataLocalizationW3Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
-    editingPresetDataLocalizationW3Label.config(style = 'label2.TLabel')
-    editingPresetDataLocalizationW3Label.config(text = 'Nazwisko')
-    editingPresetDataLocalizationW3Label.grid(row = 3, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # Lokalizacja nazwiska (wiersz)
-    EPDataLocalizationLnameRowVar = TK.IntVar()
-    EPDataLocalizationLnameRowSpinbox = TKttk.Spinbox(editingPresetDataLocalizationSettingsFrame)
-    EPDataLocalizationLnameRowSpinbox.config(textvariable = EPDataLocalizationLnameRowVar)
-    EPDataLocalizationLnameRowSpinbox.config(from_ = 0)
-    EPDataLocalizationLnameRowSpinbox.config(to = 1000000)
-    EPDataLocalizationLnameRowSpinbox.config(state = TK.DISABLED)
-    EPDataLocalizationLnameRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationLnameRowSpinbox.grid(row = 3, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # Lokalizacja nazwiska (pozycja w wierszu)
-    EPDataLocalizationLnamePosInRowVar = TK.IntVar()
-    EPDataLocalizationLnamePosInRowSpinbox = TKttk.Spinbox(editingPresetDataLocalizationSettingsFrame)
-    EPDataLocalizationLnamePosInRowSpinbox.config(textvariable = EPDataLocalizationLnamePosInRowVar)
-    EPDataLocalizationLnamePosInRowSpinbox.config(from_ = 0)
-    EPDataLocalizationLnamePosInRowSpinbox.config(to = 1000000)
-    EPDataLocalizationLnamePosInRowSpinbox.config(state = TK.DISABLED)
-    EPDataLocalizationLnamePosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationLnamePosInRowSpinbox.grid(row = 3, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # W4 - "Szkoła"
-    editingPresetDataLocalizationW4Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
-    editingPresetDataLocalizationW4Label.config(style = 'label2.TLabel')
-    editingPresetDataLocalizationW4Label.config(text = 'Szkoła')
-    editingPresetDataLocalizationW4Label.grid(row = 4, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # Lokalizacja nazwiska (wiersz)
-    EPDataLocalizationSchoolRowVar = TK.IntVar()
-    EPDataLocalizationSchoolRowSpinbox = TKttk.Spinbox(editingPresetDataLocalizationSettingsFrame)
-    EPDataLocalizationSchoolRowSpinbox.config(textvariable = EPDataLocalizationSchoolRowVar)
-    EPDataLocalizationSchoolRowSpinbox.config(from_ = 0)
-    EPDataLocalizationSchoolRowSpinbox.config(to = 1000000)
-    EPDataLocalizationSchoolRowSpinbox.config(state = TK.DISABLED)
-    EPDataLocalizationSchoolRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationSchoolRowSpinbox.grid(row = 4, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # Lokalizacja nazwiska (pozycja w wierszu)
-    EPDataLocalizationSchoolPosInRowVar = TK.IntVar()
-    EPDataLocalizationSchoolPosInRowSpinbox = TKttk.Spinbox(editingPresetDataLocalizationSettingsFrame)
-    EPDataLocalizationSchoolPosInRowSpinbox.config(textvariable = EPDataLocalizationSchoolPosInRowVar)
-    EPDataLocalizationSchoolPosInRowSpinbox.config(from_ = 0)
-    EPDataLocalizationSchoolPosInRowSpinbox.config(to = 1000000)
-    EPDataLocalizationSchoolPosInRowSpinbox.config(state = TK.DISABLED)
-    EPDataLocalizationSchoolPosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationSchoolPosInRowSpinbox.grid(row = 4, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # W5 - "Klasa"
-    editingPresetDataLocalizationW5Label = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
-    editingPresetDataLocalizationW5Label.config(style = 'label2.TLabel')
-    editingPresetDataLocalizationW5Label.config(text = 'Klasa')
-    editingPresetDataLocalizationW5Label.grid(row = 5, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # Lokalizacja nazwiska (wiersz)
-    EPDataLocalizationClassRowVar = TK.IntVar()
-    EPDataLocalizationClassRowSpinbox = TKttk.Spinbox(editingPresetDataLocalizationSettingsFrame)
-    EPDataLocalizationClassRowSpinbox.config(textvariable = EPDataLocalizationClassRowVar)
-    EPDataLocalizationClassRowSpinbox.config(from_ = 0)
-    EPDataLocalizationClassRowSpinbox.config(to = 1000000)
-    EPDataLocalizationClassRowSpinbox.config(state = TK.DISABLED)
-    EPDataLocalizationClassRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationClassRowSpinbox.grid(row = 5, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # Lokalizacja nazwiska (pozycja w wierszu)
-    EPDataLocalizationClassPosInRowVar = TK.IntVar()
-    EPDataLocalizationClassPosInRowSpinbox = TKttk.Spinbox(editingPresetDataLocalizationSettingsFrame)
-    EPDataLocalizationClassPosInRowSpinbox.config(textvariable = EPDataLocalizationClassPosInRowVar)
-    EPDataLocalizationClassPosInRowSpinbox.config(from_ = 0)
-    EPDataLocalizationClassPosInRowSpinbox.config(to = 1000000)
-    EPDataLocalizationClassPosInRowSpinbox.config(state = TK.DISABLED)
-    EPDataLocalizationClassPosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
-    EPDataLocalizationClassPosInRowSpinbox.grid(row = 5, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    # Informacje
-    EPDataLocalizationInfoLabel = TKttk.Label(editingPresetDataLocalizationSettingsFrame)
-    EPDataLocalizationInfoLabel.config(style = 'label3.TLabel')
-    EPDataLocalizationInfoLabel.config(justify = 'center')
-    EPDataLocalizationInfoLabel.config(text = "1234567u\nAdam Nowak, 18\n1a LO\n*******\n\n7654321u\nJan Kowalski, 11\n2a BS\n**********\n\n------------------\n\nTyp osoby: Uczniowie\nSeparator pomiedzy osobami: '<enter><enter>'\nSeparator pomiedzy wierszami: '<enter>'\nSeparator pomiedzy danymi: ' *enter*, '\nLogin: 1 | 1\nImię: 2 | 1\nNazwisko: 2 | 2\nSzkoła: 3 | 2\nKlasa: 3 | 1")
-    EPDataLocalizationInfoLabel.grid(row = 6, column = 0, columnspan = 3, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
-
-    #########################
-
-    ###################################
-
-    # (2) Przyciski ###################
-
-    editingPresetButtonsFrame = TKttk.Frame(editingPresetFrame)
-    editingPresetButtonsFrame.config(style = 'layoutFrame.TFrame')
-    editingPresetButtonsFrame.pack(fill = TK.X, side = TK.BOTTOM, pady = 10)
-
-    def editingPresetSave():
-        studentVar = EPOSTypeVar.get()
-        if studentVar == 's':
-            studentVar = True
-        else:
-            studentVar = False
-        formatFileContentToSave = {
-            "student" : studentVar,
-            "personSeparator" : EPOSPersonSeparatorEntry.get(),
-            "rowSeparator" : EPOSRowSeparatorEntry.get(),
-            "dataSeparators" : (EPOSDataSeparatorText.get("1.0", TK.END)).split('\n')[:-1],
-            "loginRow" : int(EPDataLocalizationLoginRowSpinbox.get()),
-            "loginPositionInRow" : int(EPDataLocalizationLoginPosInRowSpinbox.get()),
-            "fnameRow" : int(EPDataLocalizationFnameRowSpinbox.get()),
-            "fnamePositionInRow" : int(EPDataLocalizationFnamePosInRowSpinbox.get()),
-            "lnameRow" : int(EPDataLocalizationLnameRowSpinbox.get()),
-            "lnamePositionInRow" : int(EPDataLocalizationLnamePosInRowSpinbox.get()),
-            "schoolRow" : int(EPDataLocalizationSchoolRowSpinbox.get()),
-            "schoolPositionInRow" : int(EPDataLocalizationSchoolPosInRowSpinbox.get()),
-            "classRow" : int(EPDataLocalizationClassRowSpinbox.get()),
-            "classPositionInRow" : int(EPDataLocalizationClassPosInRowSpinbox.get()),
-        }
-        if not FMT.W(loadingList.get(), formatFileContentToSave):
+            "entry1.TEntry": {
+                "configure": {
+                    "fieldbackground": GUI.R()['entry1FieldBackground'],
+                    "relief": GUI.R()['entry1Relief'],
+                    "borderwidth": GUI.R()['entry1BorderWidth'],
+                    "padding": GUI.R()['entry1Padding'],
+                    "foreground": GUI.R()['entry1TextColor'],
+                },
+            },
+        })
+        TKttk.Style().theme_use("main")
+
+
+
+
+        # Menu główne
+        self.mainMenu = TKttk.Notebook(master, width = master.winfo_width() - (2 * GUI.R()['menuTabsPadding'] + GUI.R()['tabIconsSize']), height = master.winfo_height())
+        self.mainMenu.config(style = "mainMenu.TNotebook")
+        self.mainMenu.grid(row = 0)
+
+        # Ikona
+        self.iconTab = TKttk.Frame(self.mainMenu)
+        self.iconTabImg = PLimg.open(GUI.R()['mainIcon'])
+        self.iconTabImg = self.iconTabImg.resize((GUI.R()['tabIconsSize'], GUI.R()['tabIconsSize']), PLimg.ANTIALIAS)
+        self.iconTabImg = PLitk.PhotoImage(self.iconTabImg)
+        self.mainMenu.add(self.iconTab, image = self.iconTabImg, state = TK.DISABLED)
+
+
+
+
+        # TAB1 - Generator ####################################################
+
+        self.generateTab = TKttk.Frame(self.mainMenu)
+        self.generateTab.config(style = "mainMenuTabFrame.TFrame")
+        self.generateTabImg = PLimg.open(GUI.R()['generateTabIcon'])
+        self.generateTabImg = self.generateTabImg.resize((GUI.R()['tabIconsSize'], GUI.R()['tabIconsSize']), PLimg.ANTIALIAS)
+        self.generateTabImg = PLitk.PhotoImage(self.generateTabImg)
+        self.mainMenu.add(self.generateTab, image = self.generateTabImg, state = TK.NORMAL)
+
+
+        # Nagłówek
+        self.generateHeader = TKttk.Label(self.generateTab)
+        self.generateHeader.config(style = 'tabHeader.TLabel')
+        self.generateHeader.config(text = 'GENERATOR CSV')
+        self.generateHeader.pack(fill = TK.X)
+
+
+        # Zawartość
+        self.generateFrame = TKttk.Frame(self.generateTab)
+        self.generateFrame.config(style = 'tabFrame.TFrame')
+        self.generateFrame.pack(fill = TK.BOTH, expand = 1, padx = GUI.R()['tabFramePadding'], pady = GUI.R()['tabFramePadding'])
+
+
+        # (1) Pliki #################################################
+
+        self.generateFilesFrame = TKttk.Frame(self.generateFrame)
+        self.generateFilesFrame.config(style = 'layoutFrame.TFrame')
+        self.generateFilesFrame.pack(fill = TK.BOTH, expand = 1)
+
+        # (2) Pliki wejściowe #############################
+
+        self.generateInputFilesFrame = TKttk.Frame(self.generateFilesFrame)
+        self.generateInputFilesFrame.config(style = 'layoutFrame.TFrame')
+        self.generateInputFilesFrame.pack(fill = TK.BOTH, expand = 1, padx = 6)
+
+        # (3) Plik źródłowy 1 ###################
+
+        self.GIF1Frame = TKttk.Frame(self.generateInputFilesFrame)
+        self.GIF1Frame.config(style = 'layoutFrame.TFrame')
+        self.GIF1Frame.pack(fill = TK.X, expand = 1, pady = int((GUI.R()['GIFFrameSeparators'])/2))
+
+        # "Plik źródłowy (1)"
+        self.GIF1Label = TKttk.Label(self.GIF1Frame)
+        self.GIF1Label.config(style = 'label1.TLabel')
+        self.GIF1Label.config(width = GUI.R()['generateFilesLabelWidth'])
+        self.GIF1Label.config(anchor = GUI.R()['generateFilesLabelAnchor'])
+        self.GIF1Label.config(padding = ('0 0 %s 0' % str(2 * GUI.R()['generateInputFilesPadding'])))
+        self.GIF1Label.config(text = 'Plik źródłowy (1)')
+        self.GIF1Label.pack(side = TK.LEFT)
+
+        # Plik żródłowy (1) - Ustawienia
+        self.GIF1SFrame = TKttk.Frame(self.GIF1Frame)
+        self.GIF1SFrame.config(style = 'layoutFrame.TFrame')
+        self.GIF1SFrame.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+
+        # Lokalizacja
+        self.GIF1SLocalizationFrame = TKttk.Frame(self.GIF1SFrame)
+        self.GIF1SLocalizationFrame.config(style = 'layoutFrame.TFrame')
+        self.GIF1SLocalizationFrame.pack(side = TK.TOP, fill = TK.X, expand = 1, pady = GUI.R()['generateInputFilesPadding'])
+
+        # Lokalizacja - Entry
+        self.GIF1SLocalizationEntryVar = TK.StringVar()
+        self.GIF1SLocalizationEntry = TKttk.Entry(self.GIF1SLocalizationFrame)
+        self.GIF1SLocalizationEntry.config(style = 'entry1.TEntry')
+        self.GIF1SLocalizationEntry.config(textvariable = self.GIF1SLocalizationEntryVar)
+        self.GIF1SLocalizationEntry.pack(side = TK.LEFT, expand = 1, fill = TK.X, padx = GUI.R()['generateInputFilesPadding'])
+
+        # Lokalizacja - Button
+        self.GIF1SLocalizationButton = TKttk.Button(self.GIF1SLocalizationFrame)
+        self.GIF1SLocalizationButton.config(style = 'button1.TButton')
+        self.GIF1SLocalizationButton.config(text = 'Przeglądaj')
+        self.GIF1SLocalizationButton.config(command = self.GIF1SLocalizationButtonAction)
+        self.GIF1SLocalizationButton.pack(side = TK.RIGHT, padx = GUI.R()['generateInputFilesPadding'])
+
+        # Format
+        self.GIF1SFormatFrame = TKttk.Frame(self.GIF1SFrame)
+        self.GIF1SFormatFrame.config(style = 'layoutFrame.TFrame')
+        self.GIF1SFormatFrame.pack(side = TK.BOTTOM, fill = TK.X, expand = 1, pady = GUI.R()['generateInputFilesPadding'])
+
+        # Format - Label
+        self.GIF1SFormatLabel = TKttk.Label(self.GIF1SFormatFrame)
+        self.GIF1SFormatLabel.config(style = 'label2.TLabel')
+        self.GIF1SFormatLabel.config(text = 'Format')
+        self.GIF1SFormatLabel.pack(side = TK.LEFT, padx = GUI.R()['generateInputFilesPadding'])
+
+        # Format - Combobox
+        self.GIF1SFormatComboboxVar = TK.StringVar()
+        self.GIF1SFormatCombobox = TKttk.Combobox(self.GIF1SFormatFrame)
+        self.GIF1SFormatCombobox.config(style = 'combobox1.TCombobox')
+        self.GIF1SFormatCombobox.option_add("*TCombobox*Listbox.background", GUI.R()['combobox1ListBoxBackground'])
+        self.GIF1SFormatCombobox.option_add("*TCombobox*Listbox.foreground", GUI.R()['combobox1ListBoxForeground'])
+        self.GIF1SFormatCombobox.option_add("*TCombobox*Listbox.selectBackground", GUI.R()['combobox1ListBoxSelectBackground'])
+        self.GIF1SFormatCombobox.option_add("*TCombobox*Listbox.selectForeground", GUI.R()['combobox1ListBoxSelectForeground'])
+        self.GIF1SFormatCombobox.config(state = 'readonly')
+        self.GIF1SFormatCombobox.config(textvariable = self.GIF1SFormatComboboxVar)
+        self.GIF1SFormatCombobox['values'] = tuple(FMT.getList())
+        self.GIF1SFormatCombobox.pack(side = TK.LEFT, expand = 1, fill = TK.X, padx = GUI.R()['generateInputFilesPadding'])
+
+        #########################################
+
+        # (3) Plik źródłowy 2 ###################
+
+        self.GIF2Frame = TKttk.Frame(self.generateInputFilesFrame)
+        self.GIF2Frame.config(style = 'layoutFrame.TFrame')
+        self.GIF2Frame.pack(fill = TK.X, expand = 1, pady = int((GUI.R()['GIFFrameSeparators'])/2))
+
+        # "Plik źródłowy (2)"
+        self.GIF2Label = TKttk.Label(self.GIF2Frame)
+        self.GIF2Label.config(style = 'label1.TLabel')
+        self.GIF2Label.config(width = GUI.R()['generateFilesLabelWidth'])
+        self.GIF2Label.config(anchor = GUI.R()['generateFilesLabelAnchor'])
+        self.GIF2Label.config(padding = ('0 0 %s 0' % str(2 * GUI.R()['generateInputFilesPadding'])))
+        self.GIF2Label.config(text = 'Plik źródłowy (2)')
+        self.GIF2Label.pack(side = TK.LEFT)
+
+        # Plik żródłowy (1) - Ustawienia
+        self.GIF2SFrame = TKttk.Frame(self.GIF2Frame)
+        self.GIF2SFrame.config(style = 'layoutFrame.TFrame')
+        self.GIF2SFrame.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+
+        # Lokalizacja
+        self.GIF2SLocalizationFrame = TKttk.Frame(self.GIF2SFrame)
+        self.GIF2SLocalizationFrame.config(style = 'layoutFrame.TFrame')
+        self.GIF2SLocalizationFrame.pack(side = TK.TOP, fill = TK.X, expand = 1, pady = GUI.R()['generateInputFilesPadding'])
+
+        # Lokalizacja - Entry
+        self.GIF2SLocalizationEntryVar = TK.StringVar()
+        self.GIF2SLocalizationEntry = TKttk.Entry(self.GIF2SLocalizationFrame)
+        self.GIF2SLocalizationEntry.config(style = 'entry1.TEntry')
+        self.GIF2SLocalizationEntry.config(textvariable = self.GIF2SLocalizationEntryVar)
+        self.GIF2SLocalizationEntry.pack(side = TK.LEFT, expand = 1, fill = TK.X, padx = GUI.R()['generateInputFilesPadding'])
+
+        # Lokalizacja - Button
+        self.GIF2SLocalizationButton = TKttk.Button(self.GIF2SLocalizationFrame)
+        self.GIF2SLocalizationButton.config(style = 'button1.TButton')
+        self.GIF2SLocalizationButton.config(text = 'Przeglądaj')
+        self.GIF2SLocalizationButton.config(command = self.GIF2SLocalizationButtonAction)
+        self.GIF2SLocalizationButton.pack(side = TK.RIGHT, padx = GUI.R()['generateInputFilesPadding'])
+
+        # Format
+        self.GIF2SFormatFrame = TKttk.Frame(self.GIF2SFrame)
+        self.GIF2SFormatFrame.config(style = 'layoutFrame.TFrame')
+        self.GIF2SFormatFrame.pack(side = TK.BOTTOM, fill = TK.X, expand = 1, pady = GUI.R()['generateInputFilesPadding'])
+
+        # Format - Label
+        self.GIF2SFormatLabel = TKttk.Label(self.GIF2SFormatFrame)
+        self.GIF2SFormatLabel.config(style = 'label2.TLabel')
+        self.GIF2SFormatLabel.config(text = 'Format')
+        self.GIF2SFormatLabel.pack(side = TK.LEFT, padx = GUI.R()['generateInputFilesPadding'])
+
+        # Format - Combobox
+        self.GIF2SFormatComboboxVar = TK.StringVar()
+        self.GIF2SFormatCombobox = TKttk.Combobox(self.GIF2SFormatFrame)
+        self.GIF2SFormatCombobox.config(style = 'combobox1.TCombobox')
+        self.GIF2SFormatCombobox.option_add("*TCombobox*Listbox.background", GUI.R()['combobox1ListBoxBackground'])
+        self.GIF2SFormatCombobox.option_add("*TCombobox*Listbox.foreground", GUI.R()['combobox1ListBoxForeground'])
+        self.GIF2SFormatCombobox.option_add("*TCombobox*Listbox.selectBackground", GUI.R()['combobox1ListBoxSelectBackground'])
+        self.GIF2SFormatCombobox.option_add("*TCombobox*Listbox.selectForeground", GUI.R()['combobox1ListBoxSelectForeground'])
+        self.GIF2SFormatCombobox.config(state = 'readonly')
+        self.GIF2SFormatCombobox.config(textvariable = self.GIF2SFormatComboboxVar)
+        self.GIF2SFormatCombobox['values'] = tuple(FMT.getList())
+        self.GIF2SFormatCombobox.pack(side = TK.LEFT, expand = 1, fill = TK.X, padx = GUI.R()['generateInputFilesPadding'])
+
+        #########################################
+
+        # (3) Plik źródłowy 3 ###################
+
+        self.GIF3Frame = TKttk.Frame(self.generateInputFilesFrame)
+        self.GIF3Frame.config(style = 'layoutFrame.TFrame')
+        self.GIF3Frame.pack(fill = TK.X, expand = 1, pady = int((GUI.R()['GIFFrameSeparators'])/2))
+
+        # "Plik źródłowy (3)"
+        self.GIF3Label = TKttk.Label(self.GIF3Frame)
+        self.GIF3Label.config(style = 'label1.TLabel')
+        self.GIF3Label.config(width = GUI.R()['generateFilesLabelWidth'])
+        self.GIF3Label.config(anchor = GUI.R()['generateFilesLabelAnchor'])
+        self.GIF3Label.config(padding = ('0 0 %s 0' % str(2 * GUI.R()['generateInputFilesPadding'])))
+        self.GIF3Label.config(text = 'Plik źródłowy (3)')
+        self.GIF3Label.pack(side = TK.LEFT)
+
+        # Plik żródłowy (1) - Ustawienia
+        self.GIF3SFrame = TKttk.Frame(self.GIF3Frame)
+        self.GIF3SFrame.config(style = 'layoutFrame.TFrame')
+        self.GIF3SFrame.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+
+        # Lokalizacja
+        self.GIF3SLocalizationFrame = TKttk.Frame(self.GIF3SFrame)
+        self.GIF3SLocalizationFrame.config(style = 'layoutFrame.TFrame')
+        self.GIF3SLocalizationFrame.pack(side = TK.TOP, fill = TK.X, expand = 1, pady = GUI.R()['generateInputFilesPadding'])
+
+        # Lokalizacja - Entry
+        self.GIF3SLocalizationEntryVar = TK.StringVar()
+        self.GIF3SLocalizationEntry = TKttk.Entry(self.GIF3SLocalizationFrame)
+        self.GIF3SLocalizationEntry.config(style = 'entry1.TEntry')
+        self.GIF3SLocalizationEntry.config(textvariable = self.GIF3SLocalizationEntryVar)
+        self.GIF3SLocalizationEntry.pack(side = TK.LEFT, expand = 1, fill = TK.X, padx = GUI.R()['generateInputFilesPadding'])
+
+        # Lokalizacja - Button
+        self.GIF3SLocalizationButton = TKttk.Button(self.GIF3SLocalizationFrame)
+        self.GIF3SLocalizationButton.config(style = 'button1.TButton')
+        self.GIF3SLocalizationButton.config(text = 'Przeglądaj')
+        self.GIF3SLocalizationButton.config(command = self.GIF3SLocalizationButtonAction)
+        self.GIF3SLocalizationButton.pack(side = TK.RIGHT, padx = GUI.R()['generateInputFilesPadding'])
+
+        # Format
+        self.GIF3SFormatFrame = TKttk.Frame(self.GIF3SFrame)
+        self.GIF3SFormatFrame.config(style = 'layoutFrame.TFrame')
+        self.GIF3SFormatFrame.pack(side = TK.BOTTOM, fill = TK.X, expand = 1, pady = GUI.R()['generateInputFilesPadding'])
+
+        # Format - Label
+        self.GIF3SFormatLabel = TKttk.Label(self.GIF3SFormatFrame)
+        self.GIF3SFormatLabel.config(style = 'label2.TLabel')
+        self.GIF3SFormatLabel.config(text = 'Format')
+        self.GIF3SFormatLabel.pack(side = TK.LEFT, padx = GUI.R()['generateInputFilesPadding'])
+
+        # Format - Combobox
+        self.GIF3SFormatComboboxVar = TK.StringVar()
+        self.GIF3SFormatCombobox = TKttk.Combobox(self.GIF3SFormatFrame)
+        self.GIF3SFormatCombobox.config(style = 'combobox1.TCombobox')
+        self.GIF3SFormatCombobox.option_add("*TCombobox*Listbox.background", GUI.R()['combobox1ListBoxBackground'])
+        self.GIF3SFormatCombobox.option_add("*TCombobox*Listbox.foreground", GUI.R()['combobox1ListBoxForeground'])
+        self.GIF3SFormatCombobox.option_add("*TCombobox*Listbox.selectBackground", GUI.R()['combobox1ListBoxSelectBackground'])
+        self.GIF3SFormatCombobox.option_add("*TCombobox*Listbox.selectForeground", GUI.R()['combobox1ListBoxSelectForeground'])
+        self.GIF3SFormatCombobox.config(state = 'readonly')
+        self.GIF3SFormatCombobox.config(textvariable = self.GIF3SFormatComboboxVar)
+        self.GIF3SFormatCombobox['values'] = tuple(FMT.getList())
+        self.GIF3SFormatCombobox.pack(side = TK.LEFT, expand = 1, fill = TK.X, padx = GUI.R()['generateInputFilesPadding'])
+
+        #########################################
+
+        # (3) Plik źródłowy 4 ###################
+
+        self.GIF4Frame = TKttk.Frame(self.generateInputFilesFrame)
+        self.GIF4Frame.config(style = 'layoutFrame.TFrame')
+        self.GIF4Frame.pack(fill = TK.X, expand = 1, pady = int((GUI.R()['GIFFrameSeparators'])/2))
+
+        # "Plik źródłowy (4)"
+        self.GIF4Label = TKttk.Label(self.GIF4Frame)
+        self.GIF4Label.config(style = 'label1.TLabel')
+        self.GIF4Label.config(width = GUI.R()['generateFilesLabelWidth'])
+        self.GIF4Label.config(anchor = GUI.R()['generateFilesLabelAnchor'])
+        self.GIF4Label.config(padding = ('0 0 %s 0' % str(2 * GUI.R()['generateInputFilesPadding'])))
+        self.GIF4Label.config(text = 'Plik źródłowy (4)')
+        self.GIF4Label.pack(side = TK.LEFT)
+
+        # Plik żródłowy (1) - Ustawienia
+        self.GIF4SFrame = TKttk.Frame(self.GIF4Frame)
+        self.GIF4SFrame.config(style = 'layoutFrame.TFrame')
+        self.GIF4SFrame.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+
+        # Lokalizacja
+        self.GIF4SLocalizationFrame = TKttk.Frame(self.GIF4SFrame)
+        self.GIF4SLocalizationFrame.config(style = 'layoutFrame.TFrame')
+        self.GIF4SLocalizationFrame.pack(side = TK.TOP, fill = TK.X, expand = 1, pady = GUI.R()['generateInputFilesPadding'])
+
+        # Lokalizacja - Entry
+        self.GIF4SLocalizationEntryVar = TK.StringVar()
+        self.GIF4SLocalizationEntry = TKttk.Entry(self.GIF4SLocalizationFrame)
+        self.GIF4SLocalizationEntry.config(style = 'entry1.TEntry')
+        self.GIF4SLocalizationEntry.config(textvariable = self.GIF4SLocalizationEntryVar)
+        self.GIF4SLocalizationEntry.pack(side = TK.LEFT, expand = 1, fill = TK.X, padx = GUI.R()['generateInputFilesPadding'])
+
+        # Lokalizacja - Button
+        self.GIF4SLocalizationButton = TKttk.Button(self.GIF4SLocalizationFrame)
+        self.GIF4SLocalizationButton.config(style = 'button1.TButton')
+        self.GIF4SLocalizationButton.config(text = 'Przeglądaj')
+        self.GIF4SLocalizationButton.config(command = self.GIF4SLocalizationButtonAction)
+        self.GIF4SLocalizationButton.pack(side = TK.RIGHT, padx = GUI.R()['generateInputFilesPadding'])
+
+        # Format
+        self.GIF4SFormatFrame = TKttk.Frame(self.GIF4SFrame)
+        self.GIF4SFormatFrame.config(style = 'layoutFrame.TFrame')
+        self.GIF4SFormatFrame.pack(side = TK.BOTTOM, fill = TK.X, expand = 1, pady = GUI.R()['generateInputFilesPadding'])
+
+        # Format - Label
+        self.GIF4SFormatLabel = TKttk.Label(self.GIF4SFormatFrame)
+        self.GIF4SFormatLabel.config(style = 'label2.TLabel')
+        self.GIF4SFormatLabel.config(text = 'Format')
+        self.GIF4SFormatLabel.pack(side = TK.LEFT, padx = GUI.R()['generateInputFilesPadding'])
+
+        # Format - Combobox
+        self.GIF4SFormatComboboxVar = TK.StringVar()
+        self.GIF4SFormatCombobox = TKttk.Combobox(self.GIF4SFormatFrame)
+        self.GIF4SFormatCombobox.config(style = 'combobox1.TCombobox')
+        self.GIF4SFormatCombobox.option_add("*TCombobox*Listbox.background", GUI.R()['combobox1ListBoxBackground'])
+        self.GIF4SFormatCombobox.option_add("*TCombobox*Listbox.foreground", GUI.R()['combobox1ListBoxForeground'])
+        self.GIF4SFormatCombobox.option_add("*TCombobox*Listbox.selectBackground", GUI.R()['combobox1ListBoxSelectBackground'])
+        self.GIF4SFormatCombobox.option_add("*TCombobox*Listbox.selectForeground", GUI.R()['combobox1ListBoxSelectForeground'])
+        self.GIF4SFormatCombobox.config(state = 'readonly')
+        self.GIF4SFormatCombobox.config(textvariable = self.GIF4SFormatComboboxVar)
+        self.GIF4SFormatCombobox['values'] = tuple(FMT.getList())
+        self.GIF4SFormatCombobox.pack(side = TK.LEFT, expand = 1, fill = TK.X, padx = GUI.R()['generateInputFilesPadding'])
+
+        #########################################
+
+        ###################################################
+
+        # (2) Separator1 ##################################
+
+        self.generateSeparator1 = TKttk.Separator(self.generateFilesFrame)
+        self.generateSeparator1.config(style = 'separator1.TSeparator')
+        self.generateSeparator1.pack(fill = TK.X, pady = 10)
+
+        ###################################################
+
+        # (2) Pliki wyjściowe #############################
+    
+        self.generateOutputFilesFrame = TKttk.Frame(self.generateFilesFrame)
+        self.generateOutputFilesFrame.config(style = 'layoutFrame.TFrame')
+        self.generateOutputFilesFrame.pack(fill = TK.X, pady = 10, padx = 12)
+
+        # (3) Poczta ############################
+
+        self.GOFMailFrame = TKttk.Frame(self.generateOutputFilesFrame)
+        self.GOFMailFrame.config(style = 'layoutFrame.TFrame')
+        self.GOFMailFrame.pack(pady = GUI.R()['generateOutputFilesPadding'], fill = TK.X, expand = 1)
+
+        # "Poczta"
+        self.GOFMailLabel = TKttk.Label(self.GOFMailFrame)
+        self.GOFMailLabel.config(style = 'label1.TLabel')
+        self.GOFMailLabel.config(width = GUI.R()['generateFilesLabelWidth'])
+        self.GOFMailLabel.config(anchor = GUI.R()['generateFilesLabelAnchor'])
+        self.GOFMailLabel.config(text = 'Poczta')
+        self.GOFMailLabel.pack(side = TK.LEFT)
+
+        # Plik poczty - Lokalizacja (Entry)
+        self.GOFMailEntryVar = TK.StringVar()
+        self.GOFMailEntry = TKttk.Entry(self.GOFMailFrame)
+        self.GOFMailEntry.config(style = 'entry1.TEntry')
+        self.GOFMailEntry.config(textvariable = self.GOFMailEntryVar)
+        self.GOFMailEntry.pack(padx = 2 * GUI.R()['generateOutputFilesPadding'], side = TK.LEFT, fill = TK.X, expand = 1)
+
+        # Plik poczty - Lokalizacja (Button)
+        self.GOFMailButton = TKttk.Button(self.GOFMailFrame)
+        self.GOFMailButton.config(style = 'button1.TButton')
+        self.GOFMailButton.config(text = 'Przeglądaj')
+        self.GOFMailButton.config(command = self.GOFMailButtonAction)
+        self.GOFMailButton.pack(side = TK.LEFT)
+        
+        #########################################
+
+        # (3) Office ############################
+
+        self.GOFOfficeFrame = TKttk.Frame(self.generateOutputFilesFrame)
+        self.GOFOfficeFrame.config(style = 'layoutFrame.TFrame')
+        self.GOFOfficeFrame.pack(pady = GUI.R()['generateOutputFilesPadding'], fill = TK.X, expand = 1)
+
+        # "Office"
+        self.GOFOfficeLabel = TKttk.Label(self.GOFOfficeFrame)
+        self.GOFOfficeLabel.config(style = 'label1.TLabel')
+        self.GOFOfficeLabel.config(width = GUI.R()['generateFilesLabelWidth'])
+        self.GOFOfficeLabel.config(anchor = GUI.R()['generateFilesLabelAnchor'])
+        self.GOFOfficeLabel.config(text = 'Office')
+        self.GOFOfficeLabel.pack(side = TK.LEFT)
+
+        # Plik office - Lokalizacja (Entry)
+        self.GOFOfficeEntryVar = TK.StringVar()
+        self.GOFOfficeEntry = TKttk.Entry(self.GOFOfficeFrame)
+        self.GOFOfficeEntry.config(style = 'entry1.TEntry')
+        self.GOFOfficeEntry.config(textvariable = self.GOFOfficeEntryVar)
+        self.GOFOfficeEntry.pack(padx = 2 * GUI.R()['generateOutputFilesPadding'], side = TK.LEFT, fill = TK.X, expand = 1)
+
+        # Plik office - Lokalizacja (Button)
+        self.GOFOfficeButton = TKttk.Button(self.GOFOfficeFrame)
+        self.GOFOfficeButton.config(style = 'button1.TButton')
+        self.GOFOfficeButton.config(text = 'Przeglądaj')
+        self.GOFOfficeButton.config(command = self.GOFOfficeButtonAction)
+        self.GOFOfficeButton.pack(side = TK.LEFT)
+
+        #########################################
+
+        ###################################################
+
+        #############################################################
+
+         # (1) Separator2 ###########################################
+
+        self.generateSeparator2 = TKttk.Separator(self.generateFrame)
+        self.generateSeparator2.config(style = 'separator1.TSeparator')
+        self.generateSeparator2.pack(fill = TK.X, pady = 10)
+
+        #############################################################
+
+        # (1) Przyciski #############################################
+
+        self.generateButtonsFrame = TKttk.Frame(self.generateFrame)
+        self.generateButtonsFrame.config(style = 'layoutFrame.TFrame')
+        self.generateButtonsFrame.pack(fill = TK.X, pady = 10, padx = 12)
+
+        # Przycisk "START"
+        self.generateStartButton = TKttk.Button(self.generateButtonsFrame)
+        self.generateStartButton.config(style = 'button1.TButton')
+        self.generateStartButton.config(padding = 10)
+        self.generateStartButton.config(text = 'START')
+        self.generateStartButton.config(command = self.generateStartButtonAction)
+        self.generateStartButton.pack(side = TK.LEFT, fill = TK.X, expand = 1)
+
+        ##############################################################
+
+        #######################################################################
+
+
+
+
+        # TAB3 - Format #######################################################
+
+        self.formatTab = TKttk.Frame(self.mainMenu)
+        self.formatTab.config(style = "mainMenuTabFrame.TFrame")
+        self.formatTabImg = PLimg.open(GUI.R()['formatTabIcon'])
+        self.formatTabImg = self.formatTabImg.resize((GUI.R()['tabIconsSize'], GUI.R()['tabIconsSize']), PLimg.ANTIALIAS)
+        self.formatTabImg = PLitk.PhotoImage(self.formatTabImg)
+        self.mainMenu.add(self.formatTab, image = self.formatTabImg, state = TK.NORMAL)
+
+
+        # Nagłówek
+        self.formatHeader = TKttk.Label(self.formatTab)
+        self.formatHeader.config(style = 'tabHeader.TLabel')
+        self.formatHeader.config(text = 'FORMAT DANYCH')
+        self.formatHeader.pack(fill = TK.X)
+
+
+        # Zawartość
+        self.formatFrame = TKttk.Frame(self.formatTab)
+        self.formatFrame.config(style = 'tabFrame.TFrame')
+        self.formatFrame.pack(fill = TK.BOTH, expand = 1, padx = GUI.R()['tabFramePadding'], pady = GUI.R()['tabFramePadding'])
+
+
+        # (1) Ładowanie presetu #####################################
+
+        self.loadingPresetFrame = TKttk.Frame(self.formatFrame)
+        self.loadingPresetFrame.config(style = 'layoutFrame.TFrame')
+        self.loadingPresetFrame.pack(fill = TK.X, side = TK.TOP, pady = 5, padx = 10)
+
+        # "Wybierz preset do edycji lub wpisz nazwę nowego"
+        self.loadingListLabel = TKttk.Label(self.loadingPresetFrame)
+        self.loadingListLabel.config(style = 'label1.TLabel')
+        self.loadingListLabel.config(text = 'Wybierz preset do edycji lub wpisz nazwę nowego')
+        self.loadingListLabel.pack(side = TK.LEFT)
+
+        # Rozwijana lista presetów
+        self.loadingListVar = TK.StringVar()
+        self.loadingList = TKttk.Combobox(self.loadingPresetFrame)
+        self.loadingList.config(textvariable = self.loadingListVar)
+        self.loadingList.config(style = 'combobox2.TCombobox')
+        self.loadingList.option_add("*TCombobox*Listbox.background", GUI.R()['combobox2ListBoxBackground'])
+        self.loadingList.option_add("*TCombobox*Listbox.foreground", GUI.R()['combobox2ListBoxForeground'])
+        self.loadingList.option_add("*TCombobox*Listbox.selectBackground", GUI.R()['combobox2ListBoxSelectBackground'])
+        self.loadingList.option_add("*TCombobox*Listbox.selectForeground", GUI.R()['combobox2ListBoxSelectForeground'])
+        self.loadingList.pack(side = TK.LEFT, padx = GUI.R()['loadingListPadX'], fill = TK.X, expand = 1)
+        self.loadingList['values'] = tuple(FMT.getList())
+
+        # Przycisk "WCZYTAJ"
+        self.loadingButton = TKttk.Button(self.loadingPresetFrame)
+        self.loadingButton.config(style = 'button1.TButton')
+        self.loadingButton.config(command = self.loadingButtonAction)
+        self.loadingButton.config(width = GUI.R()['loadingButtonWidth'])
+        self.loadingButton.config(text = 'WCZYTAJ')
+        self.loadingButton.pack(side = TK.RIGHT)
+
+        #############################################################
+
+        # (1) Separator 1 ###########################################
+
+        self.formatSeparator1 = TKttk.Separator(self.formatFrame)
+        self.formatSeparator1.config(style = 'separator1.TSeparator')
+        self.formatSeparator1.config(orient = TK.HORIZONTAL)
+        self.formatSeparator1.pack(fill = TK.X, pady = 10)
+
+        #############################################################
+
+        # (1) Edycja presetu ########################################
+
+        self.editingPresetFrame = TKttk.Frame(self.formatFrame)
+        self.editingPresetFrame.config(style = 'layoutFrame.TFrame')
+        self.editingPresetFrame.pack(fill = TK.BOTH, expand = 1, padx = 10)
+
+        # (2) Ustawienia ##################################
+
+        self.editingPresetSettingsFrame = TKttk.Frame(self.editingPresetFrame)
+        self.editingPresetSettingsFrame.config(style = 'layoutFrame.TFrame')
+        self.editingPresetSettingsFrame.pack(fill = TK.BOTH, expand = 1)
+
+        # (3) Inne ustawienia ###################
+
+        self.editingPresetOSFrame = TKttk.Frame(self.editingPresetSettingsFrame)
+        self.editingPresetOSFrame.config(style = 'layoutFrame.TFrame')
+        self.editingPresetOSFrame.pack(fill = TK.BOTH, expand = 1, side = TK.LEFT)
+
+        # (5) Typ osoby ###############
+
+        self.EPOSTypeFrame = TKttk.Frame(self.editingPresetOSFrame)
+        self.EPOSTypeFrame.config(style = 'layoutFrame.TFrame')
+        self.EPOSTypeFrame.pack(fill = TK.X, expand = 1, pady = 5)
+
+        # "Typ osoby"
+        self.EPOSTypeLabel = TKttk.Label(self.EPOSTypeFrame)
+        self.EPOSTypeLabel.config(style = 'label1.TLabel')
+        self.EPOSTypeLabel.config(width = GUI.R()['EPOSLabelWidth'])
+        self.EPOSTypeLabel.config(anchor = GUI.R()['EPOSLabelAnchor'])
+        self.EPOSTypeLabel.config(text = 'Typ osoby')
+        self.EPOSTypeLabel.pack(side = TK.LEFT)
+
+        # Radiobutton
+        self.EPOSTypeVar = TK.BooleanVar(value = True)
+
+        self.EPOSTypeStudentRadiobutton = TK.Radiobutton(self.EPOSTypeFrame)
+        self.EPOSTypeStudentRadiobutton.config(background = GUI.R()['radiobutton1Background'])
+        self.EPOSTypeStudentRadiobutton.config(foreground = GUI.R()['radiobutton1TextColor'])
+        self.EPOSTypeStudentRadiobutton.config(selectcolor = GUI.R()['radiobutton1IndicatorBackground'])
+        self.EPOSTypeStudentRadiobutton.config(activebackground = GUI.R()['radiobutton1Background'])
+        self.EPOSTypeStudentRadiobutton.config(activeforeground = GUI.R()['radiobutton1TextColor'])
+        self.EPOSTypeStudentRadiobutton.config(variable = self.EPOSTypeVar)
+        self.EPOSTypeStudentRadiobutton.config(value = True)
+        self.EPOSTypeStudentRadiobutton.config(state = TK.DISABLED)
+        self.EPOSTypeStudentRadiobutton.config(text = 'Uczniowie')
+        self.EPOSTypeStudentRadiobutton.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+
+        self.EPOSTypeTeacherRadiobutton = TK.Radiobutton(self.EPOSTypeFrame)
+        self.EPOSTypeTeacherRadiobutton.config(background = GUI.R()['radiobutton1Background'])
+        self.EPOSTypeTeacherRadiobutton.config(foreground = GUI.R()['radiobutton1TextColor'])
+        self.EPOSTypeTeacherRadiobutton.config(selectcolor = GUI.R()['radiobutton1IndicatorBackground'])
+        self.EPOSTypeTeacherRadiobutton.config(activebackground = GUI.R()['radiobutton1Background'])
+        self.EPOSTypeTeacherRadiobutton.config(activeforeground = GUI.R()['radiobutton1TextColor'])
+        self.EPOSTypeTeacherRadiobutton.config(variable = self.EPOSTypeVar)
+        self.EPOSTypeTeacherRadiobutton.config(value = False)
+        self.EPOSTypeTeacherRadiobutton.config(state = TK.DISABLED)
+        self.EPOSTypeTeacherRadiobutton.config(text = 'Nauczyciele')
+        self.EPOSTypeTeacherRadiobutton.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+        
+        #####################
+
+        # (5) Separator pomiedzy osobami
+
+        self.EPOSPersonSeparatorFrame = TKttk.Frame(self.editingPresetOSFrame)
+        self.EPOSPersonSeparatorFrame.config(style = 'layoutFrame.TFrame')
+        self.EPOSPersonSeparatorFrame.pack(fill = TK.X, expand = 1, pady = 5)
+        
+        # "Separator pomiędzy osobami"
+        self.EPOSPersonSeparatorLabel = TKttk.Label(self.EPOSPersonSeparatorFrame)
+        self.EPOSPersonSeparatorLabel.config(style = 'label1.TLabel')
+        self.EPOSPersonSeparatorLabel.config(width = GUI.R()['EPOSLabelWidth'])
+        self.EPOSPersonSeparatorLabel.config(anchor = GUI.R()['EPOSLabelAnchor'])
+        self.EPOSPersonSeparatorLabel.config(text = 'Separator pomiędzy osobami')
+        self.EPOSPersonSeparatorLabel.pack(side = TK.LEFT)
+
+        # Entry - Separator pomiedzy osobami
+        self.EPOSPersonSeparatorVar = TK.StringVar()
+        self.EPOSPersonSeparatorEntry = TKttk.Entry(self.EPOSPersonSeparatorFrame)
+        self.EPOSPersonSeparatorEntry.config(style = 'entry1.TEntry')
+        self.EPOSPersonSeparatorEntry.config(textvariable = self.EPOSPersonSeparatorVar)
+        self.EPOSPersonSeparatorEntry.config(state = TK.DISABLED)
+        self.EPOSPersonSeparatorEntry.config(width = GUI.R()['EPOSPersonSeparatorEntryWidth'])
+        self.EPOSPersonSeparatorEntry.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+
+        #####################
+
+        # (5) Separator pomiedzy wierszami
+
+        self.EPOSRowSeparatorFrame = TKttk.Frame(self.editingPresetOSFrame)
+        self.EPOSRowSeparatorFrame.config(style = 'layoutFrame.TFrame')
+        self.EPOSRowSeparatorFrame.pack(fill = TK.X, expand = 1, pady = 5)
+
+        # "Separator pomiędzy wierszami"
+        self.EPOSRowSeparatorLabel = TKttk.Label(self.EPOSRowSeparatorFrame)
+        self.EPOSRowSeparatorLabel.config(style = 'label1.TLabel')
+        self.EPOSRowSeparatorLabel.config(width = GUI.R()['EPOSLabelWidth'])
+        self.EPOSRowSeparatorLabel.config(anchor = GUI.R()['EPOSLabelAnchor'])
+        self.EPOSRowSeparatorLabel.config(text = 'Separator pomiędzy wierszami')
+        self.EPOSRowSeparatorLabel.pack(side = TK.LEFT)
+
+        # Entry - Separator pomiedzy wierszami
+        self.EPOSRowSeparatorVar = TK.StringVar()
+        self.EPOSRowSeparatorEntry = TKttk.Entry(self.EPOSRowSeparatorFrame)
+        self.EPOSRowSeparatorEntry.config(style = 'entry1.TEntry')
+        self.EPOSRowSeparatorEntry.config(textvariable = self.EPOSRowSeparatorVar)
+        self.EPOSRowSeparatorEntry.config(state = TK.DISABLED)
+        self.EPOSRowSeparatorEntry.config(width = GUI.R()['EPOSRowSeparatorEntryWidth'])
+        self.EPOSRowSeparatorEntry.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+
+        #####################
+
+        # (5) Separatory pomiedzy danymi
+
+        self.EPOSDataSeparatorFrame = TKttk.Frame(self.editingPresetOSFrame)
+        self.EPOSDataSeparatorFrame.config(style = 'layoutFrame.TFrame')
+        self.EPOSDataSeparatorFrame.pack(fill = TK.BOTH, expand = 1, pady = 5)
+
+        # "Separatory pomiędzy danymi"
+        self.EPOSDataSeparatorLabel = TKttk.Label(self.EPOSDataSeparatorFrame)
+        self.EPOSDataSeparatorLabel.config(style = 'label1.TLabel')
+        self.EPOSDataSeparatorLabel.config(width = GUI.R()['EPOSLabelWidth'])
+        self.EPOSDataSeparatorLabel.config(anchor = GUI.R()['EPOSLabelAnchor'])
+        self.EPOSDataSeparatorLabel.config(text = 'Separatory pomiędzy danymi')
+        self.EPOSDataSeparatorLabel.pack(side = TK.LEFT)
+
+        # Entry - Separator pomiedzy wierszami
+        self.EPOSDataSeparatorText = TK.Text(self.EPOSDataSeparatorFrame)
+        self.EPOSDataSeparatorText.config(state = TK.DISABLED)
+        self.EPOSDataSeparatorText.config(background = GUI.R()['text1Background'])
+        self.EPOSDataSeparatorText.config(foreground = GUI.R()['text1TextColor'])
+        self.EPOSDataSeparatorText.config(relief = GUI.R()['text1Relief'])
+        self.EPOSDataSeparatorText.pack(side = TK.TOP, fill = TK.BOTH)
+
+        #####################
+
+        ###############################
+
+        # (4) Separator 2 #############
+
+        self.formatSeparator2 = TKttk.Separator(self.editingPresetSettingsFrame)
+        self.formatSeparator2.config(style = 'separator1.TSeparator')
+        self.formatSeparator2.config(orient = TK.VERTICAL)
+        self.formatSeparator2.pack(fill = TK.Y, padx = 12, expand = 1, side = TK.LEFT)
+
+        ###############################
+
+        # (4) Lokalizacja danych ######
+
+        self.editingPresetDLFrame = TKttk.Frame(self.editingPresetSettingsFrame)
+        self.editingPresetDLFrame.config(style = 'layoutFrame.TFrame')
+        self.editingPresetDLFrame.pack(fill = TK.BOTH, side = TK.RIGHT)
+        self.editingPresetDLFrame.grid_columnconfigure(1, weight = 1)
+        self.editingPresetDLFrame.grid_columnconfigure(2, weight = 1)
+
+        # C1 - "Wiersz"
+        self.EPDLC1Label = TKttk.Label(self.editingPresetDLFrame)
+        self.EPDLC1Label.config(style = 'label1.TLabel')
+        self.EPDLC1Label.config(text = 'Wiersz')
+        self.EPDLC1Label.grid(row = 0, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # C2 - "Pozycja w wierszu"
+        self.EPDLC2Label = TKttk.Label(self.editingPresetDLFrame)
+        self.EPDLC2Label.config(style = 'label1.TLabel')
+        self.EPDLC2Label.config(justify = TK.CENTER)
+        self.EPDLC2Label.config(text = 'Pozycja\nw wierszu')
+        self.EPDLC2Label.grid(row = 0, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # W1 - "Login"
+        self.EPDLW1Label = TKttk.Label(self.editingPresetDLFrame)
+        self.EPDLW1Label.config(style = 'label1.TLabel')
+        self.EPDLW1Label.config(text = 'Login')
+        self.EPDLW1Label.grid(row = 1, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # Lokalizacja loginu (wiersz)
+        self.EPDLLoginRowVar = TK.IntVar()
+        self.EPDLLoginRowSpinbox = TKttk.Spinbox(self.editingPresetDLFrame)
+        self.EPDLLoginRowSpinbox.config(textvariable = self.EPDLLoginRowVar)
+        self.EPDLLoginRowSpinbox.config(from_ = 0)
+        self.EPDLLoginRowSpinbox.config(to = 1000000)
+        self.EPDLLoginRowSpinbox.config(state = TK.DISABLED)
+        self.EPDLLoginRowSpinbox.config(style = 'spinbox1.TSpinbox')
+        self.EPDLLoginRowSpinbox.grid(row = 1, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # Lokalizacja loginu (pozycja w wierszu)
+        self.EPDLLoginPosInRowVar = TK.IntVar()
+        self.EPDLLoginPosInRowSpinbox = TKttk.Spinbox(self.editingPresetDLFrame)
+        self.EPDLLoginPosInRowSpinbox.config(textvariable = self.EPDLLoginPosInRowVar)
+        self.EPDLLoginPosInRowSpinbox.config(from_ = 0)
+        self.EPDLLoginPosInRowSpinbox.config(to = 1000000)
+        self.EPDLLoginPosInRowSpinbox.config(state = TK.DISABLED)
+        self.EPDLLoginPosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
+        self.EPDLLoginPosInRowSpinbox.grid(row = 1, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # W2 - "Imię"
+        self.EPDLW2Label = TKttk.Label(self.editingPresetDLFrame)
+        self.EPDLW2Label.config(style = 'label1.TLabel')
+        self.EPDLW2Label.config(text = 'Imię')
+        self.EPDLW2Label.grid(row = 2, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # Lokalizacja imienia (wiersz)
+        self.EPDLFnameRowVar = TK.IntVar()
+        self.EPDLFnameRowSpinbox = TKttk.Spinbox(self.editingPresetDLFrame)
+        self.EPDLFnameRowSpinbox.config(textvariable = self.EPDLFnameRowVar)
+        self.EPDLFnameRowSpinbox.config(from_ = 0)
+        self.EPDLFnameRowSpinbox.config(to = 1000000)
+        self.EPDLFnameRowSpinbox.config(state = TK.DISABLED)
+        self.EPDLFnameRowSpinbox.config(style = 'spinbox1.TSpinbox')
+        self.EPDLFnameRowSpinbox.grid(row = 2, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # Lokalizacja imienia (pozycja w wierszu)
+        self.EPDLFnamePosInRowVar = TK.IntVar()
+        self.EPDLFnamePosInRowSpinbox = TKttk.Spinbox(self.editingPresetDLFrame)
+        self.EPDLFnamePosInRowSpinbox.config(textvariable = self.EPDLFnamePosInRowVar)
+        self.EPDLFnamePosInRowSpinbox.config(from_ = 0)
+        self.EPDLFnamePosInRowSpinbox.config(to = 1000000)
+        self.EPDLFnamePosInRowSpinbox.config(state = TK.DISABLED)
+        self.EPDLFnamePosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
+        self.EPDLFnamePosInRowSpinbox.grid(row = 2, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # W3 - "Nazwisko"
+        self.EPDLW3Label = TKttk.Label(self.editingPresetDLFrame)
+        self.EPDLW3Label.config(style = 'label1.TLabel')
+        self.EPDLW3Label.config(text = 'Nazwisko')
+        self.EPDLW3Label.grid(row = 3, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # Lokalizacja nazwiska (wiersz)
+        self.EPDLLnameRowVar = TK.IntVar()
+        self.EPDLLnameRowSpinbox = TKttk.Spinbox(self.editingPresetDLFrame)
+        self.EPDLLnameRowSpinbox.config(textvariable = self.EPDLLnameRowVar)
+        self.EPDLLnameRowSpinbox.config(from_ = 0)
+        self.EPDLLnameRowSpinbox.config(to = 1000000)
+        self.EPDLLnameRowSpinbox.config(state = TK.DISABLED)
+        self.EPDLLnameRowSpinbox.config(style = 'spinbox1.TSpinbox')
+        self.EPDLLnameRowSpinbox.grid(row = 3, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # Lokalizacja nazwiska (pozycja w wierszu)
+        self.EPDLLnamePosInRowVar = TK.IntVar()
+        self.EPDLLnamePosInRowSpinbox = TKttk.Spinbox(self.editingPresetDLFrame)
+        self.EPDLLnamePosInRowSpinbox.config(textvariable = self.EPDLLnamePosInRowVar)
+        self.EPDLLnamePosInRowSpinbox.config(from_ = 0)
+        self.EPDLLnamePosInRowSpinbox.config(to = 1000000)
+        self.EPDLLnamePosInRowSpinbox.config(state = TK.DISABLED)
+        self.EPDLLnamePosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
+        self.EPDLLnamePosInRowSpinbox.grid(row = 3, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # W4 - "Szkoła"
+        self.EPDLW4Label = TKttk.Label(self.editingPresetDLFrame)
+        self.EPDLW4Label.config(style = 'label1.TLabel')
+        self.EPDLW4Label.config(text = 'Szkoła')
+        self.EPDLW4Label.grid(row = 4, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # Lokalizacja nazwiska (wiersz)
+        self.EPDLSchoolRowVar = TK.IntVar()
+        self.EPDLSchoolRowSpinbox = TKttk.Spinbox(self.editingPresetDLFrame)
+        self.EPDLSchoolRowSpinbox.config(textvariable = self.EPDLSchoolRowVar)
+        self.EPDLSchoolRowSpinbox.config(from_ = 0)
+        self.EPDLSchoolRowSpinbox.config(to = 1000000)
+        self.EPDLSchoolRowSpinbox.config(state = TK.DISABLED)
+        self.EPDLSchoolRowSpinbox.config(style = 'spinbox1.TSpinbox')
+        self.EPDLSchoolRowSpinbox.grid(row = 4, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # Lokalizacja nazwiska (pozycja w wierszu)
+        self.EPDLSchoolPosInRowVar = TK.IntVar()
+        self.EPDLSchoolPosInRowSpinbox = TKttk.Spinbox(self.editingPresetDLFrame)
+        self.EPDLSchoolPosInRowSpinbox.config(textvariable = self.EPDLSchoolPosInRowVar)
+        self.EPDLSchoolPosInRowSpinbox.config(from_ = 0)
+        self.EPDLSchoolPosInRowSpinbox.config(to = 1000000)
+        self.EPDLSchoolPosInRowSpinbox.config(state = TK.DISABLED)
+        self.EPDLSchoolPosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
+        self.EPDLSchoolPosInRowSpinbox.grid(row = 4, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # W5 - "Klasa"
+        self.EPDLW5Label = TKttk.Label(self.editingPresetDLFrame)
+        self.EPDLW5Label.config(style = 'label1.TLabel')
+        self.EPDLW5Label.config(text = 'Klasa')
+        self.EPDLW5Label.grid(row = 5, column = 0, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        # Lokalizacja nazwiska (wiersz)
+        self.EPDLClassRowVar = TK.IntVar()
+        self.EPDLClassRowSpinbox = TKttk.Spinbox(self.editingPresetDLFrame)
+        self.EPDLClassRowSpinbox.config(textvariable = self.EPDLClassRowVar)
+        self.EPDLClassRowSpinbox.config(from_ = 0)
+        self.EPDLClassRowSpinbox.config(to = 1000000)
+        self.EPDLClassRowSpinbox.config(state = TK.DISABLED)
+        self.EPDLClassRowSpinbox.config(style = 'spinbox1.TSpinbox')
+        self.EPDLClassRowSpinbox.grid(row = 5, column = 1, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+
+        # Lokalizacja nazwiska (pozycja w wierszu)
+        self.EPDLClassPosInRowVar = TK.IntVar()
+        self.EPDLClassPosInRowSpinbox = TKttk.Spinbox(self.editingPresetDLFrame)
+        self.EPDLClassPosInRowSpinbox.config(textvariable = self.EPDLClassPosInRowVar)
+        self.EPDLClassPosInRowSpinbox.config(from_ = 0)
+        self.EPDLClassPosInRowSpinbox.config(to = 1000000)
+        self.EPDLClassPosInRowSpinbox.config(state = TK.DISABLED)
+        self.EPDLClassPosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
+        self.EPDLClassPosInRowSpinbox.grid(row = 5, column = 2, padx = GUI.R()['EPDataLocalizationPadX'], pady = GUI.R()['EPDataLocalizationPadY'])
+        
+        ###############################
+
+        #########################################
+
+        ###################################################
+
+        # (1) Separator 3 ###########################################
+
+        self.formatSeparator3 = TKttk.Separator(self.formatFrame)
+        self.formatSeparator3.config(style = 'separator1.TSeparator')
+        self.formatSeparator3.config(orient = TK.HORIZONTAL)
+        self.formatSeparator3.pack(fill = TK.X, expand = 1, pady = 6)
+
+        #############################################################
+
+        # (2) Przyciski #############################################
+
+        self.editingPresetButtonsFrame = TKttk.Frame(self.formatFrame)
+        self.editingPresetButtonsFrame.config(style = 'layoutFrame.TFrame')
+        self.editingPresetButtonsFrame.pack(fill = TK.X, expand = 1, side = TK.BOTTOM)
+
+        # Przycisk 'ZAPISZ'
+        self.editingPresetSaveButton = TKttk.Button(self.editingPresetButtonsFrame)
+        self.editingPresetSaveButton.config(command = self.editingPresetSaveButtonAction)
+        self.editingPresetSaveButton.config(state = TK.DISABLED)
+        self.editingPresetSaveButton.config(style = 'button1.TButton')
+        self.editingPresetSaveButton.config(width = GUI.R()['editingPresetSaveButtonWidth'])
+        self.editingPresetSaveButton.config(text = 'ZAPISZ')
+        self.editingPresetSaveButton.pack(side = TK.LEFT, expand = 1)
+
+        # Przycisk 'Anuluj'
+        self.editingPresetCancelButton = TKttk.Button(self.editingPresetButtonsFrame)
+        self.editingPresetCancelButton.config(command = self.editingPresetCancelButtonAction)
+        self.editingPresetCancelButton.config(state = TK.DISABLED)
+        self.editingPresetCancelButton.config(style = 'button1.TButton')
+        self.editingPresetCancelButton.config(width = GUI.R()['editingPresetCancelButtonWidth'])
+        self.editingPresetCancelButton.config(text = 'Anuluj')
+        self.editingPresetCancelButton.pack(side = TK.RIGHT, expand = 1)
+
+        #############################################################
+
+        ######################################################################
+
+
+
+
+        # TAB3 - Ustawienia ##################################################
+
+        self.settingsTab = TKttk.Frame(self.mainMenu)
+        self.settingsTab.config(style = "mainMenuTabFrame.TFrame")
+        self.settingsTabImg = PLimg.open(GUI.R()['settingsTabIcon'])
+        self.settingsTabImg = self.settingsTabImg.resize((GUI.R()['tabIconsSize'], GUI.R()['tabIconsSize']), PLimg.ANTIALIAS)
+        self.settingsTabImg = PLitk.PhotoImage(self.settingsTabImg)
+        self.mainMenu.add(self.settingsTab, image = self.settingsTabImg, state = TK.NORMAL)
+
+
+        # Nagłówek
+        self.settingsHeader = TKttk.Label(self.settingsTab)
+        self.settingsHeader.config(style = 'tabHeader.TLabel')
+        self.settingsHeader.config(text = 'USTAWIENIA')
+        self.settingsHeader.pack(fill = TK.X)
+
+
+        # Zawartość
+        self.settingsFrame = TKttk.Frame(self.settingsTab)
+        self.settingsFrame.config(style = 'tabFrame.TFrame')
+        self.settingsFrame.pack(fill = TK.BOTH, expand = 1, padx = GUI.R()['tabFramePadding'], pady = GUI.R()['tabFramePadding'])
+
+        ######################################################################
+
+
+
+
+        # TAB4 - O programie #################################################
+        
+        self.aboutTab = TKttk.Frame(self.mainMenu)
+        self.aboutTab.config(style = "mainMenuTabFrame.TFrame")
+        self.aboutTabImg = PLimg.open(GUI.R()['aboutTabIcon'])
+        self.aboutTabImg = self.aboutTabImg.resize((GUI.R()['tabIconsSize'], GUI.R()['tabIconsSize']), PLimg.ANTIALIAS)
+        self.aboutTabImg = PLitk.PhotoImage(self.aboutTabImg)
+        self.mainMenu.add(self.aboutTab, image = self.aboutTabImg, state = TK.NORMAL)
+
+
+        # Nagłówek
+        self.aboutHeader = TKttk.Label(self.aboutTab)
+        self.aboutHeader.config(style = 'tabHeader.TLabel')
+        self.aboutHeader.config(text = 'O PROGRAMIE')
+        self.aboutHeader.pack(fill = TK.X)
+
+
+        # Zawartość
+        self.aboutFrame = TKttk.Frame(self.aboutTab)
+        self.aboutFrame.config(style = 'tabFrame.TFrame')
+        self.aboutFrame.pack(fill = TK.BOTH, expand = 1, padx = GUI.R()['tabFramePadding'], pady = GUI.R()['tabFramePadding'])
+
+        ######################################################################
+
+
+
+    # Akcje przycisków - TAB1
+
+    def GIF1SLocalizationButtonAction(self):
+        filename = str(TKfld.askopenfilename(initialdir = '/', title = "Wybierz plik z danymi"))
+        self.GIF1SLocalizationEntryVar.set(filename)
+
+    def GIF2SLocalizationButtonAction(self):
+        filename = str(TKfld.askopenfilename(initialdir = '/', title = "Wybierz plik z danymi"))
+        self.GIF2SLocalizationEntryVar.set(filename)
+    
+    def GIF3SLocalizationButtonAction(self):
+        filename = str(TKfld.askopenfilename(initialdir = '/', title = "Wybierz plik z danymi"))
+        self.GIF3SLocalizationEntryVar.set(filename)
+
+    def GIF4SLocalizationButtonAction(self):
+        filename = str(TKfld.askopenfilename(initialdir = '/', title = "Wybierz plik z danymi"))
+        self.GIF4SLocalizationEntryVar.set(filename)
+
+    def GOFMailButtonAction(self):
+        filename = str(TKfld.asksaveasfilename(initialdir = '/', title = "Wybierz miejsce zapisu pliku csv dla poczty", filetypes = [('Plik CSV', '*.csv')]))
+        if not filename:
             return
+        if not filename.endswith('.csv'):
+            filename += '.csv'
+        self.GOFMailEntryVar.set(filename)
+
+    def GOFOfficeButtonAction(self):
+        filename = str(TKfld.asksaveasfilename(initialdir = '/', title = "Wybierz miejsce zapisu pliku csv dla Office", filetypes = [('Plik CSV', '*.csv')]))
+        if not filename:
+            return
+        if not filename.endswith('.csv'):
+            filename += '.csv'
+        self.GOFOfficeEntryVar.set(filename)
+
+    def generateStartButtonAction(self):
+        if MSG('A0003', False):
+            GIF1SFilename = self.GIF1SLocalizationEntryVar.get()
+            GIF1SFormat = self.GIF1SFormatComboboxVar.get()
+            GIF2SFilename = self.GIF2SLocalizationEntryVar.get()
+            GIF2SFormat = self.GIF2SFormatComboboxVar.get()
+            GIF3SFilename = self.GIF3SLocalizationEntryVar.get()
+            GIF3SFormat = self.GIF3SFormatComboboxVar.get()
+            GIF4SFilename = self.GIF4SLocalizationEntryVar.get()
+            GIF4SFormat = self.GIF4SFormatComboboxVar.get()
+            GOFMailFilename = self.GOFMailEntryVar.get()
+            GOFOfficeFilename = self.GOFOfficeEntryVar.get()
+            GIF1 = (GIF1SFilename, GIF1SFormat)
+            GIF2 = (GIF2SFilename, GIF2SFormat)
+            GIF3 = (GIF3SFilename, GIF3SFormat)
+            GIF4 = (GIF4SFilename, GIF4SFormat)
+            GOF = (GOFMailFilename, GOFOfficeFilename)
+            filesList = (GIF1, GIF2, GIF3, GIF4, GOF)
+            output = dataProcess.start(filesList)
+            if not output[0]:
+                print('x')
+        else:
+            return
+        
+    # Akcje przycisków - TAB2
+
+    def loadingButtonAction(self):
+        formatFileContent = FMT.R(self.loadingList.get())
+        self.loadingList['state'] = TK.DISABLED
+        self.loadingButton['state'] = TK.DISABLED
+        self.EPOSTypeVar.set(formatFileContent['student'])
+        self.EPOSTypeStudentRadiobutton['state'] = TK.NORMAL
+        self.EPOSTypeTeacherRadiobutton['state'] = TK.NORMAL
+        self.EPOSPersonSeparatorEntry['state'] = TK.NORMAL
+        self.EPOSPersonSeparatorVar.set(formatFileContent['personSeparator'])
+        self.EPOSRowSeparatorEntry['state'] = TK.NORMAL
+        self.EPOSRowSeparatorVar.set(formatFileContent['rowSeparator'])
+        self.EPOSDataSeparatorText['state'] = TK.NORMAL
+        self.EPOSDataSeparatorText.insert(TK.END, '\n'.join(formatFileContent['dataSeparators']))
+        self.EPDLLoginRowSpinbox['state'] = TK.NORMAL
+        self.EPDLLoginRowVar.set(formatFileContent['loginRow'])
+        self.EPDLLoginPosInRowSpinbox['state'] = TK.NORMAL
+        self.EPDLLoginPosInRowVar.set(formatFileContent['loginPositionInRow'])
+        self.EPDLFnameRowSpinbox['state'] = TK.NORMAL
+        self.EPDLFnameRowVar.set(formatFileContent['fnameRow'])
+        self.EPDLFnamePosInRowSpinbox['state'] = TK.NORMAL
+        self.EPDLFnamePosInRowVar.set(formatFileContent['fnamePositionInRow'])
+        self.EPDLLnameRowSpinbox['state'] = TK.NORMAL
+        self.EPDLLnameRowVar.set(formatFileContent['lnameRow'])
+        self.EPDLLnamePosInRowSpinbox['state'] = TK.NORMAL
+        self.EPDLLnamePosInRowVar.set(formatFileContent['lnamePositionInRow'])
+        self.EPDLSchoolRowSpinbox['state'] = TK.NORMAL
+        self.EPDLSchoolRowVar.set(formatFileContent['schoolRow'])
+        self.EPDLSchoolPosInRowSpinbox['state'] = TK.NORMAL
+        self.EPDLSchoolPosInRowVar.set(formatFileContent['schoolPositionInRow'])
+        self.EPDLClassRowSpinbox['state'] = TK.NORMAL
+        self.EPDLClassRowVar.set(formatFileContent['classRow'])
+        self.EPDLClassPosInRowSpinbox['state'] = TK.NORMAL
+        self.EPDLClassPosInRowVar.set(formatFileContent['classPositionInRow'])
+        self.editingPresetSaveButton['state'] = TK.NORMAL
+        self.editingPresetCancelButton['state'] = TK.NORMAL
+
+    def editingPresetClear(self):
         formatFileContent = {
             "student" : True,
             "personSeparator" : '',
@@ -1432,179 +1975,81 @@ def window():
             "classRow" : 0,
             "classPositionInRow" : 0,
         }
-        loadingList['state'] = TK.NORMAL
-        loadingButton['state'] = TK.NORMAL
-        EPOSTypeVar.set(formatFileContent['student'])
-        EPOSTypeStudentRadiobutton['state'] = TK.DISABLED
-        EPOSTypeTeacherRadiobutton['state'] = TK.DISABLED
-        EPOSPersonSeparatorEntry['state'] = TK.DISABLED
-        EPOSPersonSeparatorVar.set(formatFileContent['personSeparator'])
-        EPOSRowSeparatorEntry['state'] = TK.DISABLED
-        EPOSRowSeparatorVar.set(formatFileContent['rowSeparator'])
-        EPOSDataSeparatorText.delete('1.0', TK.END)
-        EPOSDataSeparatorText['state'] = TK.DISABLED
-        EPDataLocalizationLoginRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationLoginRowVar.set(formatFileContent['loginRow'])
-        EPDataLocalizationLoginPosInRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationLoginPosInRowVar.set(formatFileContent['loginPositionInRow'])
-        EPDataLocalizationFnameRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationFnameRowVar.set(formatFileContent['fnameRow'])
-        EPDataLocalizationFnamePosInRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationFnamePosInRowVar.set(formatFileContent['fnamePositionInRow'])
-        EPDataLocalizationLnameRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationLnameRowVar.set(formatFileContent['lnameRow'])
-        EPDataLocalizationLnamePosInRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationLnamePosInRowVar.set(formatFileContent['lnamePositionInRow'])
-        EPDataLocalizationSchoolRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationSchoolRowVar.set(formatFileContent['schoolRow'])
-        EPDataLocalizationSchoolPosInRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationSchoolPosInRowVar.set(formatFileContent['schoolPositionInRow'])
-        EPDataLocalizationClassRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationClassRowVar.set(formatFileContent['classRow'])
-        EPDataLocalizationClassPosInRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationClassPosInRowVar.set(formatFileContent['classPositionInRow'])
-        editingPresetSaveButton['state'] = TK.DISABLED
-        editingPresetCancelButton['state'] = TK.DISABLED
-        loadingList['values'] = tuple(FMT.getList())
+        self.loadingList['state'] = TK.NORMAL
+        self.loadingButton['state'] = TK.NORMAL
+        self.EPOSTypeVar.set(formatFileContent['student'])
+        self.EPOSTypeStudentRadiobutton['state'] = TK.DISABLED
+        self.EPOSTypeTeacherRadiobutton['state'] = TK.DISABLED
+        self.EPOSPersonSeparatorEntry['state'] = TK.DISABLED
+        self.EPOSPersonSeparatorVar.set(formatFileContent['personSeparator'])
+        self.EPOSRowSeparatorEntry['state'] = TK.DISABLED
+        self.EPOSRowSeparatorVar.set(formatFileContent['rowSeparator'])
+        self.EPOSDataSeparatorText.delete('1.0', TK.END)
+        self.EPOSDataSeparatorText['state'] = TK.DISABLED
+        self.EPDLLoginRowSpinbox['state'] = TK.DISABLED
+        self.EPDLLoginRowVar.set(formatFileContent['loginRow'])
+        self.EPDLLoginPosInRowSpinbox['state'] = TK.DISABLED
+        self.EPDLLoginPosInRowVar.set(formatFileContent['loginPositionInRow'])
+        self.EPDLFnameRowSpinbox['state'] = TK.DISABLED
+        self.EPDLFnameRowVar.set(formatFileContent['fnameRow'])
+        self.EPDLFnamePosInRowSpinbox['state'] = TK.DISABLED
+        self.EPDLFnamePosInRowVar.set(formatFileContent['fnamePositionInRow'])
+        self.EPDLLnameRowSpinbox['state'] = TK.DISABLED
+        self.EPDLLnameRowVar.set(formatFileContent['lnameRow'])
+        self.EPDLLnamePosInRowSpinbox['state'] = TK.DISABLED
+        self.EPDLLnamePosInRowVar.set(formatFileContent['lnamePositionInRow'])
+        self.EPDLSchoolRowSpinbox['state'] = TK.DISABLED
+        self.EPDLSchoolRowVar.set(formatFileContent['schoolRow'])
+        self.EPDLSchoolPosInRowSpinbox['state'] = TK.DISABLED
+        self.EPDLSchoolPosInRowVar.set(formatFileContent['schoolPositionInRow'])
+        self.EPDLClassRowSpinbox['state'] = TK.DISABLED
+        self.EPDLClassRowVar.set(formatFileContent['classRow'])
+        self.EPDLClassPosInRowSpinbox['state'] = TK.DISABLED
+        self.EPDLClassPosInRowVar.set(formatFileContent['classPositionInRow'])
+        self.editingPresetSaveButton['state'] = TK.DISABLED
+        self.editingPresetCancelButton['state'] = TK.DISABLED
+        self.loadingList['values'] = tuple(FMT.getList())
 
-    def editingPresetSaveButtonAction():
-        if loadingList.get() not in FMT.getList():
+    def editingPresetSave(self):
+        formatFileContentToSave = {
+            "student" : self.EPOSTypeVar.get(),
+            "personSeparator" : self.EPOSPersonSeparatorEntry.get(),
+            "rowSeparator" : self.EPOSRowSeparatorEntry.get(),
+            "dataSeparators" : (self.EPOSDataSeparatorText.get("1.0", TK.END)).split('\n')[:-1],
+            "loginRow" : int(self.EPDLLoginRowSpinbox.get()),
+            "loginPositionInRow" : int(self.EPDLLoginPosInRowSpinbox.get()),
+            "fnameRow" : int(self.EPDLFnameRowSpinbox.get()),
+            "fnamePositionInRow" : int(self.EPDLFnamePosInRowSpinbox.get()),
+            "lnameRow" : int(self.EPDLLnameRowSpinbox.get()),
+            "lnamePositionInRow" : int(self.EPDLLnamePosInRowSpinbox.get()),
+            "schoolRow" : int(self.EPDLSchoolRowSpinbox.get()),
+            "schoolPositionInRow" : int(self.EPDLSchoolPosInRowSpinbox.get()),
+            "classRow" : int(self.EPDLClassRowSpinbox.get()),
+            "classPositionInRow" : int(self.EPDLClassPosInRowSpinbox.get()),
+        }
+        if not FMT.W(self.loadingList.get(), formatFileContentToSave):
+            return
+        self.editingPresetClear()
+
+    def editingPresetSaveButtonAction(self):
+        if self.loadingList.get() not in FMT.getList():
             if MSG('A0001', False):
-                editingPresetSave()
+                self.editingPresetSave()
             else:
                 return
         else:
             if MSG('A0002', False):
-                editingPresetSave()
+                self.editingPresetSave()
             else:
                 return
-    editingPresetSaveButton = TKttk.Button(editingPresetButtonsFrame)
-    editingPresetSaveButton.config(command = editingPresetSaveButtonAction)
-    editingPresetSaveButton.config(state = TK.DISABLED)
-    editingPresetSaveButton.config(style = 'button1.TButton')
-    editingPresetSaveButton.config(width = GUI.R()['editingPresetSaveButtonWidth'])
-    editingPresetSaveButton.config(text = 'ZAPISZ')
-    editingPresetSaveButton.pack(side = TK.LEFT, expand = 1)
 
-    def editingPresetCancelAction():
-        formatFileContent = {
-            "student" : True,
-            "personSeparator" : '',
-            "rowSeparator" : '',
-            "dataSeparators" : [],
-            "loginRow" : 0,
-            "loginPositionInRow" : 0,
-            "fnameRow" : 0,
-            "fnamePositionInRow" : 0,
-            "lnameRow" : 0,
-            "lnamePositionInRow" : 0,
-            "schoolRow" : 0,
-            "schoolPositionInRow" : 0,
-            "classRow" : 0,
-            "classPositionInRow" : 0,
-        }
-        loadingList['state'] = TK.NORMAL
-        loadingButton['state'] = TK.NORMAL
-        EPOSTypeStudentRadiobutton['state'] = TK.DISABLED
-        EPOSTypeTeacherRadiobutton['state'] = TK.DISABLED
-        EPOSTypeVar.set(formatFileContent['student'])
-        EPOSPersonSeparatorEntry['state'] = TK.DISABLED
-        EPOSPersonSeparatorVar.set(formatFileContent['personSeparator'])
-        EPOSRowSeparatorEntry['state'] = TK.DISABLED
-        EPOSRowSeparatorVar.set(formatFileContent['rowSeparator'])
-        EPOSDataSeparatorText.delete('1.0', TK.END)
-        EPOSDataSeparatorText['state'] = TK.DISABLED
-        EPDataLocalizationLoginRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationLoginRowVar.set(formatFileContent['loginRow'])
-        EPDataLocalizationLoginPosInRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationLoginPosInRowVar.set(formatFileContent['loginPositionInRow'])
-        EPDataLocalizationFnameRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationFnameRowVar.set(formatFileContent['fnameRow'])
-        EPDataLocalizationFnamePosInRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationFnamePosInRowVar.set(formatFileContent['fnamePositionInRow'])
-        EPDataLocalizationLnameRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationLnameRowVar.set(formatFileContent['lnameRow'])
-        EPDataLocalizationLnamePosInRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationLnamePosInRowVar.set(formatFileContent['lnamePositionInRow'])
-        EPDataLocalizationSchoolRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationSchoolRowVar.set(formatFileContent['schoolRow'])
-        EPDataLocalizationSchoolPosInRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationSchoolPosInRowVar.set(formatFileContent['schoolPositionInRow'])
-        EPDataLocalizationClassRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationClassRowVar.set(formatFileContent['classRow'])
-        EPDataLocalizationClassPosInRowSpinbox['state'] = TK.DISABLED
-        EPDataLocalizationClassPosInRowVar.set(formatFileContent['classPositionInRow'])
-        editingPresetSaveButton['state'] = TK.DISABLED
-        editingPresetCancelButton['state'] = TK.DISABLED
-        loadingList['values'] = tuple(FMT.getList())
-    editingPresetCancelButton = TKttk.Button(editingPresetButtonsFrame)
-    editingPresetCancelButton.config(command = editingPresetCancelAction)
-    editingPresetCancelButton.config(state = TK.DISABLED)
-    editingPresetCancelButton.config(style = 'button1.TButton')
-    editingPresetCancelButton.config(width = GUI.R()['editingPresetCancelButtonWidth'])
-    editingPresetCancelButton.config(text = 'Anuluj')
-    editingPresetCancelButton.pack(side = TK.RIGHT, expand = 1)
-
-    ###################################
-
-    #############################################
-
-    ######################################################################
+    def editingPresetCancelButtonAction(self):
+        self.editingPresetClear()
 
 
 
-    # TAB4 - Ustawienia ##################################################
 
-    settingsTab = TKttk.Frame(mainMenu)
-    settingsTab.config(style = "mainMenuTabFrame.TFrame")
-    settingsTabImg = PLimg.open(GUI.R()['settingsTabIcon'])
-    settingsTabImg = settingsTabImg.resize((GUI.R()['tabIconsSize'], GUI.R()['tabIconsSize']), PLimg.ANTIALIAS)
-    settingsTabImg = PLitk.PhotoImage(settingsTabImg)
-    mainMenu.add(settingsTab, image = settingsTabImg, state = TK.NORMAL)
-
-
-    # Nagłówek
-    settingsHeader = TKttk.Label(settingsTab)
-    settingsHeader.config(style = 'tabHeader.TLabel')
-    settingsHeader.config(text = 'USTAWIENIA')
-    settingsHeader.pack(fill = TK.X)
-
-
-    # Zawartość
-    settingsFrame = TKttk.Frame(settingsTab)
-    settingsFrame.config(style = 'tabFrame.TFrame')
-    settingsFrame.pack(fill = TK.BOTH, expand = 1, padx = GUI.R()['tabFramePadding'], pady = GUI.R()['tabFramePadding'])
-
-    ######################################################################
-
-
-
-    # TAB5 - O programie #################################################
-    
-    aboutTab = TKttk.Frame(mainMenu)
-    aboutTab.config(style = "mainMenuTabFrame.TFrame")
-    aboutTabImg = PLimg.open(GUI.R()['aboutTabIcon'])
-    aboutTabImg = aboutTabImg.resize((GUI.R()['tabIconsSize'], GUI.R()['tabIconsSize']), PLimg.ANTIALIAS)
-    aboutTabImg = PLitk.PhotoImage(aboutTabImg)
-    mainMenu.add(aboutTab, image = aboutTabImg, state = TK.NORMAL)
-
-
-    # Nagłówek
-    aboutHeader = TKttk.Label(aboutTab)
-    aboutHeader.config(style = 'tabHeader.TLabel')
-    aboutHeader.config(text = 'O PROGRAMIE')
-    aboutHeader.pack(fill = TK.X)
-
-
-    # Zawartość
-    aboutFrame = TKttk.Frame(aboutTab)
-    aboutFrame.config(style = 'tabFrame.TFrame')
-    aboutFrame.pack(fill = TK.BOTH, expand = 1, padx = GUI.R()['tabFramePadding'], pady = GUI.R()['tabFramePadding'])
-
-    ######################################################################
-
-
-
-    # Mainloop
-    window.mainloop()
-window()
+# Inicjacja okna
+root = TK.Tk()
+windowInit = mainWindow(root)
+root.mainloop()
