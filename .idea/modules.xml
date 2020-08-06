@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Generator plików csv dla office i losobolew.iml" filepath="$PROJECT_DIR$/.idea/Generator plików csv dla office i losobolew.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/GeneratorCSV.iml" filepath="$PROJECT_DIR$/.idea/GeneratorCSV.iml" />
     </modules>
   </component>
 </project>

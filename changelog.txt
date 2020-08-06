@@ -8,3 +8,11 @@
 - Wstępne przystosowanie do działania w czteroletnim liceum i w trzyletniej szkole branżowej
 - Aktualizacja kodowania
 
+3.0
+- Wprowadzenie pełnego graficznego interfejsu w środowisku tkinter
+- Wstępne obsługiwanie wyjątków
+- Przeniesienie modułów do oddzielnego pliku
+- Stworzenie pliku 'format.py' ze skryptem przetwarzającym dane - przystosowanie programu do ewentualnych zmian w formacie plików z danymi
+- Przeniesienie ukrytych ustawień do pliku 'config.cfg'
+- ZNANE BŁĘDY: złe formatowanie tekstu
+
