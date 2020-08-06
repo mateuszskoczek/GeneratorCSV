@@ -17,9 +17,20 @@
 
 
 
-# ----------------------------------------- # Definicja kodów dialogowych # ------------------------------------------ #
+# ------------ # Import bibliotek zewnętrznych i modułów oraz inicjacja funkcji zapisywania crashlogów # ------------- #
 
-E000x00 = "Brak głównego pliku składowego programu ('main.py').\nPrzywróć plik. (E000x00)"
+# Funkcja zapisująca crashlogi
+def crash(ErrorCode):
+    import sys as SS
+    import time as TM
+    d = TM.localtime()
+    name = 'crashlogs/crash_' + str(d[2]) + str(d[1]) + str(d[0]) + str(d[3]) + str(d[4]) + str(d[5]) + '.txt'
+    with open(name, 'w') as crash:
+        crash.write('Critical error!\n' + ErrorCode)
+        SS.exit(0)
+
+# Błędy
+E000x00 = "Brak głównego pliku składowego programu ('main.py'). Przywróć plik. (E000x00)"
 
 
 
@@ -31,7 +42,7 @@ E000x00 = "Brak głównego pliku składowego programu ('main.py').\nPrzywróć p
 # ----------------------------------- # Import bibliotek zewnętrznych i modułów # ------------------------------------ #
 
 import os as OS
-import sys as SS
+
 
 
 
@@ -43,10 +54,8 @@ import sys as SS
 # ----------------------------------------- # Uruchomienie głównego modułu # ----------------------------------------- #
 
 try:
-    fck = open("components\main.py")
+    fck = open("components/main.py")
 except:
-    print('Nieoczekiwany wyjatek - nie mozna wygenerowac okna dialogowego bledu\n\nBŁĄD KRYTYCZNY!\n%s') % E000x00
-    wait = input('Naciśnij ENTER aby zakończyć')
-    SS.exit(0)
+    crash(E000x00)
 else:
     OS.system("components\main.py")

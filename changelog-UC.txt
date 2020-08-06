@@ -19,3 +19,8 @@
 
 4.0 Alpha (Build 19349)
 - Ukończenie okna ustawień
+
+4.0 Alpha (Build 19349.1)
+- Doprowadzenie programu do podstawowego stanu użyteczności (występuje błąd: nie można dodać drugiej ścieżki poprzez wybór)
+- Utworzenie systemu crashlogów
+- Zastosowanie systemu crashlogów dla głównego modułu

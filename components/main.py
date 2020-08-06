@@ -30,7 +30,17 @@ Wersja = '4.0 Experimental'
 
 E000x01 = "Brak modułu wywołującego okna dialogowe ('dialog.py').\nPrzywróć plik. (E000x01)"
 E000x02 = ["Brak modułu zarządzającego plikiem konfiguracyjnym ('load_config.py').\nPrzywróć plik. (E000x02)", True]
+E001x01 = ["Brak pliku formatu 'format.py'.\nPrzywróć plik. (E001x01)", True]
 E001x02 = ["Brak pliku instrukcji ('instruction.txt').\nPrzywróć plik. (E001x02)", False]
+E003x01 = ["Nie podano lokalizacji plików do importu. (E003x01)", False]
+E003x02 = ["Nie podano lokalizacji zapisu wygenerowanych plików. (E003x02)", False]
+
+E003x111 = ["Plik podany w sciezce 1 nie istnieje (E003x111)", False]
+E003x112 = ["Plik podany w sciezce 2 nie istnieje (E003x112)", False]
+E003x113 = ["Plik podany w sciezce 3 nie istnieje (E003x113)", False]
+E003x114 = ["Plik podany w sciezce 4 nie istnieje (E003x114)", False]
+
+A001 = "Czy na pewno chcesz rozpocząć generowanie?\nProgram utworzy w podanej lokalizacji pliki 'email.csv' i 'office.csv'.\nJeżeli w podanej lokalizacji istnieją pliki o takich nazwach zostaną one nadpisane."
 
 
 
@@ -60,6 +70,15 @@ try:
 except ModuleNotFoundError:
     MDdlg.Err(E000x02)
 
+try:
+    import format as MDfmt
+except ModuleNotFoundError:
+    MDdlg.Err(E000x02)
+
+try:
+    import processing as MDprc
+except ModuleNotFoundError:
+    MDdlg.Err(E000x02)
 
 
 # Biblioteki zewnętrzne interfejsu graficznego
@@ -360,7 +379,73 @@ def main():
 
     # Przycisk START
     def PathPreprocess():
-        pass
+        if MDdlg.Ask(A001):
+            while True:
+                sciezka1 = Pole1.get()
+                sciezka1_puste = True
+                sciezka2 = Pole2.get()
+                sciezka2_puste = True
+                sciezka3 = Pole3.get()
+                sciezka3_puste = True
+                sciezka4 = Pole3.get()
+                sciezka4_puste = True
+                sciezkaExport = PoleExport.get()
+                sciezkaExport_puste = True
+
+                if sciezka1 != '':
+                    sciezka1_puste = False
+                if sciezka2 != '':
+                    sciezka2_puste = False
+                if sciezka3 != '':
+                    sciezka3_puste = False
+                if sciezka4 != '':
+                    sciezka4_puste = False
+                if sciezkaExport != '':
+                    sciezkaExport_puste = False
+
+                if sciezka1_puste and sciezka2_puste and sciezka3_puste and sciezka4_puste:
+                    MDdlg.Err(E003x01)
+                    break
+                if sciezkaExport_puste:
+                    MDdlg.Err(E003x02)
+                    break
+                KontenerDanych = []
+                if not sciezka1_puste:
+                    try:
+                        x = open(sciezka1)
+                    except FileNotFoundError:
+                        MDdlg.Err(E003x111)
+                    else:
+                        with open(sciezka1, 'r') as plik1:
+                            KontenerDanych += MDfmt.przetworz(plik1.read())
+                if not sciezka2_puste:
+                    try:
+                        x = open(sciezka2)
+                    except FileNotFoundError:
+                        MDdlg.Err(E003x112)
+                    else:
+                        with open(sciezka2, 'r') as plik2:
+                            KontenerDanych += MDfmt.przetworz(plik2.read())
+                if not sciezka3_puste:
+                    try:
+                        x = open(sciezka3)
+                    except FileNotFoundError:
+                        MDdlg.Err(E003x113)
+                    else:
+                        with open(sciezka3, 'r') as plik3:
+                            KontenerDanych += MDfmt.przetworz(plik3.read())
+                if not sciezka4_puste:
+                    try:
+                        x = open(sciezka4)
+                    except FileNotFoundError:
+                        MDdlg.Err(E003x114)
+                    else:
+                        with open(sciezka4, 'r') as plik4:
+                            KontenerDanych += MDfmt.przetworz(plik4.read())
+                break
+            MDprc.do(KontenerDanych, sciezkaExport)
+        else:
+            pass
 
     PrzyciskSTART = TK.Button(MainWindow)
     PrzyciskSTART.config(text = 'START')
