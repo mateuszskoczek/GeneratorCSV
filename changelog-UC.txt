@@ -85,3 +85,7 @@
 - Ukończenie karty "GENERATOR CSV" (poza przyciskiem "START")
 - Usunięcie instrukcji w karcie "FORMAT DANYCH" w celu późniejszego umieszczenia ich w pliku readme
 - Przekształcenie interfejsu na podstawie funkcji w interfejs na podstawie klasy
+
+4.0 Alpha (Build 20220)
+- Zastosowanie nowego systemu przetwarzania plików konfiguracyjnych dla pliku 'config.cfg' (tylko odczyt)
+- Rozpoczęcie prac nad skryptem przetwarzającym dane

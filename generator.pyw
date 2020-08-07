@@ -61,7 +61,10 @@ MSGlist = {
     'E0006' : 'Niepoprawne dane w pliku formatu',
     'A0001' : 'Czy chcesz zapisać? Zostanie utworzony nowy plik',
     'A0002' : 'Czy chcesz zapisać? Plik zostanie nadpisany',
-    'A0003' : 'Czy chcesz rozpocząć przetwarzanie plików?'
+    'A0003' : 'Czy chcesz rozpocząć przetwarzanie plików?',
+    'E0007' : 'Wymagany przynajmniej jeden plik wejściowy',
+    'E0008' : 'Nie można odnaleźć jednego z powyższych plików',
+    'E0009' : 'Nie można odnaleźć jednego z powyższych format presetów',
 }
 
 def MSG(code, terminate, *optionalInfo):
@@ -104,7 +107,7 @@ def MSG(code, terminate, *optionalInfo):
 appdata = PT.Path.home() / 'Appdata/Roaming'
 
 #TODO
-#SU.rmtree(str(appdata) + '/Generator CSV')
+SU.rmtree(str(appdata) + '/Generator CSV')
 #TODO
 if 'Generator CSV' not in [x for x in OS.listdir(appdata)]:
     try:
@@ -122,7 +125,8 @@ if 'Generator CSV' not in [x for x in OS.listdir(appdata)]:
 # ----------------------------- # Ładowanie pliku konfiguracyjnego # ---------------------------- #
 
 class CFG:
-    def __checkInstance(self, write):
+    # Funkcje sprawdzające istnienie
+    def __checkIfConfigFileExist(self, write):
         if write:
             try:
                 file = open((str(appdata) + '\Generator CSV\config.cfg'), 'a')
@@ -141,65 +145,117 @@ class CFG:
             except Exception as exceptInfo:
                 MSG('E0002', True, exceptInfo)
 
-    def __checkContent(self, write, content):
-        if write:
-            return [True, content]
+    def __checkIfRecordExist(self, content, record):
+        if record in list(content.keys()):
+            return [True]
         else:
-            class functions:
-                def string(self, var):
-                    if var in list(content.keys()):
-                        return [True]
-                    else:
-                        return [False, 'Brak danych - klucz: %s' % var]
-                def array(self, var):
-                    if var in list(content.keys()):
-                        new_contentVar = (content[var])[1:-1].split(', ')
-                        xnew_contentVar = []
-                        for x in new_contentVar:
-                            xnew_contentVar.append(x[1:-1])
-                        content[var] = xnew_contentVar
-                    else:
-                        return [False, 'Brak danych - klucz: %s' % var]
-            functions = functions()
-            functions.string('secret')
-            functions.array('allowedCharactersInSeparator')
-            return [True, content]
+            return [False, 'Brak danych - klucz: %s' % record]
+
     
-    def R(self):
-        self.__checkInstance(False)
+    # Funkcje sprawdzające poprawność recordu
+    def __checkSCA(self, write, record, var):
+        if write:
+            pass
+        else:
+            try:
+                var = var[1:-2].split(', ')
+                var = [x[1:-1] for x in var]
+            except:
+                return (False, 'Niepoprawne dane - klucz: %s' % record)
+            for x in var:
+                if len(x) != 1:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+        return [True, var]
+    
+    def __checkI(self, write, record, var):
+        if write:
+            pass
+        else:
+            try:
+                var = int(var)
+            except:
+                return (False, 'Niepoprawne dane - klucz: %s' % record)
+        return [True, var]
+    
+    def __checkD(self, write, record, var):
+        if write:
+            pass
+        else:
+            varToReturn = {}
+            var = var.split(' ')
+            try:
+                var[0] = var[0].split('.')
+                var[1] = var[1].split(':')
+                var = var[0] + var[1]
+                dateLabels = ['D', 'M', 'Y', 'h', 'm', 's']
+                if len(var) != len(dateLabels):
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+                index = 0
+                for x in var:
+                    if x != '*':
+                        varToReturn[dateLabels[index]] = int(x)
+                    else:
+                        varToReturn[dateLabels[index]] = None
+                    index += 1
+            except:
+                return (False, 'Niepoprawne dane - klucz: %s' % record)
+            var = varToReturn
+        return [True, var]
+
+
+
+    def R(self, record):
+        self.__checkIfConfigFileExist(False)
         content = {}
         for x in CD.open((str(appdata) + '\Generator CSV\config.cfg'), 'r', 'utf-8').read().split('\n'):
             x = x.split(' = ')
             try:
-                content[x[0]] = (x[1]).strip('\r')
+                name = x[0].split('(')[0]
+                var = x[1]
+                type = x[0].split('(')[1].strip(')')
+                content[name] = [var, type] 
             except:
                 continue
-        contentCheckingOutput = self.__checkContent(False, content)
-        if contentCheckingOutput[0]:
-            return contentCheckingOutput[1]
-        else:
-            MSG('E0003', True, contentCheckingOutput[1])
-
-    def W(self, changes):
-        content = self.R()
-        for x in changes:
-            content[x] = changes[x]
-        contentCheckingOutput = self.__checkContent(True, content)
-        if contentCheckingOutput[0]:
-            if self.__checkInstance(True):
-                with CD.open((str(appdata) + '\Generator CSV\config.cfg'), 'w', 'utf-8') as file:
-                    contentToSave = contentCheckingOutput[1]
-                    for x in contentToSave:
-                        file.write('%s = %s\n' % (x, str(contentToSave[x])))
+        checkingOutput = self.__checkIfRecordExist(content, record)
+        if not checkingOutput[0]:
+            MSG('E0003', True, checkingOutput[1])
+        var = content[record]
+        if var[1] == 'S':
+            # String
+            var = var[0]
+            return var
+        elif var[1] == 'SCA':
+            # Single char array
+            checkingOutput = self.__checkSCA(False, record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
             else:
-                return False
+                MSG('E0003', True, checkingOutput[1])
+        elif var[1] == 'I':
+            # Integer
+            checkingOutput = self.__checkI(False, record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0003', True, checkingOutput[1])
+        elif var[1] == 'D':
+            # Date (DD.MM.RRRR HH:MM:SS)
+            checkingOutput = self.__checkD(False, record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0003', True, checkingOutput[1])
         else:
-            MSG('E0004', False, contentCheckingOutput[1])
+            MSG('E0003', True, 'Nie można rozpoznać typu klucza %s' % record)
+    
+    def W(self):
+        pass
+
+
 CFG = CFG()
-checkInstance = CFG.R()
 
 
-
+print(CFG.R('allowedCharactersInSeparator'))
 
 
 # ---------------------------------- # Ładowanie pliku stylu # ---------------------------------- #
@@ -691,7 +747,7 @@ class FMT:
                         return [False, 'Brak danych - klucz: %s' % var]
                 def separator_string(self, var):
                     if var in list(content.keys()):
-                        allowedCharactersInSeparator = CFG.R()['allowedCharactersInSeparator']
+                        allowedCharactersInSeparator = CFG.R('allowedCharactersInSeparator')
                         check = content[var]
                         check = check.strip('<enter>')
                         for x in check:
@@ -702,7 +758,7 @@ class FMT:
                         return [False, 'Brak danych - klucz: %s' % var]
                 def separator_array(self, var):
                     if var in list(content.keys()):
-                        allowedCharactersInSeparator = CFG.R()['allowedCharactersInSeparator']
+                        allowedCharactersInSeparator = CFG.R('allowedCharactersInSeparator')
                         new_contentVar = (content[var])[2:-2].split("', '")
                         check = new_contentVar
                         for x in check:
@@ -836,8 +892,80 @@ FMT = FMT()
 # ---------------------------------- # Przetwarzanie plików # ----------------------------------- #
 
 class dataProcess:
+    # Funkcje sprawdzające
+    def __checkIfAtLeastOneInputFileIsFilled(files):
+        filledFiles = []
+        index = 0
+        for x in files:
+            if not (x[0] == '' or x[1] == ''):
+                filledFiles.append(index)
+            index += 1
+        if len(filledFiles) != 0:
+            return (True, filledFiles)
+        else:
+            return (False)
+
+    def __checkIfInputFilesIsReadable(self, files, filledFiles):
+        for x in filledFiles:
+            try:
+                check = CD.open((files[x])[0], 'r', CFG.R('inputCoding'))
+            except:
+                return False
+        return True
+    
+    def __checkIfInputFilesFormatPresetsExist(self, files, filledFiles):
+        for x in filledFiles:
+            if (files[x])[1] not in FMT.getList():
+                return False
+        return True
+
+    def __checkIfCreateOutputFilesIsPossible(self, files):
+        for x in files:
+            try:
+                check = CD.open(x, 'w', CFG.R('outputCoding'))
+            except:
+                return False
+        return true
+
+    # 
+
+
+
     def start(self, files):
-        pass
+        checkingOutput = []
+
+        testOutput = self.__checkIfAtLeastOneInputFileIsFilled(files[:-1])
+        checkingOutput.append(testOutput[0])
+        if not testOutput[0]:
+            return checkingOutput
+        filledFiles = testOutput[1]
+
+        testOutput = self.__checkIfInputFilesIsReadable(files[:-1], filledFiles)
+        checkingOutput.append(testOutput)
+        if not testOutput:
+            return checkingOutput
+
+        testOutput = self.__checkIfInputFilesFormatPresetsExist(files[:-1], filledFiles)
+        checkingOutput.append(testOutput)
+        if not testOutput:
+            return checkingOutput
+        
+        testOutput = self.__checkIfInputFilesFormatPresetsExist(files[-1])
+        checkingOutput.append(testOutput)
+        if not testOutput:
+            return checkingOutput
+
+        input = []
+        for x in filledFiles:
+            input.append(files[x])
+        output = files[-1]
+
+        testOutput = self.__checkIfCreateOutputFilesIsPossible(files[-1])
+        checkingOutput.append(testOutput)
+        if not testOutput:
+            return checkingOutput
+
+
 dataProcess = dataProcess()
 
 
@@ -1916,7 +2044,15 @@ class mainWindow:
             filesList = (GIF1, GIF2, GIF3, GIF4, GOF)
             output = dataProcess.start(filesList)
             if not output[0]:
-                print('x')
+                MSG('E0007', False)
+            else:
+                if not output[1]:
+                    MSG('E0008', False)
+                else:
+                    if not output[2]:
+                        MSG('E0009', False)
+                    else:
+                        pass
         else:
             return
         
