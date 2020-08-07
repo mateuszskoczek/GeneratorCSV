@@ -89,3 +89,7 @@
 4.0 Alpha (Build 20220)
 - Zastosowanie nowego systemu przetwarzania plików konfiguracyjnych dla pliku 'config.cfg' (tylko odczyt)
 - Rozpoczęcie prac nad skryptem przetwarzającym dane
+
+4.0 Alpha (Build 20221)
+- Zastosowanie nowego systemu przetwarzania plików konfiguracyjnych dla pliku 'style.cfg'
+- Lekkie zmiany w interfejsie
