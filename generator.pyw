@@ -15,6 +15,8 @@
 class VAR:
     programName = 'Generator CSV'
     programVersion = '4.0'
+    programVersionStage = 'Alpha'
+    programVersionBuild = 'Build'
     programCustomer = 'ZSP Sobolew'
     programAuthors = ['Mateusz Skoczek']
     programToW = ['styczeń', 2019, 'wrzesień', 2020]
@@ -40,6 +42,7 @@ import tkinter as TK
 from tkinter import ttk as TKttk
 from tkinter import messagebox as TKmsb
 from tkinter import filedialog as TKfld
+import tkcalendar as TKcal
 
 from PIL import ImageTk as PLitk
 from PIL import Image as PLimg
@@ -65,6 +68,12 @@ MSGlist = {
     'E0007' : 'Wymagany przynajmniej jeden plik wejściowy',
     'E0008' : 'Nie można odnaleźć jednego z powyższych plików',
     'E0009' : 'Nie można odnaleźć jednego z powyższych format presetów',
+    'E0010' : 'Nie można przetworzyć danych z plików wejściowych z pomocą podanych format presetów',
+    'E0011' : 'Niepoprawne dane w plikach wejściowych',
+    'E0012' : 'Nie można przetworzyć danych na format wyjściowy',
+    'E0013' : 'Nie można utworzyć plików wejściowych',
+    'E0014' : 'Nie można zapisać plików wejściowych',
+    'I0001' : 'Operacja ukończona pomyślnie',
 }
 
 def MSG(code, terminate, *optionalInfo):
@@ -81,7 +90,7 @@ def MSG(code, terminate, *optionalInfo):
     
     # Informacja
     elif code[0] == 'I':
-        TKmsb.showerror('Informacja', '%s\n%s' % (MSGlist[code], optionalInfo[0]))
+        TKmsb.showinfo('Informacja', '%s\n%s' % (MSGlist[code], optionalInfo[0]))
         if terminate:
             SS.exit(0)
 
@@ -107,16 +116,36 @@ def MSG(code, terminate, *optionalInfo):
 appdata = PT.Path.home() / 'Appdata/Roaming'
 
 #TODO
-SU.rmtree(str(appdata) + '/Generator CSV')
+#SU.rmtree(str(appdata) + '/Generator CSV')
 #TODO
-if 'Generator CSV' not in [x for x in OS.listdir(appdata)]:
-    try:
-        OS.mkdir(str(appdata) + '/Generator CSV')
-        SU.copy('default-configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
-        SU.copy('default-configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
-        OS.mkdir(str(appdata) + '/Generator CSV/format-presets')
-    except Exception as exceptInfo:
-        MSG('E0001', True, exceptInfo)
+
+def checkAppdata():
+    if 'Generator CSV' not in [x for x in OS.listdir(appdata)]:
+        try:
+            OS.mkdir(str(appdata) + '/Generator CSV')
+            SU.copy('default-configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
+            SU.copy('default-configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
+            OS.mkdir(str(appdata) + '/Generator CSV/format-presets')
+        except Exception as exceptInfo:
+            MSG('E0001', True, exceptInfo)
+    else:
+        if 'config.cfg' not in [x for x in OS.listdir(str(appdata) + '/Generator CSV')]:
+            try:
+                SU.copy('default-configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
+            except Exception as exceptInfo:
+                MSG('E0001', True, exceptInfo)
+        if 'style.cfg' not in [x for x in OS.listdir(str(appdata) + '/Generator CSV')]:
+            try:
+                SU.copy('default-configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
+            except Exception as exceptInfo:
+                MSG('E0001', True, exceptInfo)
+        if 'format-presets'not in [x for x in OS.listdir(str(appdata) + '/Generator CSV')]:
+            try:
+                OS.mkdir(str(appdata) + '/Generator CSV/format-presets')
+            except Exception as exceptInfo:
+                MSG('E0001', True, exceptInfo)
+    
+checkAppdata()
 
 
 
@@ -129,9 +158,10 @@ class CFG:
     def __checkIfFileExist(self, write):
         if write:
             try:
+                checkAppdata()
                 file = open((str(appdata) + '\Generator CSV\config.cfg'), 'a')
             except Exception as exceptInfo:
-                MSG('E0002', False, exceptInfo)
+                MSG('E0002', True, exceptInfo)
                 return False
             else:
                 if not file.writable():
@@ -141,6 +171,7 @@ class CFG:
                     return True
         else:
             try:
+                checkAppdata()
                 open(str(appdata) + '\Generator CSV\config.cfg')
             except Exception as exceptInfo:
                 MSG('E0002', True, exceptInfo)
@@ -202,12 +233,37 @@ class CFG:
             var = varToReturn
         return [True, var]
 
+    def __checkMSAs(self, write, record, var):
+        if write:
+            pass
+        else:
+            var = var.split('|')
+            var = [x.strip('\r').strip('[').strip(']').split(', ') for x in var]
+            newVar = []
+            for x in var:
+                if len(x) != 3:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+                try:
+                    if x[2] == '0':
+                        x[2] = False
+                    elif x[2] == '1':
+                        x[2] = True
+                    else:
+                        return (False, 'Niepoprawne dane - klucz: %s' % record)
+                    x = [x[0], int(x[1]), x[2]]
+                    newVar.append(x)
+                except:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+                var = newVar
+        return [True, var]
+
+
 
 
     def R(self, record):
         self.__checkIfFileExist(False)
         content = {}
-        for x in CD.open((str(appdata) + '\Generator CSV\config.cfg'), 'r', 'utf-8').read().split('\n'):
+        for x in CD.open((str(appdata) + '\Generator CSV\config.cfg'), 'r', 'utf-8').read().strip('\r').split('\n'):
             x = x.split(' = ')
             try:
                 name = x[0].split('(')[0]
@@ -222,7 +278,7 @@ class CFG:
         var = content[record]
         if var[1] == 'S':
             # String
-            var = var[0]
+            var = var[0].strip('\r')
             return var
         elif var[1] == 'SCA':
             # Single char array
@@ -245,27 +301,79 @@ class CFG:
                 return checkingOutput[1]
             else:
                 MSG('E0003', True, checkingOutput[1])
+        elif var[1] == 'MSAs':
+            # Multiple Specified Arrays - schoolData
+            checkingOutput = self.__checkMSAs(False, record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0003', True, checkingOutput[1])
         else:
             MSG('E0003', True, 'Nie można rozpoznać typu klucza %s' % record)
     
-    def W(self):
-        pass
-        """
-        content = self.R()
+    def W(self, preset, changes):
+        self.__checkIfFolderExist()
+        file = CD.open(str(appdata) + '\Generator CSV\config.cfg', 'r', 'utf-8').read().split('\n')
+        if file[-1] == '':
+            file = file[:-1]
+        content = {}
+        for x in file:
+            x = x.split(' = ')
+            try:
+                name = x[0].split('(')[0]
+                var = x[1]
+                type = x[0].split('(')[1].strip(')')
+                content[name] = [var, type]
+            except Exception as exceptInfo:
+                MSG('E0003', False, exceptInfo)
         for x in changes:
-            content[x] = changes[x]
-        contentCheckingOutput = self.__checkContent(True, content)
-        if contentCheckingOutput[0]:
-            if self.__checkInstance(True):
-                with CD.open((str(appdata) + '\Generator CSV\config.cfg'), 'w', 'utf-8') as file:
-                    contentToSave = contentCheckingOutput[1]
-                    for x in contentToSave:
-                        file.write('%s = %s\n' % (x, str(contentToSave[x])))
+            name = x
+            var = changes[name]
+            type = (content[name])[1]
+            if type == 'S':
+                # String
+                pass
+            elif type == 'SCA':
+                # Single char array
+                checkingOutput = self.__checkSCA(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'I':
+                # Integer
+                checkingOutput = self.__checkI(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'D':
+                # Date (DD.MM.RRRR HH:MM:SS)
+                checkingOutput = self.__checkD(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'MSAs':
+                # Multiple Specified Arrays - schoolData
+                checkingOutput = self.__checkMSAs(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
             else:
+                MSG('E0003', False, 'Nie można rozpoznać typu klucza %s' % name)
                 return False
-        else:
-            MSG('E0004', False, contentCheckingOutput[1])
-        """
+            content[name] = [var, type]
+        with CD.open(str(appdata) + '\Generator CSV\config.cfg', 'w', 'utf-8') as file:
+            for x in content:
+                file.write('%s(%s) = %s\n' % (x, (content[x])[1], (content[x][0])))
+        return True
+
 
 
 CFG = CFG()
@@ -280,9 +388,10 @@ class GUI:
     # Funkcje sprawdzające istnienie
     def __checkIfFileExist(self):
         try:
+            checkAppdata()
             open(str(appdata) + '\Generator CSV\style.cfg')
         except Exception as exceptInfo:
-            MSG('E0004', True, exceptInfo)
+            checkAppdata()
     
     def __checkIfRecordExist(self, content, record):
         if record in list(content.keys()):
@@ -353,7 +462,7 @@ class GUI:
     def R(self, record):
         self.__checkIfFileExist()
         content = {}
-        for x in CD.open((str(appdata) + '\Generator CSV\style.cfg'), 'r', 'utf-8').read().split('\n'):
+        for x in CD.open((str(appdata) + '\Generator CSV\style.cfg'), 'r', 'utf-8').read().strip('\r').split('\n'):
             x = x.split(' = ')
             try:
                 name = x[0].split('(')[0]
@@ -422,201 +531,84 @@ GUI = GUI()
 # ------------------------------- # Zarządzanie plikami formatu # ------------------------------- #
 
 class FMT:
-    def __checkFolderInstance(self):
-        if 'Generator CSV' not in [x for x in OS.listdir(appdata)]:
-            OS.mkdir(str(appdata) + '/Generator CSV')
+    # Funkcje sprawdzające istnienie
+    def __checkIfFolderExist(self):
+        checkAppdata()
+
+    def __checkIfRecordExist(self, content, record):
+        if record in list(content.keys()):
+            return [True]
         else:
-            if 'format-presets' not in [x for x in OS.listdir(str(appdata) + '\Generator CSV')]:
-                OS.mkdir(str(appdata) + '/Generator CSV/format-presets')
+            return [False, 'Brak danych - klucz: %s' % record]
+
     
-    def __checkContent(self, write, content):
+    # Funkcje sprawdzające poprawność rekordu
+    def __checkB(self, write, record, var):
         if write:
-            class functions:
-                def bool(self, var):
-                    if var in list(content.keys()):
-                        if content[var] != True and content[var] != False:
-                            return [False, 'Niepoprawne dane - klucz: %s' % var]
-                        else:
-                            if content[var] == False:
-                                content[var] = '0'
-                                return [True]
-                            else:
-                                content[var] = '1'
-                                return [True]
-                    else:
-                        return [False, 'Brak danych - klucz: %s' % var]
-                def separator_string(self, var):
-                    if var in list(content.keys()):
-                        allowedCharactersInSeparator = CFG.R()['allowedCharactersInSeparator']
-                        check = content[var]
-                        check = check.strip('<enter>')
-                        for x in check:
-                            if x not in allowedCharactersInSeparator:
-                                return [False, 'Niepoprawne dane - klucz: %s' % var]
-                        return [True]
-                    else:
-                        return [False, 'Brak danych - klucz: %s' % var]
-                def separator_array(self, var):
-                    if var in list(content.keys()):
-                        allowedCharactersInSeparator = CFG.R()['allowedCharactersInSeparator']
-                        check = content[var]
-                        for x in check:
-                            x = x.strip('<enter>')
-                            for y in x:
-                                if y not in allowedCharactersInSeparator:
-                                    return [False, 'Niepoprawne dane - klucz: %s' % var]
-                        content[var] = str(content[var])
-                        return [True]
-                    else:
-                        return [False, 'Brak danych - klucz: %s' % var]
-                def integer(self, var):
-                    if var in list(content.keys()):
-                        content[var] = str(content[var])
-                        return [True]
-                    else:
-                        return [False, 'Brak danych - klucz: %s' % var]
-            functions = functions()
-            check = functions.bool('student')
-            if not check[0]:
-                return check
-            check = functions.separator_string('personSeparator')
-            if not check[0]:
-                return check
-            check = functions.separator_string('rowSeparator')
-            if not check[0]:
-                return check
-            check = functions.separator_array('dataSeparators')
-            if not check[0]:
-                return check
-            check = functions.integer('loginRow')
-            if not check[0]:
-                return check
-            check = functions.integer('loginPositionInRow')
-            if not check[0]:
-                return check
-            check = functions.integer('fnameRow')
-            if not check[0]:
-                return check
-            check = functions.integer('fnamePositionInRow')
-            if not check[0]:
-                return check
-            check = functions.integer('lnameRow')
-            if not check[0]:
-                return check
-            check = functions.integer('lnamePositionInRow')
-            if not check[0]:
-                return check
-            check = functions.integer('schoolRow')
-            if not check[0]:
-                return check
-            check = functions.integer('schoolPositionInRow')
-            if not check[0]:
-                return check
-            check = functions.integer('classRow')
-            if not check[0]:
-                return check
-            check = functions.integer('classPositionInRow')
-            if not check[0]:
-                return check
-            return [True, content]
+            if var == True:
+                var = '1'
+            elif var == False:
+                var = '0'
+            else:
+                return [False, 'Niepoprawne dane - klucz: %s' % record]
         else:
-            class functions:
-                def bool(self, var):
-                    if var in list(content.keys()):
-                        if content[var] != '0' and content[var] != '1':
-                            return [False, 'Niepoprawne dane - klucz: %s' % var]
-                        else:
-                            if content[var] == '0':
-                                content[var] = False
-                                return [True]
-                            else:
-                                content[var] = True
-                                return [True]
-                    else:
-                        return [False, 'Brak danych - klucz: %s' % var]
-                def separator_string(self, var):
-                    if var in list(content.keys()):
-                        allowedCharactersInSeparator = CFG.R('allowedCharactersInSeparator')
-                        check = content[var]
-                        check = check.strip('<enter>')
-                        for x in check:
-                            if x not in allowedCharactersInSeparator:
-                                return [False, 'Niepoprawne dane - klucz: %s' % var]
-                        return [True]
-                    else:
-                        return [False, 'Brak danych - klucz: %s' % var]
-                def separator_array(self, var):
-                    if var in list(content.keys()):
-                        allowedCharactersInSeparator = CFG.R('allowedCharactersInSeparator')
-                        new_contentVar = (content[var])[2:-2].split("', '")
-                        check = new_contentVar
-                        for x in check:
-                            x = x.strip('<enter>')
-                            for y in x:
-                                if y not in allowedCharactersInSeparator:
-                                    return [False, 'Niepoprawne dane - klucz: %s' % var]
-                        content[var] = new_contentVar
-                        return [True]
-                    else:
-                        return [False, 'Brak danych - klucz: %s' % var]
-                def integer(self, var):
-                    if var in list(content.keys()):
-                        try:
-                            check = int(content[var])
-                        except:
-                            return [False, 'Niepoprawne dane - klucz: %s' % var]
-                        else:
-                            content[var] = int(content[var])
-                            return [True]
-                    else:
-                        return [False, 'Brak danych - klucz: %s' % var]
-            functions = functions()
-            check = functions.bool('student')
-            if not check[0]:
-                return check
-            check = functions.separator_string('personSeparator')
-            if not check[0]:
-                return check
-            check = functions.separator_string('rowSeparator')
-            if not check[0]:
-                return check
-            check = functions.separator_array('dataSeparators')
-            if not check[0]:
-                return check
-            check = functions.integer('loginRow')
-            if not check[0]:
-                return check
-            check = functions.integer('loginPositionInRow')
-            if not check[0]:
-                return check
-            check = functions.integer('fnameRow')
-            if not check[0]:
-                return check
-            check = functions.integer('fnamePositionInRow')
-            if not check[0]:
-                return check
-            check = functions.integer('lnameRow')
-            if not check[0]:
-                return check
-            check = functions.integer('lnamePositionInRow')
-            if not check[0]:
-                return check
-            check = functions.integer('schoolRow')
-            if not check[0]:
-                return check
-            check = functions.integer('schoolPositionInRow')
-            if not check[0]:
-                return check
-            check = functions.integer('classRow')
-            if not check[0]:
-                return check
-            check = functions.integer('classPositionInRow')
-            if not check[0]:
-                return check
-            return [True, content]
+            try:
+                var = int(var)
+            except:
+                return [False, 'Niepoprawne dane - klucz: %s' % record]
+            if var != 0 and var != 1:
+                return [False, 'Niepoprawne dane - klucz: %s' % record]
+            else:
+                if var == 0:
+                    var = False
+                else:
+                    var = True
+        return [True, var]
+
+    def __checkSs(self, record, var):
+        allowedCharactersInSeparator = CFG.R('allowedCharactersInSeparator')
+        check = var
+        check = check.strip('<enter>')
+        for x in check:
+            if x not in allowedCharactersInSeparator:
+                return [False, 'Niepoprawne dane - klucz: %s' % var]
+        return [True, var]
     
+    def __checkAs(self, write, record, var):
+        allowedCharactersInSeparator = CFG.R('allowedCharactersInSeparator')
+        if write:
+            check = var
+            for x in check:
+                x = x.strip('<enter>')
+                for y in x:
+                    if y not in allowedCharactersInSeparator:
+                        return [False, 'Niepoprawne dane - klucz: %s' % var]
+            var = str(var)
+        else:
+            new_contentVar = (var)[2:-2].split("', '")
+            check = new_contentVar
+            for x in check:
+                x = x.strip('<enter>')
+                for y in x:
+                    if y not in allowedCharactersInSeparator:
+                        return [False, 'Niepoprawne dane - klucz: %s' % var]
+            var = new_contentVar
+        return [True, var]
+    
+    def __checkI(self, write, record, var):
+        if write:
+            var = str(var)
+        else:
+            try:
+                var = int(var)
+            except:
+                return (False, 'Niepoprawne dane - klucz: %s' % record)
+        return [True, var]
+
+
+    # Funkcja zwracająca listę presetów
     def getList(self):
-        self.__checkFolderInstance()
+        self.__checkIfFolderExist()
         filesList = OS.listdir(str(appdata) + '/Generator CSV/format-presets')
         formatPresetsList = []
         for x in filesList:
@@ -625,23 +617,58 @@ class FMT:
             else:
                 continue
         return formatPresetsList
+    
+    
 
-    def R(self, preset):
+    def R(self, preset, record):
+        self.__checkIfFolderExist()
         if preset in self.getList():
             path = str(appdata) + '/Generator CSV/format-presets/%s.fmt' % preset
-            file = CD.open(path, 'r', 'utf-8').read().split('\n')
+            file = CD.open(path, 'r', 'utf-8').read().strip('\r').split('\n')
             content = {}
             for x in file:
                 x = x.split(' = ')
                 try:
-                    content[x[0]] = (x[1]).strip('\r')
+                    name = x[0].split('(')[0]
+                    var = x[1]
+                    type = x[0].split('(')[1].strip(')')
+                    content[name] = [var, type] 
                 except:
                     continue
-            contentCheckingOutput = self.__checkContent(False, content)
-            if contentCheckingOutput[0]:
-                content = contentCheckingOutput[1]
+            checkingOutput = self.__checkIfRecordExist(content, record)
+            if not checkingOutput[0]:
+                MSG('E0006', False, checkingOutput[1])
+            var = content[record]
+            if var[1] == 'B':
+                # Boolean
+                checkingOutput = self.__checkB(False, record, var[0])
+                if checkingOutput[0]:
+                    return checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+            elif var[1] == 'Ss':
+                # String - separator
+                checkingOutput = self.__checkSs(record, var[0])
+                if checkingOutput[0]:
+                    return checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+            elif var[1] == 'As':
+                # Array - separator
+                checkingOutput = self.__checkAs(False, record, var[0])
+                if checkingOutput[0]:
+                    return checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+            elif var[1] == 'I':
+                # Integer
+                checkingOutput = self.__checkI(False, record, var[0])
+                if checkingOutput[0]:
+                    return checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
             else:
-                MSG('E0006', False, contentCheckingOutput[1])
+                MSG('E0006', True, 'Nie można rozpoznać typu klucza %s' % record)
         else:
             content = {
                 "student" : True,
@@ -659,19 +686,86 @@ class FMT:
                 "classRow" : 0,
                 "classPositionInRow" : 0,
             }
-        return content
-    
-    def W(self, preset, content):
-        contentCheckingOutput = self.__checkContent(True, content)
-        if contentCheckingOutput[0]:
-            contentToSave = contentCheckingOutput[1]
-            with CD.open(str(appdata) + '/Generator CSV/format-presets/%s.fmt' % preset, 'w', 'utf-8') as file:
-                for x in contentToSave:
-                    file.write(x + ' = ' + content[x] + '\n')
-            return True
+            var = content[record]
+        return var
+
+    def W(self, preset, changes):
+        self.__checkIfFolderExist()
+        if preset in self.getList():
+            file = CD.open(str(appdata) + '/Generator CSV/format-presets/%s.fmt' % preset, 'r', 'utf-8').read().split('\n')
+            if file[-1] == '':
+                file = file[:-1]
+            content = {}
+            for x in file:
+                x = x.split(' = ')
+                try:
+                    name = x[0].split('(')[0]
+                    var = x[1]
+                    type = x[0].split('(')[1].strip(')')
+                    content[name] = [var, type]
+                except Exception as exceptInfo:
+                    MSG('E0006', False, exceptInfo)
         else:
-            MSG('E0006', False, contentCheckingOutput[1])
-            return False
+            content = {
+                "student" : ['1', 'B'],
+                "personSeparator" : ['', 'Ss'],
+                "rowSeparator" : ['', 'Ss'],
+                "dataSeparators" : ['', 'As'],
+                "loginRow" : ['0', 'I'],
+                "loginPositionInRow" : ['0', 'I'],
+                "fnameRow" : ['0', 'I'],
+                "fnamePositionInRow" : ['0', 'I'],
+                "lnameRow" : ['0', 'I'],
+                "lnamePositionInRow" : ['0', 'I'],
+                "schoolRow" : ['0', 'I'],
+                "schoolPositionInRow" : ['0', 'I'],
+                "classRow" : ['0', 'I'],
+                "classPositionInRow" : ['0', 'I'],
+            }
+        for x in changes:
+            name = x
+            var = changes[name]
+            type = (content[name])[1]
+            if type == 'B':
+                checkingOutput = self.__checkB(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'Ss':
+                checkingOutput = self.__checkSs(name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'As':
+                checkingOutput = self.__checkAs(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'I':
+                # Integer
+                checkingOutput = self.__checkI(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            else:
+                MSG('E0003', False, 'Nie można rozpoznać typu klucza %s' % name)
+                return False
+            content[name] = [var, type]
+        with CD.open(str(appdata) + '/Generator CSV/format-presets/%s.fmt' % preset, 'w', 'utf-8') as file:
+            for x in content:
+                file.write('%s(%s) = %s\n' % (x, (content[x])[1], (content[x][0])))
+        return True
+
+
+
 FMT = FMT()
 
 
@@ -681,8 +775,8 @@ FMT = FMT()
 # ---------------------------------- # Przetwarzanie plików # ----------------------------------- #
 
 class dataProcess:
-    # Funkcje sprawdzające
-    def __checkIfAtLeastOneInputFileIsFilled(files):
+    # Funkcje sprawdzające istnienie
+    def __checkIfAtLeastOneInputFileIsFilled(self, files):
         filledFiles = []
         index = 0
         for x in files:
@@ -708,15 +802,180 @@ class dataProcess:
                 return False
         return True
 
-    def __checkIfCreateOutputFilesIsPossible(self, files):
-        for x in files:
-            try:
-                check = CD.open(x, 'w', CFG.R('outputCoding'))
-            except:
-                return False
-        return true
+    def __checkIfCreatingOutputFilesIsPossible(self, files):
+        try:
+            check = CD.open(files[0], 'w', CFG.R('mailOutputCoding'))
+            check = CD.open(files[1], 'w', CFG.R('officeOutputCoding'))
+        except:
+            return False
+        return True
+    
 
-    # 
+    # Funkcje sprawdzające poprawność
+    def __checkLogin(self, var, student):
+        if student and var[-1] != 'u':
+            return [False, 'Brak końcówki "u" w loginie ucznia: ']
+        if student:
+            try:
+                x = int(var[:-1])
+            except:
+                return [False, 'Niedozwolone znaki w loginie osoby: ']
+        else:
+            try:
+                x = int(var)
+            except:
+                return [False, 'Niedozwolone znaki w loginie osoby: ']
+        return [True]
+
+    def __checkFname(self, var):
+        if not var.isalpha():
+            return [False, 'Niedozwolone znaki w imieniu osoby: ']
+        return [True]
+
+    def __checkLname(self, var):
+        if not var.isalpha():
+            return [False, 'Niedozwolone znaki w nazwisku osoby: ']
+        return [True]
+    
+    def __checkSchool(self, var):
+        allowedSchools = [x[0] for x in CFG.R('schoolData')]
+        if var not in allowedSchools:
+            return [False, 'Niewspierana szkoła w danych osoby: ']
+        return [True]
+
+    def __checkClass(self, var, school):
+        if len(var) != 2:
+            return [False, 'Niepoprawny format klasy w danych osoby: ']
+        if not var[0].isdigit():
+            return [False, 'Niepoprawny format klasy w danych osoby: ']
+        if not var[1].isalpha():
+            return [False, 'Niepoprawny format klasy w danych osoby: ']
+        schoolData = {}
+        for x in CFG.R('schoolData'):
+            schoolData[x[0]] = x[1]
+        if int(var[0]) == 0 or int(var[0]) > schoolData[school]:
+            return [False, 'Numer klasy nie zgadza się z ilością klas szkoły w danych osoby: ']
+        return [True]
+
+
+
+    # Funkcje operujące na danych
+    def __getData(self, input):
+        data = []
+        for x in input:
+            path = x[0]
+            format = x[1]
+            personSeparator = FMT.R(format, 'personSeparator').replace('<enter>', '\r\n')
+            linesSeparator = FMT.R(format, 'rowSeparator').replace('<enter>', '\r\n')
+            dataSeparators = [x.replace('<enter>', '\n') for x in FMT.R(format, 'dataSeparators')]
+            loginLocation = [FMT.R(format, 'loginRow'), FMT.R(format, 'loginPositionInRow')]
+            fnameLocation = [FMT.R(format, 'fnameRow'), FMT.R(format, 'fnamePositionInRow')]
+            lnameLocation = [FMT.R(format, 'lnameRow'), FMT.R(format, 'lnamePositionInRow')]
+            schoolLocation = [FMT.R(format, 'schoolRow'), FMT.R(format, 'schoolPositionInRow')]
+            classLocation = [FMT.R(format, 'classRow'), FMT.R(format, 'classPositionInRow')]
+            student = FMT.R(format, 'student')
+            file =  CD.open(path, 'r', CFG.R('inputCoding')).read().split(personSeparator)
+            for x in file:
+                lines = x.split(linesSeparator)
+                dataX = []
+                for line in lines:
+                    line = [line]
+                    for a in dataSeparators:
+                        line2 = []
+                        for b in line:
+                            line2 += b.split(a)
+                        line = line2
+                    dataX.append(line)
+                login = dataX[loginLocation[0] - 1][loginLocation[1] - 1]
+                fname = dataX[fnameLocation[0] - 1][fnameLocation[1] - 1]
+                lname = dataX[lnameLocation[0] - 1][lnameLocation[1] - 1]
+                if student:
+                    school = dataX[schoolLocation[0] - 1][schoolLocation[1] - 1]
+                    classX = dataX[classLocation[0] - 1][classLocation[1] - 1]
+                    data.append([student, login, fname, lname, school, classX])
+                else:
+                    data.append([student, login, fname, lname])
+        return data
+    
+    def __processData(self, data):
+        mailData = []
+        officeData = []
+        schoolData = {}
+        for x in CFG.R('schoolData'):
+            schoolData[x[0]] = [x[1], x[2]]
+        for x in data:
+            mail = ''
+            office = ''
+            mail += x[2].lower().replace('ę', 'e').replace('ó', 'o').replace('ą', 'a').replace('ś', 's').replace('ł', 'l').replace('ż', 'z').replace('ź', 'z').replace('ć', 'c').replace('ń', 'n')
+            mail += '.'
+            mail += x[3].lower().replace('ę', 'e').replace('ó', 'o').replace('ą', 'a').replace('ś', 's').replace('ł', 'l').replace('ż', 'z').replace('ź', 'z').replace('ć', 'c').replace('ń', 'n')
+            if x[0]:
+                classIndicator = ''
+                actualYear = TM.localtime()
+                schoolDuration = (schoolData[x[4]])[0]
+                if actualYear[1] < CFG.R('schoolyearStart')['M'] or (actualYear[1] == CFG.R('schoolyearStart')['M'] and actualYear[2] < CFG.R('schoolyearStart')['D']):
+                    yearOfGraduation = actualYear[0] + (schoolDuration - int((x[5])[0]))
+                else:
+                    yearOfGraduation = actualYear[0] + (schoolDuration - int((x[5])[0])) + 1
+                mail += str(yearOfGraduation)
+                if (schoolData[x[4]])[1]:
+                    mail += x[4].lower()
+                else:
+                    mail += (x[5])[1].lower()
+            mail += '@'
+            mail += CFG.R('domain')
+            office += mail
+            mail += ','
+            mail += x[1]
+            mail += ':'
+            mail += (x[2])[0].lower().replace('ę', 'e').replace('ó', 'o').replace('ą', 'a').replace('ś', 's').replace('ł', 'l').replace('ż', 'z').replace('ź', 'z').replace('ć', 'c').replace('ń', 'n').upper()
+            mail += (x[3])[0].lower().replace('ę', 'e').replace('ó', 'o').replace('ą', 'a').replace('ś', 's').replace('ł', 'l').replace('ż', 'z').replace('ź', 'z').replace('ć', 'c').replace('ń', 'n').upper()
+            mail += ','
+            mail += str(CFG.R('quota'))
+            office += ','
+            office += x[2]
+            office += ','
+            office += x[3]
+            office += ','
+            office += '%s %s' % (x[2], x[3])
+            office += ','
+            if x[0]:
+                office += 'uczeń'
+            else:
+                office += 'nauczyciel'
+            office += ','
+            office += ','
+            office += ','
+            if x[0]:
+                office += str(yearOfGraduation)
+                if (schoolData[x[4]])[1]:
+                    office += x[4].lower()
+                else:
+                    office += (x[5])[1].lower()
+            office += ','
+            office += ','
+            office += ','
+            office += ','
+            office += ','
+            office += ','
+            office += ','
+            office += ','
+            office += ','
+            office += CFG.R('country')
+            mailData.append(mail)
+            officeData.append(office)
+        return [mailData, officeData]
+
+    def __saveData(self, output, data):
+        mailPath = output[0]
+        officePath = output[1]
+        mailData = data[0]
+        officeData = data[1]
+        with CD.open(mailPath, 'w', CFG.R('mailOutputCoding')) as mail:
+            mail.write('\n'.join(mailData))
+        with CD.open(officePath, 'w', CFG.R('officeOutputCoding')) as office:
+            office.write('\n'.join(officeData))
+        
 
 
 
@@ -738,21 +997,77 @@ class dataProcess:
         checkingOutput.append(testOutput)
         if not testOutput:
             return checkingOutput
-        
-        testOutput = self.__checkIfInputFilesFormatPresetsExist(files[-1])
-        checkingOutput.append(testOutput)
-        if not testOutput:
-            return checkingOutput
 
         input = []
         for x in filledFiles:
             input.append(files[x])
         output = files[-1]
+        
+        try:
+            data = self.__getData(input)
+        except:
+            checkingOutput.append(False)
+            return checkingOutput
+        else:
+            checkingOutput.append(True)
+        
+        for x in data:
+            student = x[0]
+            login = x[1]
+            loginCheckingOutput = self.__checkLogin(login, student)
+            if not loginCheckingOutput[0]:
+                loginCheckingOutput[1] = loginCheckingOutput[1] + str(x[1:])
+                checkingOutput.append(loginCheckingOutput)
+                return checkingOutput
+            fname = x[2]
+            fnameCheckingOutput = self.__checkFname(fname)
+            if not fnameCheckingOutput[0]:
+                fnameCheckingOutput[1] = fnameCheckingOutput[1] + str(x[1:])
+                checkingOutput.append(fnameCheckingOutput)
+                return checkingOutput
+            lname = x[3]
+            lnameCheckingOutput = self.__checkLname(lname)
+            if not lnameCheckingOutput[0]:
+                lnameCheckingOutput[1] = lnameCheckingOutput[1] + str(x[1:])
+                checkingOutput.append(lnameCheckingOutput)
+                return checkingOutput
+            if student:
+                school = x[4]
+                schoolCheckingOutput = self.__checkSchool(school)
+                if not schoolCheckingOutput[0]:
+                    schoolCheckingOutput[1] = schoolCheckingOutput[1] + str(x[1:])
+                    checkingOutput.append(schoolCheckingOutput)
+                    return checkingOutput
+                classX = x[5]
+                classCheckingOutput = self.__checkClass(classX, school)
+                if not classCheckingOutput[0]:
+                    classCheckingOutput[1] = classCheckingOutput[1] + str(x[1:])
+                    checkingOutput.append(classCheckingOutput)
+                    return checkingOutput
+        checkingOutput.append([True])
+        
+        try:
+            data = self.__processData(data)
+        except:
+            checkingOutput.append(False)
+            return checkingOutput
+        else:
+            checkingOutput.append(True)
 
-        testOutput = self.__checkIfCreateOutputFilesIsPossible(files[-1])
+        testOutput = self.__checkIfCreatingOutputFilesIsPossible(files[-1])
         checkingOutput.append(testOutput)
         if not testOutput:
             return checkingOutput
+        
+        try:
+            self.__saveData(output, data)
+        except:
+            checkingOutput.append(False)
+            return checkingOutput
+        else:
+            checkingOutput.append(True)
+            return checkingOutput
+
 
 
 dataProcess = dataProcess()
@@ -1026,7 +1341,7 @@ class mainWindow:
         self.GIF2Label.config(width = GUI.R('generateFilesLabelWidth'))
         self.GIF2Label.config(anchor = GUI.R('generateFilesLabelAnchor'))
         self.GIF2Label.config(padding = ('0 0 %s 0' % str(2 * GUI.R('generateInputFilesPadding'))))
-        self.GIF2Label.config(text = 'Plik źródłowy (1)')
+        self.GIF2Label.config(text = 'Plik źródłowy (2)')
         self.GIF2Label.pack(side = TK.LEFT)
 
         # Plik żródłowy (1) - Ustawienia
@@ -1091,7 +1406,7 @@ class mainWindow:
         self.GIF3Label.config(width = GUI.R('generateFilesLabelWidth'))
         self.GIF3Label.config(anchor = GUI.R('generateFilesLabelAnchor'))
         self.GIF3Label.config(padding = ('0 0 %s 0' % str(2 * GUI.R('generateInputFilesPadding'))))
-        self.GIF3Label.config(text = 'Plik źródłowy (1)')
+        self.GIF3Label.config(text = 'Plik źródłowy (3)')
         self.GIF3Label.pack(side = TK.LEFT)
 
         # Plik żródłowy (1) - Ustawienia
@@ -1156,7 +1471,7 @@ class mainWindow:
         self.GIF4Label.config(width = GUI.R('generateFilesLabelWidth'))
         self.GIF4Label.config(anchor = GUI.R('generateFilesLabelAnchor'))
         self.GIF4Label.config(padding = ('0 0 %s 0' % str(2 * GUI.R('generateInputFilesPadding'))))
-        self.GIF4Label.config(text = 'Plik źródłowy (1)')
+        self.GIF4Label.config(text = 'Plik źródłowy (4)')
         self.GIF4Label.pack(side = TK.LEFT)
 
         # Plik żródłowy (1) - Ustawienia
@@ -1347,7 +1662,7 @@ class mainWindow:
 
         self.loadingPresetFrame = TKttk.Frame(self.formatFrame)
         self.loadingPresetFrame.config(style = 'layoutFrame.TFrame')
-        self.loadingPresetFrame.pack(fill = TK.X, side = TK.TOP, padx = GUI.R('outsidelayoutFramesPadX'))#, pady = 5, padx = 10)
+        self.loadingPresetFrame.pack(fill = TK.X, side = TK.TOP, padx = GUI.R('outsidelayoutFramesPadX'))
 
         # "Wybierz preset do edycji lub wpisz nazwę nowego"
         self.loadingListLabel = TKttk.Label(self.loadingPresetFrame)
@@ -1833,6 +2148,7 @@ class mainWindow:
             GOF = (GOFMailFilename, GOFOfficeFilename)
             filesList = (GIF1, GIF2, GIF3, GIF4, GOF)
             output = dataProcess.start(filesList)
+            print(output)
             if not output[0]:
                 MSG('E0007', False)
             else:
@@ -1842,45 +2158,70 @@ class mainWindow:
                     if not output[2]:
                         MSG('E0009', False)
                     else:
-                        pass
+                        if not output[3]:
+                            MSG('E0010', False)
+                        else:
+                            if not (output[4])[0]:
+                                MSG('E0011', False, (output[4])[1])
+                            else:
+                                if not output[5]:
+                                    MSG('E0012', False)
+                                else:
+                                    if not output[6]:
+                                        MSG('E0013', False)
+                                    else:
+                                        if not output[7]:
+                                            MSG('E0014', False)
+                                        else:
+                                            MSG('I0001', False)
+                                            self.GIF1SLocalizationEntryVar.set('')
+                                            self.GIF1SFormatComboboxVar.set('')
+                                            self.GIF2SLocalizationEntryVar.set('')
+                                            self.GIF2SFormatComboboxVar.set('')
+                                            self.GIF3SLocalizationEntryVar.set('')
+                                            self.GIF3SFormatComboboxVar.set('')
+                                            self.GIF4SLocalizationEntryVar.set('')
+                                            self.GIF4SFormatComboboxVar.set('')
+                                            self.GOFMailEntryVar.set('')
+                                            self.GOFOfficeEntryVar.set('')
+
         else:
             return
         
     # Akcje przycisków - TAB2
 
     def loadingButtonAction(self):
-        formatFileContent = FMT.R(self.loadingList.get())
         self.loadingList['state'] = TK.DISABLED
         self.loadingButton['state'] = TK.DISABLED
-        self.EPOSTypeVar.set(formatFileContent['student'])
+        self.EPOSTypeVar.set(FMT.R(self.loadingList.get(), 'student'))
         self.EPOSTypeStudentRadiobutton['state'] = TK.NORMAL
         self.EPOSTypeTeacherRadiobutton['state'] = TK.NORMAL
         self.EPOSPersonSeparatorEntry['state'] = TK.NORMAL
-        self.EPOSPersonSeparatorVar.set(formatFileContent['personSeparator'])
+        self.EPOSPersonSeparatorVar.set(FMT.R(self.loadingList.get(), 'personSeparator'))
         self.EPOSRowSeparatorEntry['state'] = TK.NORMAL
-        self.EPOSRowSeparatorVar.set(formatFileContent['rowSeparator'])
+        self.EPOSRowSeparatorVar.set(FMT.R(self.loadingList.get(), 'rowSeparator'))
         self.EPOSDataSeparatorText['state'] = TK.NORMAL
-        self.EPOSDataSeparatorText.insert(TK.END, '\n'.join(formatFileContent['dataSeparators']))
+        self.EPOSDataSeparatorText.insert(TK.END, '\n'.join(FMT.R(self.loadingList.get(), 'dataSeparators')))
         self.EPDLLoginRowSpinbox['state'] = TK.NORMAL
-        self.EPDLLoginRowVar.set(formatFileContent['loginRow'])
+        self.EPDLLoginRowVar.set(FMT.R(self.loadingList.get(), 'loginRow'))
         self.EPDLLoginPosInRowSpinbox['state'] = TK.NORMAL
-        self.EPDLLoginPosInRowVar.set(formatFileContent['loginPositionInRow'])
+        self.EPDLLoginPosInRowVar.set(FMT.R(self.loadingList.get(), 'loginPositionInRow'))
         self.EPDLFnameRowSpinbox['state'] = TK.NORMAL
-        self.EPDLFnameRowVar.set(formatFileContent['fnameRow'])
+        self.EPDLFnameRowVar.set(FMT.R(self.loadingList.get(), 'fnameRow'))
         self.EPDLFnamePosInRowSpinbox['state'] = TK.NORMAL
-        self.EPDLFnamePosInRowVar.set(formatFileContent['fnamePositionInRow'])
+        self.EPDLFnamePosInRowVar.set(FMT.R(self.loadingList.get(), 'fnamePositionInRow'))
         self.EPDLLnameRowSpinbox['state'] = TK.NORMAL
-        self.EPDLLnameRowVar.set(formatFileContent['lnameRow'])
+        self.EPDLLnameRowVar.set(FMT.R(self.loadingList.get(), 'lnameRow'))
         self.EPDLLnamePosInRowSpinbox['state'] = TK.NORMAL
-        self.EPDLLnamePosInRowVar.set(formatFileContent['lnamePositionInRow'])
+        self.EPDLLnamePosInRowVar.set(FMT.R(self.loadingList.get(), 'lnamePositionInRow'))
         self.EPDLSchoolRowSpinbox['state'] = TK.NORMAL
-        self.EPDLSchoolRowVar.set(formatFileContent['schoolRow'])
+        self.EPDLSchoolRowVar.set(FMT.R(self.loadingList.get(), 'schoolRow'))
         self.EPDLSchoolPosInRowSpinbox['state'] = TK.NORMAL
-        self.EPDLSchoolPosInRowVar.set(formatFileContent['schoolPositionInRow'])
+        self.EPDLSchoolPosInRowVar.set(FMT.R(self.loadingList.get(), 'schoolPositionInRow'))
         self.EPDLClassRowSpinbox['state'] = TK.NORMAL
-        self.EPDLClassRowVar.set(formatFileContent['classRow'])
+        self.EPDLClassRowVar.set(FMT.R(self.loadingList.get(), 'classRow'))
         self.EPDLClassPosInRowSpinbox['state'] = TK.NORMAL
-        self.EPDLClassPosInRowVar.set(formatFileContent['classPositionInRow'])
+        self.EPDLClassPosInRowVar.set(FMT.R(self.loadingList.get(), 'classPositionInRow'))
         self.editingPresetSaveButton['state'] = TK.NORMAL
         self.editingPresetCancelButton['state'] = TK.NORMAL
 
@@ -1935,6 +2276,12 @@ class mainWindow:
         self.editingPresetSaveButton['state'] = TK.DISABLED
         self.editingPresetCancelButton['state'] = TK.DISABLED
         self.loadingList['values'] = tuple(FMT.getList())
+    
+    def updatePresetListInGenerateTab(self):
+        self.GIF1SFormatCombobox['values'] = tuple(FMT.getList())
+        self.GIF2SFormatCombobox['values'] = tuple(FMT.getList())
+        self.GIF3SFormatCombobox['values'] = tuple(FMT.getList())
+        self.GIF4SFormatCombobox['values'] = tuple(FMT.getList())
 
     def editingPresetSave(self):
         formatFileContentToSave = {
@@ -1956,6 +2303,7 @@ class mainWindow:
         if not FMT.W(self.loadingList.get(), formatFileContentToSave):
             return
         self.editingPresetClear()
+        self.updatePresetListInGenerateTab()
 
     def editingPresetSaveButtonAction(self):
         if self.loadingList.get() not in FMT.getList():

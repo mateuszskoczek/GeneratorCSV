@@ -93,3 +93,10 @@
 4.0 Alpha (Build 20221)
 - Zastosowanie nowego systemu przetwarzania plików konfiguracyjnych dla pliku 'style.cfg'
 - Lekkie zmiany w interfejsie
+
+4.0 Alpha (Build 20234)
+- Ulepszony system sprawdzania katalogu appdata
+- Zastosowanie nowego systemu przetwarzania plików konfiguracyjnych dla plików formatu
+- Wstępne zastosowanie nowego systemu przetwarzania plików konfiguracyjnych dla pliku 'config.cfg' w zapisie danych
+- Ukończenie skryptu przetwarzającego dane
+- Poprawki błędów
