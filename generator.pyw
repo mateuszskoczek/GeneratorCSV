@@ -72,6 +72,10 @@ MSGlist = {
     'A0001' : 'Czy chcesz zapisać? Zostanie utworzony nowy plik',
     'A0002' : 'Czy chcesz zapisać? Plik zostanie nadpisany',
     'A0003' : 'Czy chcesz rozpocząć przetwarzanie plików?',
+    'A0004' : 'Czy chcesz zapisać?',
+    'A0005' : 'Czy na pewno chcesz przywrócić domyślne ustawienia ogólne?',
+    'A0006' : 'Czy na pewno chcesz przywrócić domyślne ustawienia wyglądu?',
+    'A0007' : 'Czy na pewno chcesz usunąc zaznaczone format presety?',
     'E0007' : 'Wymagany przynajmniej jeden plik wejściowy',
     'E0008' : 'Nie można odnaleźć jednego z powyższych plików',
     'E0009' : 'Nie można odnaleźć jednego z powyższych format presetów',
@@ -81,6 +85,8 @@ MSGlist = {
     'E0013' : 'Nie można utworzyć plików wejściowych',
     'E0014' : 'Nie można zapisać plików wejściowych',
     'I0001' : 'Operacja ukończona pomyślnie',
+    'I0002' : 'Aplikacja zostanie zamknięta w celu przeładowania ustawień',
+    'E0015' : 'Nie można usunąć wybranych format presetów',
 }
 
 def MSG(code, terminate, *optionalInfo):
@@ -193,7 +199,7 @@ class CFG:
     # Funkcje sprawdzające poprawność recordu
     def __checkI(self, write, record, var):
         if write:
-            pass
+            var = str(var)
         else:
             try:
                 var = int(var)
@@ -203,7 +209,52 @@ class CFG:
     
     def __checkD(self, write, record, var):
         if write:
-            pass
+            varX = ''
+            if var['D'] == None:
+                varX += '*'
+            else:
+                day = str(var['D'])
+                if len(day) == 1:
+                    day = '0' + day
+                varX += day
+            varX += '.'
+            if var['M'] == None:
+                varX += '*'
+            else:
+                month = str(var['M'])
+                if len(month) == 1:
+                    month = '0' + month
+                varX += month
+            varX += '.'
+            if var['Y'] == None:
+                varX += '*'
+            else:
+                varX += str(var['Y'])
+            varX += ' '
+            if var['h'] == None:
+                varX += '*'
+            else:
+                hour = str(var['h'])
+                if len(hour) == 1:
+                    hour = '0' + hour
+                varX += hour
+            varX += ':'
+            if var['m'] == None:
+                varX += '*'
+            else:
+                minute = str(var['m'])
+                if len(minute) == 1:
+                    minute = '0' + minute
+                varX += minute
+            varX += ':'
+            if var['s'] == None:
+                varX += '*'
+            else:
+                seconds = str(var['s'])
+                if len(seconds) == 1:
+                    seconds = '0' + seconds
+                varX += seconds
+            var = varX
         else:
             varToReturn = {}
             var = var.split(' ')
@@ -228,7 +279,23 @@ class CFG:
 
     def __checkMSAs(self, write, record, var):
         if write:
-            pass
+            varX = []
+            while var.count(''):
+                var.remove('')
+            for x in var:
+                check = x.split(' | ')
+                if len(check) != 3:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+                try:
+                    checkX = int(check[1])
+                except:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+                if not (check[2] == '0' or check[2] == '1'):
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+                x = x.replace(' | ', ', ')
+                x = '[' + x + ']'
+                varX.append(x)
+            var = '|'.join(varX)
         else:
             var = var.split('|')
             var = [x.strip('\r').strip('[').strip(']').split(', ') for x in var]
@@ -248,6 +315,12 @@ class CFG:
                 except:
                     return (False, 'Niepoprawne dane - klucz: %s' % record)
                 var = newVar
+        return [True, var]
+
+    def __checkSc(self, record, var):
+        var = var.strip('\r')
+        if var not in VAR.allowedCoding:
+            return [False, 'Niepoprawne dane - klucz: %s' % record]
         return [True, var]
 
 
@@ -272,6 +345,13 @@ class CFG:
             # String
             var = var[0].strip('\r')
             return var
+        elif var[1] == 'Sc':
+            # Integer
+            checkingOutput = self.__checkSc(record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0003', True, checkingOutput[1])
         elif var[1] == 'I':
             # Integer
             checkingOutput = self.__checkI(False, record, var[0])
@@ -296,8 +376,8 @@ class CFG:
         else:
             MSG('E0003', True, 'Nie można rozpoznać typu klucza %s' % record)
     
-    def W(self, preset, changes):
-        self.__checkIfFolderExist()
+    def W(self, changes):
+        self.__checkIfFileExist(True)
         file = CD.open(str(appdata) + '\Generator CSV\config.cfg', 'r', 'utf-8').read().split('\n')
         if file[-1] == '':
             file = file[:-1]
@@ -318,6 +398,14 @@ class CFG:
             if type == 'S':
                 # String
                 pass
+            elif type == 'Sc':
+                # Integer
+                checkingOutput = self.__checkSc(name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
             elif type == 'I':
                 # Integer
                 checkingOutput = self.__checkI(True, name, var)
@@ -420,6 +508,7 @@ class GUI:
             'anchor' : ['center', 'nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'],
             'relief' : ['flat', 'raised', 'sunken', 'groove', 'ridge'],
             'fill' : ['x', 'y', 'both'],
+            'activestyle' : ['dotbox', 'none', 'underline']
         }
         if var not in arrays[array]:
             return [False, 'Niepoprawne dane - klucz: %s' % record]
@@ -1145,6 +1234,13 @@ class mainWindow:
                     "background": GUI.R('label2BG'),
                     "foreground": GUI.R('label2TextColor'),
                     "font" : GUI.R('label2Font')
+                },
+            },
+            "label3.TLabel": {
+                "configure": {
+                    "background": GUI.R('label3BG'),
+                    "foreground": GUI.R('label3TextColor'),
+                    "font" : GUI.R('label3Font')
                 },
             },
             "combobox1.TCombobox": {
@@ -1992,7 +2088,7 @@ class mainWindow:
         self.EPDLClassPosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
         self.EPDLClassPosInRowSpinbox.grid(row = 5, column = 2, padx = GUI.R('EPDataLocalizationPadX'), pady = GUI.R('EPDataLocalizationPadY'))
 
-        #
+        # Separator
         self.formatSeparator4Frame = TKttk.Frame(self.editingPresetDLFrame)
         self.formatSeparator4Frame.config(style = 'layoutFrame.TFrame')
         self.formatSeparator4Frame.grid(row = 6, column = 0, columnspan = 3)
@@ -2000,7 +2096,7 @@ class mainWindow:
         self.formatSeparator4 = TKttk.Separator(self.formatSeparator4Frame)
         self.formatSeparator4.config(style = 'separator1.TSeparator')
         self.formatSeparator4.config(orient = TK.HORIZONTAL)
-        self.formatSeparator4.pack(padx = GUI.R('formatHorizontalSeparatorPadY'), fill = TK.X, expand = 1)
+        self.formatSeparator4.pack(padx = GUI.R('formatHorizontalSeparatorPadY'), pady = 10, fill = TK.X, expand = 1)
 
         # "Kodowanie"
         self.formatInputCodingLabel = TKttk.Label(self.editingPresetDLFrame)
@@ -2013,7 +2109,7 @@ class mainWindow:
         self.formatInputCodingCombobox = TKttk.Combobox(self.editingPresetDLFrame)
         self.formatInputCodingCombobox.config(textvariable = self.formatInputCodingVar)
         self.formatInputCodingCombobox.config(state = TK.DISABLED)
-        self.formatInputCodingCombobox.config(style = 'combobox1.TCombobox')
+        self.formatInputCodingCombobox.config(style = 'combobox2.TCombobox')
         self.formatInputCodingCombobox.option_add("*TCombobox*Listbox.background", GUI.R('combobox2ListBoxBackground'))
         self.formatInputCodingCombobox.option_add("*TCombobox*Listbox.foreground", GUI.R('combobox2ListBoxForeground'))
         self.formatInputCodingCombobox.option_add("*TCombobox*Listbox.selectBackground", GUI.R('combobox2ListBoxSelectBackground'))
@@ -2036,7 +2132,7 @@ class mainWindow:
 
         #############################################################
 
-        # (2) Przyciski #############################################
+        # (1) Przyciski #############################################
 
         self.editingPresetButtonsFrame = TKttk.Frame(self.formatFrame)
         self.editingPresetButtonsFrame.config(style = 'layoutFrame.TFrame')
@@ -2088,6 +2184,334 @@ class mainWindow:
         self.settingsFrame = TKttk.Frame(self.settingsTab)
         self.settingsFrame.config(style = 'contentTabFrame.TFrame')
         self.settingsFrame.pack(fill = GUI.R('contentTabFrameFill'), expand = GUI.R('contentTabFrameExpand'), padx = GUI.R('tabFramePadding'), pady = GUI.R('tabFramePadding'))
+
+        # (1) Ustwienia #############################################
+
+        self.settingsMainFrame = TKttk.Frame(self.settingsFrame)
+        self.settingsMainFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsMainFrame.pack(side = TK.TOP, fill = TK.BOTH, expand = 1)
+
+        # (2) Po lewo #####################################
+
+        self.settingsLeftFrame = TKttk.Frame(self.settingsMainFrame)
+        self.settingsLeftFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsLeftFrame.pack(side = TK.LEFT, fill = TK.BOTH, expand = 1)
+
+        # (3) Kodowanie #########################
+
+        self.settingsCodeFrame = TKttk.Frame(self.settingsLeftFrame)
+        self.settingsCodeFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsCodeFrame.pack(side = TK.TOP, fill = TK.X)
+
+        # (4) Kodowanie dla pliku poczty
+
+        self.settingsMailCodeFrame = TKttk.Frame(self.settingsCodeFrame)
+        self.settingsMailCodeFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsMailCodeFrame.pack(side = TK.TOP, fill = TK.X, pady = 6, expand = 1)
+
+        # 'Kodowanie wyjściowe dla pliku poczty'
+        self.settingsMailCodeLabel = TKttk.Label(self.settingsMailCodeFrame)
+        self.settingsMailCodeLabel.config(style = 'label1.TLabel')
+        self.settingsMailCodeLabel.config(width = GUI.R('settingsCodeLabelWidth'))
+        self.settingsMailCodeLabel.config(anchor = GUI.R('settingsCodeLabelAnchor'))
+        self.settingsMailCodeLabel.config(text = 'Kodowanie wyjściowe dla pliku poczty')
+        self.settingsMailCodeLabel.pack(side = TK.LEFT)
+
+        # Kodowanie dla poczty - Combobox
+        self.settingsMailCodeVar = TK.StringVar()
+        self.settingsMailCodeCombobox = TKttk.Combobox(self.settingsMailCodeFrame)
+        self.settingsMailCodeCombobox.config(textvariable = self.settingsMailCodeVar)
+        self.settingsMailCodeCombobox.config(style = 'combobox2.TCombobox')
+        self.settingsMailCodeCombobox.option_add("*TCombobox*Listbox.background", GUI.R('combobox2ListBoxBackground'))
+        self.settingsMailCodeCombobox.option_add("*TCombobox*Listbox.foreground", GUI.R('combobox2ListBoxForeground'))
+        self.settingsMailCodeCombobox.option_add("*TCombobox*Listbox.selectBackground", GUI.R('combobox2ListBoxSelectBackground'))
+        self.settingsMailCodeCombobox.option_add("*TCombobox*Listbox.selectForeground", GUI.R('combobox2ListBoxSelectForeground'))
+        self.settingsMailCodeCombobox.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+        self.settingsMailCodeCombobox['values'] = tuple(VAR.allowedCoding)
+        self.settingsMailCodeCombobox.set(CFG.R('mailOutputCoding'))
+
+        ###############################
+
+        # (4) Kodowanie dla pliku office
+
+        self.settingsOfficeCodeFrame = TKttk.Frame(self.settingsCodeFrame)
+        self.settingsOfficeCodeFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsOfficeCodeFrame.pack(side = TK.BOTTOM, fill = TK.X, pady = 6, expand = 1)
+
+        # 'Kodowanie wyjściowe dla pliku office'
+        self.settingsOfficeCodeLabel = TKttk.Label(self.settingsOfficeCodeFrame)
+        self.settingsOfficeCodeLabel.config(style = 'label1.TLabel')
+        self.settingsOfficeCodeLabel.config(width = GUI.R('settingsCodeLabelWidth'))
+        self.settingsOfficeCodeLabel.config(anchor = GUI.R('settingsCodeLabelAnchor'))
+        self.settingsOfficeCodeLabel.config(text = 'Kodowanie wyjściowe dla pliku office')
+        self.settingsOfficeCodeLabel.pack(side = TK.LEFT)
+
+        # Kodowanie dla poczty - Combobox
+        self.settingsOfficeCodeVar = TK.StringVar()
+        self.settingsOfficeCodeCombobox = TKttk.Combobox(self.settingsOfficeCodeFrame)
+        self.settingsOfficeCodeCombobox.config(textvariable = self.settingsOfficeCodeVar)
+        self.settingsOfficeCodeCombobox.config(style = 'combobox2.TCombobox')
+        self.settingsOfficeCodeCombobox.option_add("*TCombobox*Listbox.background", GUI.R('combobox2ListBoxBackground'))
+        self.settingsOfficeCodeCombobox.option_add("*TCombobox*Listbox.foreground", GUI.R('combobox2ListBoxForeground'))
+        self.settingsOfficeCodeCombobox.option_add("*TCombobox*Listbox.selectBackground", GUI.R('combobox2ListBoxSelectBackground'))
+        self.settingsOfficeCodeCombobox.option_add("*TCombobox*Listbox.selectForeground", GUI.R('combobox2ListBoxSelectForeground'))
+        self.settingsOfficeCodeCombobox.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+        self.settingsOfficeCodeCombobox['values'] = tuple(VAR.allowedCoding)
+        self.settingsOfficeCodeCombobox.set(CFG.R('officeOutputCoding'))
+
+        ###############################
+
+        #########################################
+
+        # (3) Separator #########################
+
+        self.settingsSeparator3 = TKttk.Separator(self.settingsLeftFrame)
+        self.settingsSeparator3.config(style = 'separator1.TSeparator')
+        self.settingsSeparator3.config(orient = TK.HORIZONTAL)
+        self.settingsSeparator3.pack(fill = TK.X, pady = GUI.R('settingsHorizontalSeparatorPadY'))
+
+        #########################################
+
+        # (3) Inne dane #########################
+
+        self.settingsOtherFrame = TKttk.Frame(self.settingsLeftFrame)
+        self.settingsOtherFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsOtherFrame.pack(fill = TK.X)
+
+        # (4) Domena ##################
+
+        self.settingsOtherDomainFrame = TKttk.Frame(self.settingsOtherFrame)
+        self.settingsOtherDomainFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsOtherDomainFrame.pack(fill = TK.X, pady = 6, expand = 1)
+
+        # 'Domena (używana w mailu)'
+        self.settingsOtherDomainLabel = TKttk.Label(self.settingsOtherDomainFrame)
+        self.settingsOtherDomainLabel.config(style = 'label1.TLabel')
+        self.settingsOtherDomainLabel.config(width = GUI.R('settingsOtherLabelWidth'))
+        self.settingsOtherDomainLabel.config(anchor = GUI.R('settingsOtherLabelAnchor'))
+        self.settingsOtherDomainLabel.config(text = 'Domena (używana w mailu)')
+        self.settingsOtherDomainLabel.pack(side = TK.LEFT)
+
+        # Domena - Entry
+        self.settingsOtherDomainVar = TK.StringVar()
+        self.settingsOtherDomainEntry = TKttk.Entry(self.settingsOtherDomainFrame)
+        self.settingsOtherDomainEntry.config(style = 'entry1.TEntry')
+        self.settingsOtherDomainEntry.config(textvariable = self.settingsOtherDomainVar)
+        self.settingsOtherDomainEntry.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+        self.settingsOtherDomainVar.set(CFG.R('domain'))
+
+        ###############################
+
+        # (4) Quota ###################
+
+        self.settingsOtherQuotaFrame = TKttk.Frame(self.settingsOtherFrame)
+        self.settingsOtherQuotaFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsOtherQuotaFrame.pack(fill = TK.X, pady = 6, expand = 1)
+
+        # 'Quota (MB)'
+        self.settingsOtherQuotaLabel = TKttk.Label(self.settingsOtherQuotaFrame)
+        self.settingsOtherQuotaLabel.config(style = 'label1.TLabel')
+        self.settingsOtherQuotaLabel.config(width = GUI.R('settingsOtherLabelWidth'))
+        self.settingsOtherQuotaLabel.config(anchor = GUI.R('settingsOtherLabelAnchor'))
+        self.settingsOtherQuotaLabel.config(text = 'Quota (MB)')
+        self.settingsOtherQuotaLabel.pack(side = TK.LEFT)
+
+        # Domena - Entry
+        self.settingsOtherQuotaVar = TK.IntVar()
+        self.settingsOtherQuotaSpinbox = TKttk.Spinbox(self.settingsOtherQuotaFrame)
+        self.settingsOtherQuotaSpinbox.config(textvariable = self.settingsOtherQuotaVar)
+        self.settingsOtherQuotaSpinbox.config(from_ = 0)
+        self.settingsOtherQuotaSpinbox.config(to = 10000000000000000000000)
+        self.settingsOtherQuotaSpinbox.config(style = 'spinbox1.TSpinbox')
+        self.settingsOtherQuotaSpinbox.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+        self.settingsOtherQuotaSpinbox.set(CFG.R('quota'))
+
+        ###############################
+
+        # (4) Kraj ##################
+
+        self.settingsOtherCountryFrame = TKttk.Frame(self.settingsOtherFrame)
+        self.settingsOtherCountryFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsOtherCountryFrame.pack(fill = TK.X, pady = 6, expand = 1)
+
+        # 'Kraj (zapisany w danych na office)'
+        self.settingsOtherCountryLabel = TKttk.Label(self.settingsOtherCountryFrame)
+        self.settingsOtherCountryLabel.config(style = 'label1.TLabel')
+        self.settingsOtherCountryLabel.config(width = GUI.R('settingsOtherLabelWidth'))
+        self.settingsOtherCountryLabel.config(anchor = GUI.R('settingsOtherLabelAnchor'))
+        self.settingsOtherCountryLabel.config(text = 'Kraj (zapisany w danych na office)')
+        self.settingsOtherCountryLabel.pack(side = TK.LEFT)
+
+        # Domena - Entry
+        self.settingsOtherCountryVar = TK.StringVar()
+        self.settingsOtherCountryEntry = TKttk.Entry(self.settingsOtherCountryFrame)
+        self.settingsOtherCountryEntry.config(style = 'entry1.TEntry')
+        self.settingsOtherCountryEntry.config(textvariable = self.settingsOtherCountryVar)
+        self.settingsOtherCountryEntry.pack(side = TK.RIGHT, fill = TK.X, expand = 1)
+        self.settingsOtherCountryVar.set(CFG.R('country'))
+
+        ###############################
+
+        # (4) Rozpoczęcir roku szkolnego
+
+        self.settingsOtherDRRSFrame = TKttk.Frame(self.settingsOtherFrame)
+        self.settingsOtherDRRSFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsOtherDRRSFrame.pack(fill = TK.X, expand = 1, pady = 6)
+
+        # 'Rozpoczęcie roku szkolnego (Dzień | Miesiąc)'
+        self.settingsOtherDRRSLabel = TKttk.Label(self.settingsOtherDRRSFrame)
+        self.settingsOtherDRRSLabel.config(style = 'label1.TLabel')
+        self.settingsOtherDRRSLabel.config(width = GUI.R('settingsOtherLabelWidth'))
+        self.settingsOtherDRRSLabel.config(anchor = GUI.R('settingsOtherLabelAnchor'))
+        self.settingsOtherDRRSLabel.config(text = 'Rozpoczęcie roku szkolnego (DD | MM)')
+        self.settingsOtherDRRSLabel.pack(side = TK.LEFT)
+
+        # Rozpoczęcie roku szkolnego - Miesiąc
+        self.settingsOtherDRRSMonthVar = TK.IntVar()
+        self.settingsOtherDRRSMonthSpinbox = TKttk.Spinbox(self.settingsOtherDRRSFrame)
+        self.settingsOtherDRRSMonthSpinbox.config(textvariable = self.settingsOtherDRRSMonthVar)
+        self.settingsOtherDRRSMonthSpinbox.config(from_ = 1)
+        self.settingsOtherDRRSMonthSpinbox.config(to = 12)
+        self.settingsOtherDRRSMonthSpinbox.config(style = 'spinbox1.TSpinbox')
+        self.settingsOtherDRRSMonthSpinbox.pack(side = TK.RIGHT, fill = TK.X, expand = 1, padx = (6, 0))
+        self.settingsOtherDRRSMonthSpinbox.set(CFG.R('schoolyearStart')['M'])
+
+        # Rozpoczęcie roku szkolnego - Dzień
+        self.settingsOtherDRRSDayVar = TK.IntVar()
+        self.settingsOtherDRRSDaySpinbox = TKttk.Spinbox(self.settingsOtherDRRSFrame)
+        self.settingsOtherDRRSDaySpinbox.config(textvariable = self.settingsOtherDRRSDayVar)
+        self.settingsOtherDRRSDaySpinbox.config(from_ = 1)
+        self.settingsOtherDRRSDaySpinbox.config(to = 31)
+        self.settingsOtherDRRSDaySpinbox.config(style = 'spinbox1.TSpinbox')
+        self.settingsOtherDRRSDaySpinbox.pack(side = TK.RIGHT, fill = TK.X, expand = 1, padx = (0, 6))
+        self.settingsOtherDRRSDaySpinbox.set(CFG.R('schoolyearStart')['D'])
+
+        ###############################
+
+        #########################################
+
+        ###################################################
+
+        # (2) Separator ###################################
+
+        self.settingsSeparator2 = TKttk.Separator(self.settingsMainFrame)
+        self.settingsSeparator2.config(style = 'separator1.TSeparator')
+        self.settingsSeparator2.config(orient = TK.VERTICAL)
+        self.settingsSeparator2.pack(side = TK.LEFT, fill = TK.Y, padx = GUI.R('settingsVerticalSeparatorPadY'))
+
+        ###################################################
+
+        # (2) Dane o szkołach #############################
+
+        self.settingsSchoolDataFrame = TKttk.Frame(self.settingsMainFrame)
+        self.settingsSchoolDataFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsSchoolDataFrame.pack(side = TK.RIGHT, fill = TK.BOTH)
+
+        # 'Dane o szkołach'
+        self.settingsSchoolDataLabel = TKttk.Label(self.settingsSchoolDataFrame)
+        self.settingsSchoolDataLabel.config(style = 'label1.TLabel')
+        self.settingsSchoolDataLabel.config(anchor = GUI.R('settingsSchoolDataLabelAnchor'))
+        self.settingsSchoolDataLabel.config(text = 'Dane o szkołach')
+        self.settingsSchoolDataLabel.pack(side = TK.TOP, pady = 6)
+
+        # Label - oznaczenia kolumn
+        self.settingsSchoolDataInstructionLabel = TKttk.Label(self.settingsSchoolDataFrame)
+        self.settingsSchoolDataInstructionLabel.config(style = 'label3.TLabel')
+        self.settingsSchoolDataInstructionLabel.config(anchor = GUI.R('settingsSchoolDataLabelAnchor'))
+        self.settingsSchoolDataInstructionLabel.config(text = 'OZNACZENIE SZKOŁY | ILOŚĆ KLAS | CZY OZNACZENIE SZKOŁY W ZNACZNIKU KLASY? (0/1)')
+        self.settingsSchoolDataInstructionLabel.pack()
+
+        # Dane o szkołach - Text
+        self.settingsSchoolDataText = TK.Text(self.settingsSchoolDataFrame)
+        self.settingsSchoolDataText.config(background = GUI.R('text1Background'))
+        self.settingsSchoolDataText.config(foreground = GUI.R('text1TextColor'))
+        self.settingsSchoolDataText.config(relief = GUI.R('text1Relief'))
+        self.settingsSchoolDataText.config(width = 50)
+        self.settingsSchoolDataText.pack(pady = 6, fill = TK.Y, expand = 1)
+        for x in CFG.R('schoolData'):
+            if x[2]:
+                x[2] = '1'
+            else:
+                x[2] = '0'
+            x[1] = str(x[1])
+            self.settingsSchoolDataText.insert(TK.END, (' | '.join(x) + '\n'))
+
+        ###################################################
+
+        #############################################################
+        
+        # (1) Separator #############################################
+
+        self.settingsSeparator1 = TKttk.Separator(self.settingsFrame)
+        self.settingsSeparator1.config(style = 'separator1.TSeparator')
+        self.settingsSeparator1.config(orient = TK.HORIZONTAL)
+        self.settingsSeparator1.pack(fill = TK.X, pady = GUI.R('settingsHorizontalSeparatorPadY'))
+
+        #############################################################
+
+        # (1) Przyciski #############################################
+
+        self.settingsButtonsFrame = TKttk.Frame(self.settingsFrame)
+        self.settingsButtonsFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsButtonsFrame.pack(side = TK.BOTTOM, fill = TK.X, pady = GUI.R('settingsButtonsPadY'))
+
+        # (2) Przyciski ZAPISZ i Anuluj ###################
+
+        self.settingsButtonsSaveCancelFrame = TKttk.Frame(self.settingsButtonsFrame)
+        self.settingsButtonsSaveCancelFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsButtonsSaveCancelFrame.pack(side = TK.LEFT)
+
+        # Przycisk ZAPISZ
+        self.settingsButtonSave = TKttk.Button(self.settingsButtonsSaveCancelFrame)
+        self.settingsButtonSave.config(command = self.settingsButtonSaveAction)
+        self.settingsButtonSave.config(style = 'button1.TButton')
+        self.settingsButtonSave.config(width = GUI.R('settingsButtonSaveWidth'))
+        self.settingsButtonSave.config(text = 'ZAPISZ')
+        self.settingsButtonSave.pack(side = TK.LEFT, padx = 6)
+
+        # Przycisk Anuluj
+        self.settingsButtonCancel = TKttk.Button(self.settingsButtonsSaveCancelFrame)
+        self.settingsButtonCancel.config(command = self.settingsButtonCancelAction)
+        self.settingsButtonCancel.config(style = 'button1.TButton')
+        self.settingsButtonCancel.config(width = GUI.R('settingsButtonCancelWidth'))
+        self.settingsButtonCancel.config(text = 'Anuluj')
+        self.settingsButtonCancel.pack(side = TK.RIGHT, padx = 6)
+
+        ###################################################
+
+        # (2) Inne przyciski ##############################
+
+        self.settingsButtonsOtherFrame = TKttk.Frame(self.settingsButtonsFrame)
+        self.settingsButtonsOtherFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsButtonsOtherFrame.pack(side = TK.RIGHT)
+
+        # Przycisk "Zarządzaj presetami formatu"
+        self.settingsButtonZPF = TKttk.Button(self.settingsButtonsOtherFrame)
+        self.settingsButtonZPF.config(command = self.settingsButtonZPFAction)
+        self.settingsButtonZPF.config(style = 'button1.TButton')
+        self.settingsButtonZPF.config(width = GUI.R('settingsButtonZPFWidth'))
+        self.settingsButtonZPF.config(text = 'Zarządzaj presetami formatu')
+        self.settingsButtonZPF.pack(side = TK.RIGHT, padx = 6)
+
+        # Przycisk "Przywróć domyślne ustawienia wyglądu"
+        self.settingsButtonPDUW = TKttk.Button(self.settingsButtonsOtherFrame)
+        self.settingsButtonPDUW.config(command = self.settingsButtonPDUWAction)
+        self.settingsButtonPDUW.config(style = 'button1.TButton')
+        self.settingsButtonPDUW.config(width = GUI.R('settingsButtonPDUWWidth'))
+        self.settingsButtonPDUW.config(text = 'Przywróć domyślne ustawienia wyglądu')
+        self.settingsButtonPDUW.pack(side = TK.RIGHT, padx = 6)
+
+        # Przycisk "Przywróć domyślne ustwienia ogólne"
+        self.settingsButtonPDUO = TKttk.Button(self.settingsButtonsOtherFrame)
+        self.settingsButtonPDUO.config(command = self.settingsButtonPDUOAction)
+        self.settingsButtonPDUO.config(style = 'button1.TButton')
+        self.settingsButtonPDUO.config(width = GUI.R('settingsButtonPDUOWidth'))
+        self.settingsButtonPDUO.config(text = 'Przywróć domyślne ustawienia ogólne')
+        self.settingsButtonPDUO.pack(side = TK.RIGHT, padx = 6)
+
+        ###################################################
+
+        #############################################################
 
         ######################################################################
 
@@ -2349,6 +2773,119 @@ class mainWindow:
 
     def editingPresetCancelButtonAction(self):
         self.editingPresetClear()
+    
+    # Akcje przycisków - TAB3
+
+    def settingsReset(self):
+        self.settingsMailCodeCombobox.set(CFG.R('mailOutputCoding'))
+        self.settingsOfficeCodeCombobox.set(CFG.R('officeOutputCoding'))
+        self.settingsOtherDomainVar.set(CFG.R('domain'))
+        self.settingsOtherQuotaSpinbox.set(CFG.R('quota'))
+        self.settingsOtherCountryVar.set(CFG.R('country'))
+        self.settingsOtherDRRSMonthSpinbox.set(CFG.R('schoolyearStart')['M'])
+        self.settingsOtherDRRSDaySpinbox.set(CFG.R('schoolyearStart')['D'])
+        self.settingsSchoolDataText.delete('1.0', TK.END)
+        for x in CFG.R('schoolData'):
+            if x[2]:
+                x[2] = '1'
+            else:
+                x[2] = '0'
+            x[1] = str(x[1])
+            self.settingsSchoolDataText.insert(TK.END, (' | '.join(x) + '\n'))
+
+    def settingsButtonSaveAction(self):
+        if MSG('A0004', False):
+            changes = {}
+            changes['mailOutputCoding'] = self.settingsMailCodeCombobox.get()
+            changes['officeOutputCoding'] = self.settingsOfficeCodeCombobox.get()
+            changes['domain'] = self.settingsOtherDomainVar.get()
+            changes['quota'] = self.settingsOtherQuotaSpinbox.get()
+            changes['country'] = self.settingsOtherCountryVar.get()
+            changes['schoolyearStart'] = {
+                'D' : self.settingsOtherDRRSDaySpinbox.get(),
+                'M' : self.settingsOtherDRRSMonthSpinbox.get(),
+                'Y' : None,
+                'h' : None,
+                'm' : None,
+                's' : None,
+            }
+            changes['schoolData'] = (self.settingsSchoolDataText.get("1.0", TK.END)).split('\n')
+            CFG.W(changes)
+            self.settingsReset()
+        else:
+            return
+
+    def settingsButtonCancelAction(self):
+        self.settingsReset()
+
+    def settingsButtonPDUOAction(self):
+        if MSG('A0005', False):
+            try:
+                OS.remove(str(appdata) + '\Generator CSV\config.cfg')
+                SU.copy('default-configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
+            except Exception as exceptInfo:
+                MSG('E0001', True, exceptInfo)
+            MSG('I0002', True)
+        else:
+            return
+
+    def settingsButtonPDUWAction(self):
+        if MSG('A0006', False):
+            try:
+                OS.remove(str(appdata) + '\Generator CSV\style.cfg')
+                SU.copy('default-configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
+            except Exception as exceptInfo:
+                MSG('E0001', True, exceptInfo)
+            MSG('I0002', True)
+        else:
+            return
+    
+    def deleteSelectedFPButtonAction(self):
+        if MSG('A0007', False):
+            selected = self.selectFPListbox.curselection()
+            for x in selected:
+                try:
+                    OS.remove(str(appdata) + ('/Generator CSV/format-presets') + ('\%s.fmt' % self.selectFPListbox.get(x)))
+                except Exception as exceptInfo:
+                    MSG('E0015', True, exceptInfo)
+            MSG('I0001', False)
+            self.updatePresetListInGenerateTab()
+            self.loadingList['values'] = tuple(FMT.getList())
+            self.selectFPListbox.delete(0, TK.END)
+            for x in FMT.getList():
+                self.selectFPListbox.insert(TK.END, x)
+        else:
+            return
+
+    def settingsButtonZPFAction(self):
+        # Pod okno
+        self.ZPFWindow = TK.Toplevel(self.master)
+        self.ZPFWindow.title("Zarządzanie presetami formatu")
+        self.ZPFWindow.geometry('%ix%i' % (GUI.R('ZPFWindowWidth'), GUI.R('ZPFWindowHeight')))
+        self.ZPFWindow.resizable(width = GUI.R('ZPFWindowWidthResizable'), height = GUI.R('ZPFWindowHeightResizable'))
+        self.ZPFWindow.configure(bg = GUI.R('ZPFWindowMainBG'))
+        self.ZPFWindow.iconbitmap(GUI.R('mainIcon'))
+
+        # Wybór format presetu - listbox
+        self.selectFPListbox = TK.Listbox(self.ZPFWindow)
+        self.selectFPListbox.config(activestyle = GUI.R('listbox1ActiveStyle'))
+        self.selectFPListbox.config(bg = GUI.R('listbox1BG'))
+        self.selectFPListbox.config(fg = GUI.R('listbox1TextColor'))
+        self.selectFPListbox.config(relief = GUI.R('listbox1Relief'))
+        self.selectFPListbox.config(bd = GUI.R('listbox1BorderWidth'))
+        self.selectFPListbox.config(highlightthickness = GUI.R('listbox1HighlightThickness'))
+        self.selectFPListbox.config(selectbackground = GUI.R('listbox1SelectBG'))
+        self.selectFPListbox.config(selectmode = TK.MULTIPLE)
+        self.selectFPListbox.pack(fill = TK.BOTH, expand = 1, padx = 6, pady = 6)
+        for x in FMT.getList():
+            self.selectFPListbox.insert(TK.END, x)
+
+        # Usuń zaznaczone - Button
+        self.deleteSelectedFPButton = TKttk.Button(self.ZPFWindow)
+        self.deleteSelectedFPButton.config(style = 'button1.TButton')
+        self.deleteSelectedFPButton.config(text = 'Usuń zaznaczone')
+        self.deleteSelectedFPButton.config(command = self.deleteSelectedFPButtonAction)
+        self.deleteSelectedFPButton.pack(fill = TK.X, padx = 6, pady = 6)
 
 
 

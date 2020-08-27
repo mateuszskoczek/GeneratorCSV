@@ -106,3 +106,7 @@
 - Przeniesienie informacji o kodowaniu wejsciowym z pliku 'config.cfg' do plików formatu
 - Zmiany w interfejsie w związku z dodaniem do plików formatu informacji o kodowaniu wejściowym
 - Stworzenie listy dozwolonych kodowań w zmiennej w programie
+
+4.0 Alpha (Build 20241)
+- Ukończenie karty 'USTAWIENIA'
+- Zastosowanie nowego systemu przetwarzania plików konfiguracyjnych dla pliku 'config.cfg' w zapisie danych
