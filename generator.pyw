@@ -13,6 +13,7 @@
 # ----------------------------------------- # Zmienne # ----------------------------------------- #
 
 class VAR:
+    # Informacje o programie
     programName = 'Generator CSV'
     programVersion = '4.0'
     programVersionStage = 'Alpha'
@@ -20,6 +21,12 @@ class VAR:
     programCustomer = 'ZSP Sobolew'
     programAuthors = ['Mateusz Skoczek']
     programToW = ['styczeń', 2019, 'wrzesień', 2020]
+
+    # Dozwolone kodowanie plików
+    allowedCoding = ['utf-8']
+
+    # Dozwolone znaki
+    allowedCharactersInSeparator = ['`', '~', '!', '@', '#', '$', '%', '^', '&', '(', ')', '-', '_', '=', '+', '[', ']', ' ', '?', '/', '>', '.', '<', ',', '"', "'", ':', ';', '|']
 
 
 
@@ -184,20 +191,6 @@ class CFG:
 
     
     # Funkcje sprawdzające poprawność recordu
-    def __checkSCA(self, write, record, var):
-        if write:
-            pass
-        else:
-            try:
-                var = var[1:-2].split(', ')
-                var = [x[1:-1] for x in var]
-            except:
-                return (False, 'Niepoprawne dane - klucz: %s' % record)
-            for x in var:
-                if len(x) != 1:
-                    return (False, 'Niepoprawne dane - klucz: %s' % record)
-        return [True, var]
-    
     def __checkI(self, write, record, var):
         if write:
             pass
@@ -259,7 +252,6 @@ class CFG:
 
 
 
-
     def R(self, record):
         self.__checkIfFileExist(False)
         content = {}
@@ -280,13 +272,6 @@ class CFG:
             # String
             var = var[0].strip('\r')
             return var
-        elif var[1] == 'SCA':
-            # Single char array
-            checkingOutput = self.__checkSCA(False, record, var[0])
-            if checkingOutput[0]:
-                return checkingOutput[1]
-            else:
-                MSG('E0003', True, checkingOutput[1])
         elif var[1] == 'I':
             # Integer
             checkingOutput = self.__checkI(False, record, var[0])
@@ -333,14 +318,6 @@ class CFG:
             if type == 'S':
                 # String
                 pass
-            elif type == 'SCA':
-                # Single char array
-                checkingOutput = self.__checkSCA(True, name, var)
-                if checkingOutput[0]:
-                    var = checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-                    return False
             elif type == 'I':
                 # Integer
                 checkingOutput = self.__checkI(True, name, var)
@@ -566,22 +543,20 @@ class FMT:
         return [True, var]
 
     def __checkSs(self, record, var):
-        allowedCharactersInSeparator = CFG.R('allowedCharactersInSeparator')
         check = var
         check = check.strip('<enter>')
         for x in check:
-            if x not in allowedCharactersInSeparator:
+            if x not in VAR.allowedCharactersInSeparator:
                 return [False, 'Niepoprawne dane - klucz: %s' % var]
         return [True, var]
     
     def __checkAs(self, write, record, var):
-        allowedCharactersInSeparator = CFG.R('allowedCharactersInSeparator')
         if write:
             check = var
             for x in check:
                 x = x.strip('<enter>')
                 for y in x:
-                    if y not in allowedCharactersInSeparator:
+                    if y not in VAR.allowedCharactersInSeparator:
                         return [False, 'Niepoprawne dane - klucz: %s' % var]
             var = str(var)
         else:
@@ -590,7 +565,7 @@ class FMT:
             for x in check:
                 x = x.strip('<enter>')
                 for y in x:
-                    if y not in allowedCharactersInSeparator:
+                    if y not in VAR.allowedCharactersInSeparator:
                         return [False, 'Niepoprawne dane - klucz: %s' % var]
             var = new_contentVar
         return [True, var]
@@ -603,6 +578,11 @@ class FMT:
                 var = int(var)
             except:
                 return (False, 'Niepoprawne dane - klucz: %s' % record)
+        return [True, var]
+    
+    def __checkSc(self, record, var):
+        if var not in VAR.allowedCoding:
+            return [False, 'Niepoprawne dane - klucz: %s' % var]
         return [True, var]
 
 
@@ -667,6 +647,13 @@ class FMT:
                     return checkingOutput[1]
                 else:
                     MSG('E0006', False, checkingOutput[1])
+            elif var[1] == 'Sc':
+                # Integer
+                checkingOutput = self.__checkSc(record, var[0])
+                if checkingOutput[0]:
+                    return checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
             else:
                 MSG('E0006', True, 'Nie można rozpoznać typu klucza %s' % record)
         else:
@@ -685,6 +672,7 @@ class FMT:
                 "schoolPositionInRow" : 0,
                 "classRow" : 0,
                 "classPositionInRow" : 0,
+                "inputCoding" : 'utf-8',
             }
             var = content[record]
         return var
@@ -721,6 +709,7 @@ class FMT:
                 "schoolPositionInRow" : ['0', 'I'],
                 "classRow" : ['0', 'I'],
                 "classPositionInRow" : ['0', 'I'],
+                "inputCoding" : ['utf-8', 'Sc']
             }
         for x in changes:
             name = x
@@ -750,6 +739,13 @@ class FMT:
             elif type == 'I':
                 # Integer
                 checkingOutput = self.__checkI(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'Sc':
+                checkingOutput = self.__checkSc(name, var)
                 if checkingOutput[0]:
                     var = checkingOutput[1]
                 else:
@@ -791,7 +787,7 @@ class dataProcess:
     def __checkIfInputFilesIsReadable(self, files, filledFiles):
         for x in filledFiles:
             try:
-                check = CD.open((files[x])[0], 'r', CFG.R('inputCoding'))
+                check = CD.open((files[x])[0], 'r', FMT.R((files[x])[1], 'inputCoding'))
             except:
                 return False
         return True
@@ -874,7 +870,7 @@ class dataProcess:
             schoolLocation = [FMT.R(format, 'schoolRow'), FMT.R(format, 'schoolPositionInRow')]
             classLocation = [FMT.R(format, 'classRow'), FMT.R(format, 'classPositionInRow')]
             student = FMT.R(format, 'student')
-            file =  CD.open(path, 'r', CFG.R('inputCoding')).read().split(personSeparator)
+            file =  CD.open(path, 'r', FMT.R(format, 'inputCoding')).read().split(personSeparator)
             for x in file:
                 lines = x.split(linesSeparator)
                 dataX = []
@@ -1995,7 +1991,36 @@ class mainWindow:
         self.EPDLClassPosInRowSpinbox.config(state = TK.DISABLED)
         self.EPDLClassPosInRowSpinbox.config(style = 'spinbox1.TSpinbox')
         self.EPDLClassPosInRowSpinbox.grid(row = 5, column = 2, padx = GUI.R('EPDataLocalizationPadX'), pady = GUI.R('EPDataLocalizationPadY'))
-        
+
+        #
+        self.formatSeparator4Frame = TKttk.Frame(self.editingPresetDLFrame)
+        self.formatSeparator4Frame.config(style = 'layoutFrame.TFrame')
+        self.formatSeparator4Frame.grid(row = 6, column = 0, columnspan = 3)
+
+        self.formatSeparator4 = TKttk.Separator(self.formatSeparator4Frame)
+        self.formatSeparator4.config(style = 'separator1.TSeparator')
+        self.formatSeparator4.config(orient = TK.HORIZONTAL)
+        self.formatSeparator4.pack(padx = GUI.R('formatHorizontalSeparatorPadY'), fill = TK.X, expand = 1)
+
+        # "Kodowanie"
+        self.formatInputCodingLabel = TKttk.Label(self.editingPresetDLFrame)
+        self.formatInputCodingLabel.config(style = 'label1.TLabel')
+        self.formatInputCodingLabel.config(text = 'Kodowanie')
+        self.formatInputCodingLabel.grid(row = 7, column = 0, padx = GUI.R('EPDataLocalizationPadX'), pady = GUI.R('EPDataLocalizationPadY'))
+
+        # Kodowanie - Combobox
+        self.formatInputCodingVar = TK.StringVar()
+        self.formatInputCodingCombobox = TKttk.Combobox(self.editingPresetDLFrame)
+        self.formatInputCodingCombobox.config(textvariable = self.formatInputCodingVar)
+        self.formatInputCodingCombobox.config(state = TK.DISABLED)
+        self.formatInputCodingCombobox.config(style = 'combobox1.TCombobox')
+        self.formatInputCodingCombobox.option_add("*TCombobox*Listbox.background", GUI.R('combobox2ListBoxBackground'))
+        self.formatInputCodingCombobox.option_add("*TCombobox*Listbox.foreground", GUI.R('combobox2ListBoxForeground'))
+        self.formatInputCodingCombobox.option_add("*TCombobox*Listbox.selectBackground", GUI.R('combobox2ListBoxSelectBackground'))
+        self.formatInputCodingCombobox.option_add("*TCombobox*Listbox.selectForeground", GUI.R('combobox2ListBoxSelectForeground'))
+        self.formatInputCodingCombobox.grid(row = 7, column = 1, columnspan = 2, padx = GUI.R('EPDataLocalizationPadX'), pady = GUI.R('EPDataLocalizationPadY'))
+        self.formatInputCodingCombobox['values'] = tuple(VAR.allowedCoding)
+
         ###############################
 
         #########################################
@@ -2148,7 +2173,6 @@ class mainWindow:
             GOF = (GOFMailFilename, GOFOfficeFilename)
             filesList = (GIF1, GIF2, GIF3, GIF4, GOF)
             output = dataProcess.start(filesList)
-            print(output)
             if not output[0]:
                 MSG('E0007', False)
             else:
@@ -2222,6 +2246,8 @@ class mainWindow:
         self.EPDLClassRowVar.set(FMT.R(self.loadingList.get(), 'classRow'))
         self.EPDLClassPosInRowSpinbox['state'] = TK.NORMAL
         self.EPDLClassPosInRowVar.set(FMT.R(self.loadingList.get(), 'classPositionInRow'))
+        self.formatInputCodingCombobox['state'] = 'readonly'
+        self.formatInputCodingVar.set(FMT.R(self.loadingList.get(), 'inputCoding'))
         self.editingPresetSaveButton['state'] = TK.NORMAL
         self.editingPresetCancelButton['state'] = TK.NORMAL
 
@@ -2241,6 +2267,7 @@ class mainWindow:
             "schoolPositionInRow" : 0,
             "classRow" : 0,
             "classPositionInRow" : 0,
+            "inputCoding" : '',
         }
         self.loadingList['state'] = TK.NORMAL
         self.loadingButton['state'] = TK.NORMAL
@@ -2273,6 +2300,8 @@ class mainWindow:
         self.EPDLClassRowVar.set(formatFileContent['classRow'])
         self.EPDLClassPosInRowSpinbox['state'] = TK.DISABLED
         self.EPDLClassPosInRowVar.set(formatFileContent['classPositionInRow'])
+        self.formatInputCodingCombobox['state'] = TK.DISABLED
+        self.formatInputCodingVar.set(formatFileContent['inputCoding'])
         self.editingPresetSaveButton['state'] = TK.DISABLED
         self.editingPresetCancelButton['state'] = TK.DISABLED
         self.loadingList['values'] = tuple(FMT.getList())
@@ -2299,6 +2328,7 @@ class mainWindow:
             "schoolPositionInRow" : int(self.EPDLSchoolPosInRowSpinbox.get()),
             "classRow" : int(self.EPDLClassRowSpinbox.get()),
             "classPositionInRow" : int(self.EPDLClassPosInRowSpinbox.get()),
+            "inputCoding" : self.formatInputCodingCombobox.get()
         }
         if not FMT.W(self.loadingList.get(), formatFileContentToSave):
             return

@@ -100,3 +100,9 @@
 - Wstępne zastosowanie nowego systemu przetwarzania plików konfiguracyjnych dla pliku 'config.cfg' w zapisie danych
 - Ukończenie skryptu przetwarzającego dane
 - Poprawki błędów
+
+4.0 Alpha (Build 20240)
+- Przeniesienie informacji o dozwolonych znakach separatora do zmiennej w programie
+- Przeniesienie informacji o kodowaniu wejsciowym z pliku 'config.cfg' do plików formatu
+- Zmiany w interfejsie w związku z dodaniem do plików formatu informacji o kodowaniu wejściowym
+- Stworzenie listy dozwolonych kodowań w zmiennej w programie
