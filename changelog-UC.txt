@@ -110,3 +110,6 @@
 4.0 Alpha (Build 20241)
 - Ukończenie karty 'USTAWIENIA'
 - Zastosowanie nowego systemu przetwarzania plików konfiguracyjnych dla pliku 'config.cfg' w zapisie danych
+
+4.0 Beta (Build 20241.1)
+- Ukończenie karty 'O PROGRAMIE'

@@ -16,11 +16,11 @@ class VAR:
     # Informacje o programie
     programName = 'Generator CSV'
     programVersion = '4.0'
-    programVersionStage = 'Alpha'
-    programVersionBuild = 'Build'
+    programVersionStage = 'Beta'
+    programVersionBuild = '20241.1'
     programCustomer = 'ZSP Sobolew'
     programAuthors = ['Mateusz Skoczek']
-    programToW = ['styczeń', 2019, 'wrzesień', 2020]
+    programToW = ['styczeń', '2019', 'wrzesień', '2020']
 
     # Dozwolone kodowanie plików
     allowedCoding = ['utf-8']
@@ -49,7 +49,6 @@ import tkinter as TK
 from tkinter import ttk as TKttk
 from tkinter import messagebox as TKmsb
 from tkinter import filedialog as TKfld
-import tkcalendar as TKcal
 
 from PIL import ImageTk as PLitk
 from PIL import Image as PLimg
@@ -1243,6 +1242,13 @@ class mainWindow:
                     "font" : GUI.R('label3Font')
                 },
             },
+            "label4.TLabel": {
+                "configure": {
+                    "background": GUI.R('label4BG'),
+                    "foreground": GUI.R('label4TextColor'),
+                    "font": GUI.R('label4Font'),
+                },
+            },
             "combobox1.TCombobox": {
                 "configure": {
                     "arrowcolor": GUI.R('combobox1ArrowColor'),
@@ -1273,6 +1279,13 @@ class mainWindow:
                     "background": GUI.R('button1Background'),
                     "foreground": GUI.R('button1Foreground'),
                     "padding": GUI.R('button1Padding'),
+                },
+            },
+            "button2.TButton": {
+                "configure": {
+                    "anchor": GUI.R('button2TextAnchor'),
+                    "background": GUI.R('button2Background'),
+                    "padding": GUI.R('button2Padding'),
                 },
             },
             "separator1.TSeparator": {
@@ -2540,6 +2553,93 @@ class mainWindow:
         self.aboutFrame.config(style = 'contentTabFrame.TFrame')
         self.aboutFrame.pack(fill = GUI.R('contentTabFrameFill'), expand = GUI.R('contentTabFrameExpand'), padx = GUI.R('tabFramePadding'), pady = GUI.R('tabFramePadding'))
 
+        # (1) Info & Logo ###########################################
+
+        self.aboutInfoLogoFrame = TKttk.Frame(self.aboutFrame)
+        self.aboutInfoLogoFrame.config(style = 'layoutFrame.TFrame')
+        self.aboutInfoLogoFrame.pack(fill = TK.BOTH, expand = 1)
+
+        # (2) Logo ########################################
+
+        self.aboutLogoFrame = TKttk.Frame(self.aboutInfoLogoFrame)
+        self.aboutLogoFrame.config(style = 'layoutFrame.TFrame')
+        self.aboutLogoFrame.pack(fill = TK.BOTH, expand = 1)
+
+        # Logo - Button
+        self.aboutLogoButton = TKttk.Button(self.aboutLogoFrame)
+        self.aboutLogoButton.config(style = 'button2.TButton')
+        self.aboutLogoButtonImg = PLimg.open(GUI.R('aboutLogoButtonImg'))
+        self.aboutLogoButtonImg = self.aboutLogoButtonImg.resize((GUI.R('aboutLogoButtonImgSize'), GUI.R('aboutLogoButtonImgSize')), PLimg.ANTIALIAS)
+        self.aboutLogoButtonImg = PLitk.PhotoImage(self.aboutLogoButtonImg)
+        self.aboutLogoButton.config(image = self.aboutLogoButtonImg)
+        self.aboutLogoButton.pack(expand = 1)
+
+        ###################################################
+
+        # (2) Informacje ##################################
+
+        self.aboutInfoFrame = TKttk.Frame(self.aboutInfoLogoFrame)
+        self.aboutInfoFrame.config(style = 'layoutFrame.TFrame')
+        self.aboutInfoFrame.pack(fill = TK.BOTH, expand = 1)
+
+        # Nazwa programu
+        self.aboutInfoProgramNameLabel = TKttk.Label(self.aboutInfoFrame)
+        self.aboutInfoProgramNameLabel.config(style = 'label4.TLabel')
+        self.aboutInfoProgramNameLabel.config(text = VAR.programName)
+        self.aboutInfoProgramNameLabel.pack()
+
+        # Wersja programu
+        self.aboutInfoProgramNameLabel = TKttk.Label(self.aboutInfoFrame)
+        self.aboutInfoProgramNameLabel.config(style = 'label1.TLabel')
+        self.aboutInfoProgramNameLabel.config(text = 'Wersja %s %s (Build %s)' % (VAR.programVersion, VAR.programVersionStage, VAR.programVersionBuild))
+        self.aboutInfoProgramNameLabel.pack()
+
+        # (3) Pozostałe informacje ##############
+
+        self.aboutOtherInfoFrame = TKttk.Frame(self.aboutInfoFrame)
+        self.aboutOtherInfoFrame.config(style = 'layoutFrame.TFrame')
+        self.aboutOtherInfoFrame.pack(pady = GUI.R('aboutOtherInfoFramePadX'))
+
+        # Czas pracy
+        self.aboutOIToWLabel = TKttk.Label(self.aboutOtherInfoFrame)
+        self.aboutOIToWLabel.config(style = 'label2.TLabel')
+        self.aboutOIToWLabel.config(text = '© %s %s - %s %s' % (VAR.programToW[0], VAR.programToW[1], VAR.programToW[2], VAR.programToW[3]))
+        self.aboutOIToWLabel.pack()
+
+        # Autorzy
+        self.aboutOIAuthorsLabel = TKttk.Label(self.aboutOtherInfoFrame)
+        self.aboutOIAuthorsLabel.config(style = 'label2.TLabel')
+        self.aboutOIAuthorsLabel.config(text = '\n'.join(VAR.programAuthors))
+        self.aboutOIAuthorsLabel.pack()
+
+        # Dla kogo
+        self.aboutOICustomerLabel = TKttk.Label(self.aboutOtherInfoFrame)
+        self.aboutOICustomerLabel.config(style = 'label2.TLabel')
+        self.aboutOICustomerLabel.config(text = 'dla %s' % VAR.programCustomer)
+        self.aboutOICustomerLabel.pack()
+
+        #########################################
+
+        ###################################################
+
+        #############################################################
+
+        # (1) Instrukcja ############################################
+
+        self.aboutInstructionFrame = TKttk.Frame(self.aboutFrame)
+        self.aboutInstructionFrame.config(style = 'layoutFrame.TFrame')
+        self.aboutInstructionFrame.pack(fill = TK.X, side = TK.BOTTOM)
+
+        # Instrukcja - Button
+        self.aboutInstructionButton = TKttk.Button(self.aboutInstructionFrame)
+        self.aboutInstructionButton.config(command = self.aboutInstructionButtonAction)
+        self.aboutInstructionButton.config(style = 'button1.TButton')
+        self.aboutInstructionButton.config(width = GUI.R('aboutInstructionButtonWidth'))
+        self.aboutInstructionButton.config(text = 'Instrukcja')
+        self.aboutInstructionButton.pack(side = TK.RIGHT)
+
+        #############################################################
+
         ######################################################################
         
 
@@ -2886,6 +2986,9 @@ class mainWindow:
         self.deleteSelectedFPButton.config(text = 'Usuń zaznaczone')
         self.deleteSelectedFPButton.config(command = self.deleteSelectedFPButtonAction)
         self.deleteSelectedFPButton.pack(fill = TK.X, padx = 6, pady = 6)
+    
+    def aboutInstructionButtonAction(self):
+        pass
 
 
 
