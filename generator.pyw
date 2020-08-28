@@ -17,7 +17,7 @@ class VAR:
     programName = 'Generator CSV'
     programVersion = '4.0'
     programVersionStage = 'Beta'
-    programVersionBuild = '20241.1'
+    programVersionBuild = '20241.2'
     programCustomer = 'ZSP Sobolew'
     programAuthors = ['Mateusz Skoczek']
     programToW = ['styczeń', '2019', 'wrzesień', '2020']
@@ -42,6 +42,7 @@ import time as TM
 import codecs as CD
 import pathlib as PT
 import shutil as SU
+import subprocess as SP
 
 
 # GUI
@@ -86,6 +87,7 @@ MSGlist = {
     'I0001' : 'Operacja ukończona pomyślnie',
     'I0002' : 'Aplikacja zostanie zamknięta w celu przeładowania ustawień',
     'E0015' : 'Nie można usunąć wybranych format presetów',
+    'E0016' : 'Nie można uruchomić pliku instrukcji (documentation/index.html)',
 }
 
 def MSG(code, terminate, *optionalInfo):
@@ -135,20 +137,20 @@ def checkAppdata():
     if 'Generator CSV' not in [x for x in OS.listdir(appdata)]:
         try:
             OS.mkdir(str(appdata) + '/Generator CSV')
-            SU.copy('default-configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
-            SU.copy('default-configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
+            SU.copy('configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
+            SU.copy('configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
             OS.mkdir(str(appdata) + '/Generator CSV/format-presets')
         except Exception as exceptInfo:
             MSG('E0001', True, exceptInfo)
     else:
         if 'config.cfg' not in [x for x in OS.listdir(str(appdata) + '/Generator CSV')]:
             try:
-                SU.copy('default-configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
+                SU.copy('configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
             except Exception as exceptInfo:
                 MSG('E0001', True, exceptInfo)
         if 'style.cfg' not in [x for x in OS.listdir(str(appdata) + '/Generator CSV')]:
             try:
-                SU.copy('default-configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
+                SU.copy('configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
             except Exception as exceptInfo:
                 MSG('E0001', True, exceptInfo)
         if 'format-presets'not in [x for x in OS.listdir(str(appdata) + '/Generator CSV')]:
@@ -1166,7 +1168,7 @@ class mainWindow:
     def __init__(self, master):
         # Okno
         self.master = master
-        master.title('%s %s' % (VAR.programName, VAR.programVersion))
+        master.title('%s %s %s' % (VAR.programName, VAR.programVersion, VAR.programVersionStage))
         master.geometry('%ix%i' % (GUI.R('windowWidth'), GUI.R('windowHeight')))
         master.resizable(width = GUI.R('windowWidthResizable'), height = GUI.R('windowHeightResizable'))
         master.configure(bg = GUI.R('windowMainBG'))
@@ -2922,7 +2924,7 @@ class mainWindow:
         if MSG('A0005', False):
             try:
                 OS.remove(str(appdata) + '\Generator CSV\config.cfg')
-                SU.copy('default-configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
+                SU.copy('configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
             except Exception as exceptInfo:
                 MSG('E0001', True, exceptInfo)
             MSG('I0002', True)
@@ -2933,7 +2935,7 @@ class mainWindow:
         if MSG('A0006', False):
             try:
                 OS.remove(str(appdata) + '\Generator CSV\style.cfg')
-                SU.copy('default-configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
+                SU.copy('configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
             except Exception as exceptInfo:
                 MSG('E0001', True, exceptInfo)
             MSG('I0002', True)
@@ -2988,7 +2990,10 @@ class mainWindow:
         self.deleteSelectedFPButton.pack(fill = TK.X, padx = 6, pady = 6)
     
     def aboutInstructionButtonAction(self):
-        pass
+        try:
+            OS.startfile('documentation\index.html')
+        except Exception as exceptInfo:
+            MSG('E0016', False, exceptInfo)
 
 
 
