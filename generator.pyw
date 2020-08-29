@@ -16,8 +16,8 @@ class VAR:
     # Informacje o programie
     programName = 'Generator CSV'
     programVersion = '4.0'
-    programVersionStage = 'Beta'
-    programVersionBuild = '20241.2'
+    programVersionStage = ''
+    programVersionBuild = '20242'
     programCustomer = 'ZSP Sobolew'
     programAuthors = ['Mateusz Skoczek']
     programToW = ['styczeń', '2019', 'wrzesień', '2020']
@@ -42,7 +42,6 @@ import time as TM
 import codecs as CD
 import pathlib as PT
 import shutil as SU
-import subprocess as SP
 
 
 # GUI

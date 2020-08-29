@@ -117,3 +117,8 @@
 4.0 Beta (Build 20241.2)
 - Dodanie do paska tytułu programVersionStage
 - Pzzygotowanie strony na dokumentację i instrukcję
+
+4.0 Beta (Build 20242)
+- Ukończenie instrukcji
+- Ukończenie sekcji strony "O programie"
+- Ukończenie sekcji strony "Opis"
