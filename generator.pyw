@@ -23,7 +23,7 @@ class VAR:
     programToW = ['styczeń', '2019', 'wrzesień', '2020']
 
     # Dozwolone kodowanie plików
-    allowedCoding = ['utf-8']
+    allowedCoding = ['utf-8', 'ANSI']
 
     # Dozwolone znaki
     allowedCharactersInSeparator = ['`', '~', '!', '@', '#', '$', '%', '^', '&', '(', ')', '-', '_', '=', '+', '[', ']', ' ', '?', '/', '>', '.', '<', ',', '"', "'", ':', ';', '|']
@@ -199,6 +199,10 @@ class CFG:
     # Funkcje sprawdzające poprawność recordu
     def __checkI(self, write, record, var):
         if write:
+            try:
+                var = int(var)
+            except:
+                return (False, 'Niepoprawne dane - klucz: %s' % record)
             var = str(var)
         else:
             try:
@@ -213,6 +217,12 @@ class CFG:
             if var['D'] == None:
                 varX += '*'
             else:
+                try:
+                    var['D'] = int(var['D'])
+                except:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+                if int(var['s']) > 31 or int(var['s']) < 1:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
                 day = str(var['D'])
                 if len(day) == 1:
                     day = '0' + day
@@ -221,6 +231,12 @@ class CFG:
             if var['M'] == None:
                 varX += '*'
             else:
+                try:
+                    var['M'] = int(var['M'])
+                except:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+                if int(var['s']) > 12 or int(var['s']) < 1:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
                 month = str(var['M'])
                 if len(month) == 1:
                     month = '0' + month
@@ -229,11 +245,23 @@ class CFG:
             if var['Y'] == None:
                 varX += '*'
             else:
+                try:
+                    var['Y'] = int(var['Y'])
+                except:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+                if int(var['Y']) == 0:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
                 varX += str(var['Y'])
             varX += ' '
             if var['h'] == None:
                 varX += '*'
             else:
+                try:
+                    var['h'] = int(var['h'])
+                except:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+                if int(var['h']) > 23 or int(var['h']) < 1:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
                 hour = str(var['h'])
                 if len(hour) == 1:
                     hour = '0' + hour
@@ -242,6 +270,12 @@ class CFG:
             if var['m'] == None:
                 varX += '*'
             else:
+                try:
+                    var['m'] = int(var['m'])
+                except:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+                if int(var['m']) > 59 or int(var['m']) < 0:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
                 minute = str(var['m'])
                 if len(minute) == 1:
                     minute = '0' + minute
@@ -250,6 +284,12 @@ class CFG:
             if var['s'] == None:
                 varX += '*'
             else:
+                try:
+                    var['s'] = int(var['s'])
+                except:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
+                if int(var['s']) > 59 or int(var['s']) < 0:
+                    return (False, 'Niepoprawne dane - klucz: %s' % record)
                 seconds = str(var['s'])
                 if len(seconds) == 1:
                     seconds = '0' + seconds
@@ -268,6 +308,10 @@ class CFG:
                 index = 0
                 for x in var:
                     if x != '*':
+                        try:
+                            x = int(x)
+                        except:
+                            return (False, 'Niepoprawne dane - klucz: %s' % record)
                         varToReturn[dateLabels[index]] = int(x)
                     else:
                         varToReturn[dateLabels[index]] = None
@@ -636,7 +680,7 @@ class FMT:
         check = check.strip('<enter>')
         for x in check:
             if x not in VAR.allowedCharactersInSeparator:
-                return [False, 'Niepoprawne dane - klucz: %s' % var]
+                return [False, 'Niepoprawne dane - klucz: %s' % record]
         return [True, var]
     
     def __checkAs(self, write, record, var):
@@ -646,7 +690,7 @@ class FMT:
                 x = x.strip('<enter>')
                 for y in x:
                     if y not in VAR.allowedCharactersInSeparator:
-                        return [False, 'Niepoprawne dane - klucz: %s' % var]
+                        return [False, 'Niepoprawne dane - klucz: %s' % record]
             var = str(var)
         else:
             new_contentVar = (var)[2:-2].split("', '")
@@ -655,12 +699,16 @@ class FMT:
                 x = x.strip('<enter>')
                 for y in x:
                     if y not in VAR.allowedCharactersInSeparator:
-                        return [False, 'Niepoprawne dane - klucz: %s' % var]
+                        return [False, 'Niepoprawne dane - klucz: %s' % record]
             var = new_contentVar
         return [True, var]
     
     def __checkI(self, write, record, var):
         if write:
+            try:
+                var = int(var)
+            except:
+                return (False, 'Niepoprawne dane - klucz: %s' % record)                
             var = str(var)
         else:
             try:
@@ -671,7 +719,7 @@ class FMT:
     
     def __checkSc(self, record, var):
         if var not in VAR.allowedCoding:
-            return [False, 'Niepoprawne dane - klucz: %s' % var]
+            return [False, 'Niepoprawne dane - klucz: %s' % record]
         return [True, var]
 
 
@@ -869,9 +917,9 @@ class dataProcess:
                 filledFiles.append(index)
             index += 1
         if len(filledFiles) != 0:
-            return (True, filledFiles)
+            return [True, filledFiles]
         else:
-            return (False)
+            return [False]
 
     def __checkIfInputFilesIsReadable(self, files, filledFiles):
         for x in filledFiles:
@@ -1028,8 +1076,6 @@ class dataProcess:
                 office += 'uczeń'
             else:
                 office += 'nauczyciel'
-            office += ','
-            office += ','
             office += ','
             if x[0]:
                 office += str(yearOfGraduation)
@@ -2843,16 +2889,16 @@ class mainWindow:
             "personSeparator" : self.EPOSPersonSeparatorEntry.get(),
             "rowSeparator" : self.EPOSRowSeparatorEntry.get(),
             "dataSeparators" : (self.EPOSDataSeparatorText.get("1.0", TK.END)).split('\n')[:-1],
-            "loginRow" : int(self.EPDLLoginRowSpinbox.get()),
-            "loginPositionInRow" : int(self.EPDLLoginPosInRowSpinbox.get()),
-            "fnameRow" : int(self.EPDLFnameRowSpinbox.get()),
-            "fnamePositionInRow" : int(self.EPDLFnamePosInRowSpinbox.get()),
-            "lnameRow" : int(self.EPDLLnameRowSpinbox.get()),
-            "lnamePositionInRow" : int(self.EPDLLnamePosInRowSpinbox.get()),
-            "schoolRow" : int(self.EPDLSchoolRowSpinbox.get()),
-            "schoolPositionInRow" : int(self.EPDLSchoolPosInRowSpinbox.get()),
-            "classRow" : int(self.EPDLClassRowSpinbox.get()),
-            "classPositionInRow" : int(self.EPDLClassPosInRowSpinbox.get()),
+            "loginRow" : self.EPDLLoginRowSpinbox.get(),
+            "loginPositionInRow" : self.EPDLLoginPosInRowSpinbox.get(),
+            "fnameRow" : self.EPDLFnameRowSpinbox.get(),
+            "fnamePositionInRow" : self.EPDLFnamePosInRowSpinbox.get(),
+            "lnameRow" : self.EPDLLnameRowSpinbox.get(),
+            "lnamePositionInRow" : self.EPDLLnamePosInRowSpinbox.get(),
+            "schoolRow" : self.EPDLSchoolRowSpinbox.get(),
+            "schoolPositionInRow" : self.EPDLSchoolPosInRowSpinbox.get(),
+            "classRow" : self.EPDLClassRowSpinbox.get(),
+            "classPositionInRow" : self.EPDLClassPosInRowSpinbox.get(),
             "inputCoding" : self.formatInputCodingCombobox.get()
         }
         if not FMT.W(self.loadingList.get(), formatFileContentToSave):

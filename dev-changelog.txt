@@ -122,3 +122,10 @@
 - Ukończenie instrukcji
 - Ukończenie sekcji strony "O programie"
 - Ukończenie sekcji strony "Opis"
+
+4.0 Beta (Build 20244)
+- Wsparcie dla kodowania ANSI
+- Wyeliminowanie błędu wyrzucającego wyjątek po naciśnięciu przycisku START bez wprowadzenia danych powyżej
+- Poprawki w pliku wyjściowym office (usunięcie dwóch przecinków pomiedzy stanowiskiem a klasą)
+- Wyeliminowanie błędu pokazującego w komunikacie o błędnych danych, przy zapisie format presetu, wpisanej wartości zamiast recordu
+- Wyeliminowanie błędu pozwalającego na zapisanie wprowadzonego w spinboxie tekstu
