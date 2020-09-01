@@ -128,4 +128,15 @@
 - Wyeliminowanie błędu wyrzucającego wyjątek po naciśnięciu przycisku START bez wprowadzenia danych powyżej
 - Poprawki w pliku wyjściowym office (usunięcie dwóch przecinków pomiedzy stanowiskiem a klasą)
 - Wyeliminowanie błędu pokazującego w komunikacie o błędnych danych, przy zapisie format presetu, wpisanej wartości zamiast recordu
-- Wyeliminowanie błędu pozwalającego na zapisanie wprowadzonego w spinboxie tekstu
+- Wyeliminowanie błędu pozwalającego na zapisanie wprowadzonego w spinboxie tekstu.
+
+4.0 Beta (Build 20245)
+- Wyeliminowanie błędu uniemożliwającego pierwsze uruchomienie programu
+- Wyeliminowanie błędu pozwalającego na wybranie tej samej lokalizacji dla pliku wyjściowego poczty i office
+- Skrócenie sekcji strony "O programie"
+- Dodanie mechanizmu usuwania katalogu programu w appdata po aktualizacji programu
+- Wyeliminowanie błędu uniemożliwiającego zapisanie ustawień
+- Dodanie możliwości dodawania nagłówków do plików wyjściowych
+- Wsparcie dla kodowania ISO-8859-2
+- Wyeliminowanie błędu wyrzucającego wyjątek w przypadku próby zapisania format presetu o nazwie zawierającej zakazane znaki.
+- Dodanie mechanizmu pozwalającego na automatyczne resetowanie katalogu programu w appdata podczas uruchamiania programu

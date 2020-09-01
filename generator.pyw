@@ -16,14 +16,14 @@ class VAR:
     # Informacje o programie
     programName = 'Generator CSV'
     programVersion = '4.0'
-    programVersionStage = ''
-    programVersionBuild = '20242'
+    programVersionStage = 'Beta'
+    programVersionBuild = '20245'
     programCustomer = 'ZSP Sobolew'
     programAuthors = ['Mateusz Skoczek']
     programToW = ['styczeń', '2019', 'wrzesień', '2020']
 
     # Dozwolone kodowanie plików
-    allowedCoding = ['utf-8', 'ANSI']
+    allowedCoding = ['utf-8', 'ANSI', 'iso-8859-2']
 
     # Dozwolone znaki
     allowedCharactersInSeparator = ['`', '~', '!', '@', '#', '$', '%', '^', '&', '(', ')', '-', '_', '=', '+', '[', ']', ' ', '?', '/', '>', '.', '<', ',', '"', "'", ':', ';', '|']
@@ -87,6 +87,7 @@ MSGlist = {
     'I0002' : 'Aplikacja zostanie zamknięta w celu przeładowania ustawień',
     'E0015' : 'Nie można usunąć wybranych format presetów',
     'E0016' : 'Nie można uruchomić pliku instrukcji (documentation/index.html)',
+    'E0017' : 'Nie można zapisać pliku formatu',
 }
 
 def MSG(code, terminate, *optionalInfo):
@@ -124,37 +125,76 @@ def MSG(code, terminate, *optionalInfo):
 
 
 
+# ----------------------------------- # Opcje deweloperskie # ----------------------------------- #
+
+dev_config = []
+if 'dev.cfg' in [x for x in OS.listdir('.\configs')]:
+    try:
+        dev_config = CD.open(r'.\configs\dev.cfg', 'r', 'utf-8').read().split('\n')
+    except Exception as exceptInfo:
+        print('DEVELOPER CONSOLE LOG: Nie można załadować listy aktywnych opcji developerskich')
+    else:
+        print('DEVELOPER CONSOLE LOG: Pomyślnie załadowano listę aktywnych opcji developerskich')
+        print('DEVELOPER CONSOLE LOG: Lista aktywnych opcji developerskich: %s' % str(dev_config))
+
+
+
+
+
 # ------------------------- # Sprawdzanie katalogu programu w APPDATA # ------------------------- #
 
 appdata = PT.Path.home() / 'Appdata/Roaming'
 
-#TODO
-#SU.rmtree(str(appdata) + '/Generator CSV')
-#TODO
+if 'reset_appdata' in dev_config:
+    try:
+        SU.rmtree(str(appdata) + '\Generator CSV')
+        OS.mkdir(str(appdata) + '\Generator CSV')
+        versionFile = CD.open((str(appdata) + r'\Generator CSV\version'), 'w', 'utf-8')
+        versionFile.write(VAR.programVersionBuild)
+        versionFile.close()
+        SU.copy('configs\config.cfg', str(appdata) + '\Generator CSV\config.cfg')
+        SU.copy('configs\style.cfg', str(appdata) + '\Generator CSV\style.cfg')
+        OS.mkdir(str(appdata) + r'\Generator CSV\format-presets')
+    except Exception as exceptInfo:
+        print("DEVELOPER CONSOLE LOG: Folder 'Generator CSV' w folderze 'APPDATA' nie został zresetowany z powodu błędu: %s" % exceptInfo)
+    else:
+        print("DEVELOPER CONSOLE LOG: Folder 'Generator CSV' w folderze 'APPDATA' został zresetowany pomyślnie")
 
 def checkAppdata():
     if 'Generator CSV' not in [x for x in OS.listdir(appdata)]:
         try:
-            OS.mkdir(str(appdata) + '/Generator CSV')
-            SU.copy('configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
-            SU.copy('configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
-            OS.mkdir(str(appdata) + '/Generator CSV/format-presets')
+            OS.mkdir(str(appdata) + '\Generator CSV')
+            versionFile = CD.open((str(appdata) + r'\Generator CSV\version'), 'w', 'utf-8')
+            versionFile.write(VAR.programVersionBuild)
+            versionFile.close()
+            SU.copy('configs\config.cfg', str(appdata) + '\Generator CSV\config.cfg')
+            SU.copy('configs\style.cfg', str(appdata) + '\Generator CSV\style.cfg')
+            OS.mkdir(str(appdata) + r'\Generator CSV\format-presets')
         except Exception as exceptInfo:
             MSG('E0001', True, exceptInfo)
     else:
-        if 'config.cfg' not in [x for x in OS.listdir(str(appdata) + '/Generator CSV')]:
+        if 'version' not in [x for x in OS.listdir(str(appdata) + '\Generator CSV')]:
+            SU.rmtree(str(appdata) + '\Generator CSV')
+            checkAppdata()
+        else:
+            versionFile = CD.open((str(appdata) + r'\Generator CSV\version'), 'r', 'utf-8')
+            if versionFile.read() != VAR.programVersionBuild:
+                versionFile.close()
+                SU.rmtree(str(appdata) + '\Generator CSV')
+                checkAppdata()
+        if 'config.cfg' not in [x for x in OS.listdir(str(appdata) + '\Generator CSV')]:
             try:
-                SU.copy('configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
+                SU.copy('configs\config.cfg', str(appdata) + '\Generator CSV\config.cfg')
             except Exception as exceptInfo:
                 MSG('E0001', True, exceptInfo)
-        if 'style.cfg' not in [x for x in OS.listdir(str(appdata) + '/Generator CSV')]:
+        if 'style.cfg' not in [x for x in OS.listdir(str(appdata) + '\Generator CSV')]:
             try:
-                SU.copy('configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
+                SU.copy('configs\style.cfg', str(appdata) + '\Generator CSV\style.cfg')
             except Exception as exceptInfo:
                 MSG('E0001', True, exceptInfo)
-        if 'format-presets'not in [x for x in OS.listdir(str(appdata) + '/Generator CSV')]:
+        if 'format-presets' not in [x for x in OS.listdir(str(appdata) + '\Generator CSV')]:
             try:
-                OS.mkdir(str(appdata) + '/Generator CSV/format-presets')
+                OS.mkdir(str(appdata) + r'\Generator CSV\format-presets')
             except Exception as exceptInfo:
                 MSG('E0001', True, exceptInfo)
     
@@ -221,7 +261,7 @@ class CFG:
                     var['D'] = int(var['D'])
                 except:
                     return (False, 'Niepoprawne dane - klucz: %s' % record)
-                if int(var['s']) > 31 or int(var['s']) < 1:
+                if int(var['D']) > 31 or int(var['D']) < 1:
                     return (False, 'Niepoprawne dane - klucz: %s' % record)
                 day = str(var['D'])
                 if len(day) == 1:
@@ -235,7 +275,7 @@ class CFG:
                     var['M'] = int(var['M'])
                 except:
                     return (False, 'Niepoprawne dane - klucz: %s' % record)
-                if int(var['s']) > 12 or int(var['s']) < 1:
+                if int(var['M']) > 12 or int(var['M']) < 1:
                     return (False, 'Niepoprawne dane - klucz: %s' % record)
                 month = str(var['M'])
                 if len(month) == 1:
@@ -307,6 +347,7 @@ class CFG:
                     return (False, 'Niepoprawne dane - klucz: %s' % record)
                 index = 0
                 for x in var:
+                    x = x.strip('\r')
                     if x != '*':
                         try:
                             x = int(x)
@@ -366,6 +407,26 @@ class CFG:
         if var not in VAR.allowedCoding:
             return [False, 'Niepoprawne dane - klucz: %s' % record]
         return [True, var]
+    
+    def __checkB(self, write, record, var):
+        if write:
+            if var:
+                var = '1'
+            else:
+                var = '0'
+        else:
+            try:
+                var = int(var)
+            except:
+                return [False, 'Niepoprawne dane - klucz: %s' % record]
+            if var != 0 and var != 1:
+                return [False, 'Niepoprawne dane - klucz: %s' % record]
+            else:
+                if var == 0:
+                    var = False
+                else:
+                    var = True
+        return [True, var]
 
 
 
@@ -413,6 +474,13 @@ class CFG:
         elif var[1] == 'MSAs':
             # Multiple Specified Arrays - schoolData
             checkingOutput = self.__checkMSAs(False, record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0003', True, checkingOutput[1])
+        elif var[1] == 'B':
+            # Boolean
+            checkingOutput = self.__checkB(False, record, var[0])
             if checkingOutput[0]:
                 return checkingOutput[1]
             else:
@@ -469,6 +537,14 @@ class CFG:
             elif type == 'MSAs':
                 # Multiple Specified Arrays - schoolData
                 checkingOutput = self.__checkMSAs(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'B':
+                # Boolean
+                checkingOutput = self.__checkB(True, name, var)
                 if checkingOutput[0]:
                     var = checkingOutput[1]
                 else:
@@ -889,12 +965,16 @@ class FMT:
                     MSG('E0006', False, checkingOutput[1])
                     return False
             else:
-                MSG('E0003', False, 'Nie można rozpoznać typu klucza %s' % name)
+                MSG('E0006', False, 'Nie można rozpoznać typu klucza %s' % name)
                 return False
             content[name] = [var, type]
-        with CD.open(str(appdata) + '/Generator CSV/format-presets/%s.fmt' % preset, 'w', 'utf-8') as file:
-            for x in content:
-                file.write('%s(%s) = %s\n' % (x, (content[x])[1], (content[x][0])))
+        try:
+            with CD.open(str(appdata) + '/Generator CSV/format-presets/%s.fmt' % preset, 'w', 'utf-8') as file:
+                for x in content:
+                    file.write('%s(%s) = %s\n' % (x, (content[x])[1], (content[x][0])))
+        except Exception as exceptInfo:
+            MSG('E0017', False, exceptInfo)
+            return False
         return True
 
 
@@ -936,6 +1016,8 @@ class dataProcess:
         return True
 
     def __checkIfCreatingOutputFilesIsPossible(self, files):
+        if files[0] == files[1]:
+            return False
         try:
             check = CD.open(files[0], 'w', CFG.R('mailOutputCoding'))
             check = CD.open(files[1], 'w', CFG.R('officeOutputCoding'))
@@ -1103,8 +1185,12 @@ class dataProcess:
         mailData = data[0]
         officeData = data[1]
         with CD.open(mailPath, 'w', CFG.R('mailOutputCoding')) as mail:
+            if CFG.R('ifHeadlineInMail'):
+                mail.write(CFG.R('headlineInMail') + '\n')
             mail.write('\n'.join(mailData))
         with CD.open(officePath, 'w', CFG.R('officeOutputCoding')) as office:
+            if CFG.R('ifHeadlineInOffice'):
+                office.write(CFG.R('headlineInOffice') + '\n')
             office.write('\n'.join(officeData))
         
 
@@ -2412,7 +2498,7 @@ class mainWindow:
 
         ###############################
 
-        # (4) Rozpoczęcir roku szkolnego
+        # (4) Rozpoczęcie roku szkolnego
 
         self.settingsOtherDRRSFrame = TKttk.Frame(self.settingsOtherFrame)
         self.settingsOtherDRRSFrame.config(style = 'layoutFrame.TFrame')
@@ -2445,6 +2531,97 @@ class mainWindow:
         self.settingsOtherDRRSDaySpinbox.config(style = 'spinbox1.TSpinbox')
         self.settingsOtherDRRSDaySpinbox.pack(side = TK.RIGHT, fill = TK.X, expand = 1, padx = (0, 6))
         self.settingsOtherDRRSDaySpinbox.set(CFG.R('schoolyearStart')['D'])
+
+        ###############################
+
+        #########################################
+
+        # (3) Separator #########################
+
+        self.settingsSeparator4 = TKttk.Separator(self.settingsLeftFrame)
+        self.settingsSeparator4.config(style = 'separator1.TSeparator')
+        self.settingsSeparator4.config(orient = TK.HORIZONTAL)
+        self.settingsSeparator4.pack(fill = TK.X, pady = GUI.R('settingsHorizontalSeparatorPadY'))
+
+        #########################################
+
+        # (4) Nagłówki ##########################
+
+        self.settingsHeadlinesFrame = TKttk.Frame(self.settingsLeftFrame)
+        self.settingsHeadlinesFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsHeadlinesFrame.pack(fill = TK.X)
+
+        # (4) Nagłówek poczty #########
+
+        self.settingsHeadlinesMailFrame = TKttk.Frame(self.settingsHeadlinesFrame)
+        self.settingsHeadlinesMailFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsHeadlinesMailFrame.pack(fill = TK.X, expand = 1, pady = 6)
+
+        # 'Nagłówek dla pliku wyjściowego poczty'
+        self.settingsHeadlinesMailLabel = TKttk.Label(self.settingsHeadlinesMailFrame)
+        self.settingsHeadlinesMailLabel.config(style = 'label1.TLabel')
+        self.settingsHeadlinesMailLabel.config(width = GUI.R('settingsHeadlineLabelWidth'))
+        self.settingsHeadlinesMailLabel.config(anchor = GUI.R('settingsHeadlineLabelAnchor'))
+        self.settingsHeadlinesMailLabel.config(text = 'Nagłówek dla pliku wyjściowego poczty')
+        self.settingsHeadlinesMailLabel.pack(side = TK.LEFT)
+
+        # Nagłówek poczty - checkbutton
+        self.settingsHeadlinesMailCheckbuttonVar = TK.BooleanVar()
+        self.settingsHeadlinesMailCheckbutton = TK.Checkbutton(self.settingsHeadlinesMailFrame)
+        self.settingsHeadlinesMailCheckbutton.config(bg = GUI.R('checkbutton1Background'))
+        self.settingsHeadlinesMailCheckbutton.config(fg = GUI.R('checkbutton1TextColor'))
+        self.settingsHeadlinesMailCheckbutton.config(selectcolor = GUI.R('checkbutton1IndicatorBackground'))
+        self.settingsHeadlinesMailCheckbutton.config(activebackground = GUI.R('checkbutton1Background'))
+        self.settingsHeadlinesMailCheckbutton.config(activeforeground = GUI.R('checkbutton1TextColor'))
+        self.settingsHeadlinesMailCheckbutton.config(text = 'Umieść w pliku')
+        self.settingsHeadlinesMailCheckbutton.config(variable = self.settingsHeadlinesMailCheckbuttonVar)
+        self.settingsHeadlinesMailCheckbutton.pack(side = TK.RIGHT, padx = (6, 0))
+        self.settingsHeadlinesMailCheckbuttonVar.set(CFG.R('ifHeadlineInMail'))
+
+        # Nagłówek poczty - Entry
+        self.settingsHeadlinesMailEntryVar = TK.StringVar()
+        self.settingsHeadlinesMailEntry = TKttk.Entry(self.settingsHeadlinesMailFrame)
+        self.settingsHeadlinesMailEntry.config(style = 'entry1.TEntry')
+        self.settingsHeadlinesMailEntry.config(textvariable = self.settingsHeadlinesMailEntryVar)
+        self.settingsHeadlinesMailEntry.pack(side = TK.RIGHT, fill = TK.X, expand = 1, padx = (0, 6))
+        self.settingsHeadlinesMailEntryVar.set(CFG.R('headlineInMail'))
+
+        ###############################
+
+        # (4) Nagłówek office #########
+
+        self.settingsHeadlinesOfficeFrame = TKttk.Frame(self.settingsHeadlinesFrame)
+        self.settingsHeadlinesOfficeFrame.config(style = 'layoutFrame.TFrame')
+        self.settingsHeadlinesOfficeFrame.pack(fill = TK.X, expand = 1, pady = 6)
+
+        # 'Nagłówek dla pliku wyjściowego poczty'
+        self.settingsHeadlinesOfficeLabel = TKttk.Label(self.settingsHeadlinesOfficeFrame)
+        self.settingsHeadlinesOfficeLabel.config(style = 'label1.TLabel')
+        self.settingsHeadlinesOfficeLabel.config(width = GUI.R('settingsHeadlineLabelWidth'))
+        self.settingsHeadlinesOfficeLabel.config(anchor = GUI.R('settingsHeadlineLabelAnchor'))
+        self.settingsHeadlinesOfficeLabel.config(text = 'Nagłówek dla pliku wyjściowego office')
+        self.settingsHeadlinesOfficeLabel.pack(side = TK.LEFT)
+
+        # Nagłówek poczty - checkbutton
+        self.settingsHeadlinesOfficeCheckbuttonVar = TK.BooleanVar()
+        self.settingsHeadlinesOfficeCheckbutton = TK.Checkbutton(self.settingsHeadlinesOfficeFrame)
+        self.settingsHeadlinesOfficeCheckbutton.config(bg = GUI.R('checkbutton1Background'))
+        self.settingsHeadlinesOfficeCheckbutton.config(fg = GUI.R('checkbutton1TextColor'))
+        self.settingsHeadlinesOfficeCheckbutton.config(selectcolor = GUI.R('checkbutton1IndicatorBackground'))
+        self.settingsHeadlinesOfficeCheckbutton.config(activebackground = GUI.R('checkbutton1Background'))
+        self.settingsHeadlinesOfficeCheckbutton.config(activeforeground = GUI.R('checkbutton1TextColor'))
+        self.settingsHeadlinesOfficeCheckbutton.config(text = 'Umieść w pliku')
+        self.settingsHeadlinesOfficeCheckbutton.config(variable = self.settingsHeadlinesOfficeCheckbuttonVar)
+        self.settingsHeadlinesOfficeCheckbutton.pack(side = TK.RIGHT, padx = (6, 0))
+        self.settingsHeadlinesOfficeCheckbuttonVar.set(CFG.R('ifHeadlineInOffice'))
+
+        # Nagłówek poczty - Entry
+        self.settingsHeadlinesOfficeEntryVar = TK.StringVar()
+        self.settingsHeadlinesOfficeEntry = TKttk.Entry(self.settingsHeadlinesOfficeFrame)
+        self.settingsHeadlinesOfficeEntry.config(style = 'entry1.TEntry')
+        self.settingsHeadlinesOfficeEntry.config(textvariable = self.settingsHeadlinesOfficeEntryVar)
+        self.settingsHeadlinesOfficeEntry.pack(side = TK.RIGHT, fill = TK.X, expand = 1, padx = (0, 6))
+        self.settingsHeadlinesOfficeEntryVar.set(CFG.R('headlineInOffice'))
 
         ###############################
 
@@ -2939,6 +3116,10 @@ class mainWindow:
                 x[2] = '0'
             x[1] = str(x[1])
             self.settingsSchoolDataText.insert(TK.END, (' | '.join(x) + '\n'))
+        self.settingsHeadlinesMailCheckbuttonVar.set(CFG.R('ifHeadlineInMail'))
+        self.settingsHeadlinesMailEntryVar.set(CFG.R('headlineInMail'))
+        self.settingsHeadlinesOfficeCheckbuttonVar.set(CFG.R('ifHeadlineInOffice'))
+        self.settingsHeadlinesOfficeEntryVar.set(CFG.R('headlineInOffice'))
 
     def settingsButtonSaveAction(self):
         if MSG('A0004', False):
@@ -2957,6 +3138,10 @@ class mainWindow:
                 's' : None,
             }
             changes['schoolData'] = (self.settingsSchoolDataText.get("1.0", TK.END)).split('\n')
+            changes['ifHeadlineInMail'] = self.settingsHeadlinesMailCheckbuttonVar.get()
+            changes['headlineInMail'] = self.settingsHeadlinesMailEntryVar.get()
+            changes['ifHeadlineInOffice'] = self.settingsHeadlinesOfficeCheckbuttonVar.get()
+            changes['headlineInOffice'] = self.settingsHeadlinesOfficeEntryVar.get()
             CFG.W(changes)
             self.settingsReset()
         else:
