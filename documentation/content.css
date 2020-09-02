@@ -5,6 +5,13 @@ h1 {
     text-align: center;
 }
 
+h2 {
+    color: #C0C0C0;
+    font-family: 'Segoe UI';
+    font-size: 25px;
+    text-align: center;
+}
+
 h5 {
     color: #C0C0C0;
     font-family: 'Segoe UI';
@@ -24,6 +31,10 @@ p {
     text-align: center;
 }
 
+#description-image {
+    text-align: center;
+}
+
 #about-program-image {
     text-align: center;
 }
@@ -37,6 +48,13 @@ p {
 
 #about-program-text-centered {
     text-align: center;
+}
+
+#about-program-changelog-main-version {
+    color: #C0C0C0;
+    font-family: 'Segoe UI';
+    font-size: 17px;
+    font-weight: 600;
 }
 
 td {
@@ -77,4 +95,10 @@ th {
 
 li {
     color: #C0C0C0;
+    font-family: 'Segoe UI';
+}
+
+code {
+    color: #C0C0C0;
+    font-size: large;
 }

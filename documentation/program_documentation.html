@@ -7,6 +7,114 @@
         <title>Generator CSV</title>
     </head>
     <body>
-        <p>reset_appdata</p>
+        <button class="accordion"><b>generator.pyw - Główne zmienne globalne</b></button>
+        <div class="panel">
+            <p>
+                <b>Informacje o programie</b><br>
+                <br>
+                <code>programName</code> - Zmienna definująca nazwę programu<br>
+                <code>programVersion</code> - Zmienna definiująca główną wersję programu<br>
+                <code>programVersionStage</code> - Zmienna definiująca etap rozwoju programu. Wersja stabilna definiowana jest przez pusty string<br>
+                <code>programVersionBuild</code> - Zmienna definiująca numer buildu programu. Zapisany jest on w formacie '[ostatnie dwie cyfry roku][numer dnia w roku]'<br>
+                <code>programCustomer</code> - Zmienna definiująca nazwę organizacji zlecającej stworzenie programu<br>
+                <code>programAuthors</code> - Lista zawierająca nazwy osób rozwijających program.<br>
+                <code>programToW</code> - Lista zawierająca informacje na temat czasu rozwoju programu. Format: ['miesiąc rozpoczęcia prac', 'rok rozpoczęcia prac', 'aktualny dla rozwoju danej wersji miesiąc', 'aktualny dla rozwoju danej wersji rok']<br>
+                <br>
+                <br>
+                <b>Dozwolone kodowanie plików</b><br>
+                <br>
+                <code>allowedCoding</code> - Lista zawierająca wspierane kodowania plików. Są one wyświetlane w rozwijanych listach wyboru kodowania pliku.<br>
+                <br>
+                <br>
+                <b>Dozwolone znaki</b><br>
+                <br>
+                <code>allowedCharactersInSeparator</code> - Lista zawierająca znaki które można wpisać w pola dotyczące separatorów osób, linii i danych<br>
+            </p>
+        </div>
+
+        <button class="accordion"><b>generator.pyw - Import bibliotek</b></button>
+        <div class="panel">
+            <p>
+                <b>Biblioteki główne</b><br>
+                <br>
+                W tej sekcji importowane są wszystkie biblioteki niezwiązane z interfejsem graficznych<br>
+                <ul>
+                    <li>sys (SS) - używana tylko do zamykania programu</li>
+                    <li>os (OS) - odpowiedzialna za polecenia w terminalu</li>
+                    <li>time (TM) - używana do pobierania aktualnej daty i czasu</li>
+                    <li>codecs (CD) - odpowiedzialna za otwieranie i czytanie plików w odpowiednim kodowaniu</li>
+                    <li>pathlib (PT) - używana tylko do pozyskania ścieżki katalogu APPDATA</li>
+                    <li>shutil (SU) - odpowiedzialna za operacje na plikach i folderach</li>
+                </ul>
+            </p>
+            <p>
+                <br>
+                <b>Biblioteki interfejsu graficznego</b><br>
+                <br>
+                W tej sekcji importowane są wszystkie biblioteki związane z interfejsem graficznym
+                <br>
+                <ul>
+                    <li>tkinter (TK) - główne środowisko budowy interfejsu graficznego</li>
+                    <ul>
+                        <li>ttk (TKttk) - biblioteka odpowiedzialna za kontrolki i ich wygląd</li>
+                        <li>messagebox (TKmsb) - biblioteka odpowiedzialna za wyświetlanie komunikatów dialogowych</li>
+                        <li>filedialog (TKfld) - biblioteka odpowiedzialna za wyświetlanie okien wyboru plików</li>
+                    </ul>
+                    <li>PIL (PL), (PLitk), (PLimg) - biblioteka odpowiedzialna za wyświetlanie obrazów</li>
+                </ul>
+            </p>
+        </div>
+
+        <button class="accordion"><b>generator.pyw - Okna dialogowe</b></button>
+        <div class="panel">
+            <p>
+                <b>Lista komunikatów</b><br>
+                <br>
+                Słownik <code>MSGlist</code> zawiera listę komunikatów. Format: '[kod dialogowy]' : '[komunikat]'. Kod dialogowy składa się z [jednoznakowego znacznika rodzaju okna dialogowego][czterocyfrowego numeru komunikatu]<br>
+                <br>
+                <br>
+                <b><i>Rodzaje okien dialogowych:</i></b>
+                <ul>
+                    <li>E - komunikaty błędów</li>
+                    <li>I - komunikaty informacyjne</li>
+                    <li>W - komunikaty ostrzegające</li>
+                    <li>A - komunikaty zapytania</li>
+                </ul>
+            </p>
+            <p>
+                <br>
+                <b>Funkcja odpowiedzialna za wywoływanie komunikatów dialogowych</b><br>
+                <br>
+                Wywoływanie funkcji: <code>MSG(</code>[kod dialogowy]<code>,</code>[<code>True</code> - Zakończ działanie programu po zamknięciu okna dialogowego/<code>False</code> - Kontynuuj działanie programu po zamknięciu okna dialogowego]<code>,</code>[dodatkowe informacje wyświetlane w komunikacie - <b>opcjonalnie</b>]<code>)</code><br>
+                <br>
+
+            </p>
+        </div>
+
+        <button class="accordion"><b>Edycja ustawień ogólnych</b></button>
+        <div class="panel">
+            
+        </div>
+
+        <script>
+            var acc = document.getElementsByClassName("accordion");
+            var i;
+
+            for (i = 0; i < acc.length; i++) {
+                acc[i].addEventListener("click", function() {
+                    /* Toggle between adding and removing the "active" class,
+                    to highlight the button that controls the panel */
+                    this.classList.toggle("active");
+
+                    /* Toggle between hiding and showing the active panel */
+                    var panel = this.nextElementSibling;
+                    if (panel.style.display === "block") {
+                    panel.style.display = "none";
+                    } else {
+                    panel.style.display = "block";
+                    }
+                });
+            }
+        </script>
     </body>
 </html>

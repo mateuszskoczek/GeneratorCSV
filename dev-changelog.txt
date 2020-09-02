@@ -140,3 +140,11 @@
 - Wsparcie dla kodowania ISO-8859-2
 - Wyeliminowanie błędu wyrzucającego wyjątek w przypadku próby zapisania format presetu o nazwie zawierającej zakazane znaki.
 - Dodanie mechanizmu pozwalającego na automatyczne resetowanie katalogu programu w appdata podczas uruchamiania programu
+
+4.0 Beta (Build 20246)
+- Zmiana domyślnych nagłówków
+- Zmiana tekstu w przycisku w karcie 'O programie'
+- Przeniesienie pliku 'changelog.txt' do sekcji strony 'O programie'
+- Dodanie screenshotów programu do sekcji strony 'Opis'
+- Rozpoczęcie prac nad sekcją strony 'Dokumentacja'
+- Lekkie poprawki w kodzie programu

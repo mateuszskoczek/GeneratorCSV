@@ -2,7 +2,7 @@
 # Generator CSV
 # Wersja 4.0
 # Autorzy: Mateusz Skoczek
-# Styczeń 2019 - Czerwiec 2020
+# styczeń 2019 - wrzesień 2020
 # dla ZSP Sobolew
 """
 
@@ -10,14 +10,14 @@
 
 
 
-# ----------------------------------------- # Zmienne # ----------------------------------------- #
+# --------------------------------- # Główne zmienne globalne # --------------------------------- #
 
 class VAR:
     # Informacje o programie
     programName = 'Generator CSV'
     programVersion = '4.0'
     programVersionStage = 'Beta'
-    programVersionBuild = '20245'
+    programVersionBuild = '20246'
     programCustomer = 'ZSP Sobolew'
     programAuthors = ['Mateusz Skoczek']
     programToW = ['styczeń', '2019', 'wrzesień', '2020']
@@ -32,10 +32,9 @@ class VAR:
 
 
 
-# --------------------------- # Import wbudowanych bibliotek Pythona # -------------------------- #
+# ------------------------------------- # Import bibliotek # ------------------------------------ #
 
-
-# Główne
+# Biblioteki główne
 import sys as SS
 import os as OS
 import time as TM
@@ -44,7 +43,7 @@ import pathlib as PT
 import shutil as SU
 
 
-# GUI
+# Biblioteki interfejsu graficznego
 import tkinter as TK
 from tkinter import ttk as TKttk
 from tkinter import messagebox as TKmsb
@@ -57,9 +56,9 @@ from PIL import Image as PLimg
 
 
 
-# ---------------------------------------- # Komunikaty # --------------------------------------- #
+# -------------------------------------- # Okna dialogowe # ------------------------------------- #
 
-
+# Lista komunikatów
 MSGlist = {
     'E0000' : 'none',
     'E0001' : 'Wystąpił błąd podczas inicjalizacji katalogu z plikami konfiguracyjnymi programu w katalogu %APPDATA%',
@@ -68,13 +67,6 @@ MSGlist = {
     'E0004' : 'Wystąpił błąd podczas ładowania pliku stylu (style.cfg)',
     'E0005' : 'Niepoprawne dane w pliku stylu (style.cfg)',
     'E0006' : 'Niepoprawne dane w pliku formatu',
-    'A0001' : 'Czy chcesz zapisać? Zostanie utworzony nowy plik',
-    'A0002' : 'Czy chcesz zapisać? Plik zostanie nadpisany',
-    'A0003' : 'Czy chcesz rozpocząć przetwarzanie plików?',
-    'A0004' : 'Czy chcesz zapisać?',
-    'A0005' : 'Czy na pewno chcesz przywrócić domyślne ustawienia ogólne?',
-    'A0006' : 'Czy na pewno chcesz przywrócić domyślne ustawienia wyglądu?',
-    'A0007' : 'Czy na pewno chcesz usunąc zaznaczone format presety?',
     'E0007' : 'Wymagany przynajmniej jeden plik wejściowy',
     'E0008' : 'Nie można odnaleźć jednego z powyższych plików',
     'E0009' : 'Nie można odnaleźć jednego z powyższych format presetów',
@@ -83,18 +75,27 @@ MSGlist = {
     'E0012' : 'Nie można przetworzyć danych na format wyjściowy',
     'E0013' : 'Nie można utworzyć plików wejściowych',
     'E0014' : 'Nie można zapisać plików wejściowych',
-    'I0001' : 'Operacja ukończona pomyślnie',
-    'I0002' : 'Aplikacja zostanie zamknięta w celu przeładowania ustawień',
     'E0015' : 'Nie można usunąć wybranych format presetów',
     'E0016' : 'Nie można uruchomić pliku instrukcji (documentation/index.html)',
     'E0017' : 'Nie można zapisać pliku formatu',
+    'A0001' : 'Czy chcesz zapisać? Zostanie utworzony nowy plik',
+    'A0002' : 'Czy chcesz zapisać? Plik zostanie nadpisany',
+    'A0003' : 'Czy chcesz rozpocząć przetwarzanie plików?',
+    'A0004' : 'Czy chcesz zapisać?',
+    'A0005' : 'Czy na pewno chcesz przywrócić domyślne ustawienia ogólne?',
+    'A0006' : 'Czy na pewno chcesz przywrócić domyślne ustawienia wyglądu?',
+    'A0007' : 'Czy na pewno chcesz usunąc zaznaczone format presety?',
+    'I0001' : 'Operacja ukończona pomyślnie',
+    'I0002' : 'Aplikacja zostanie zamknięta w celu przeładowania ustawień',
 }
 
+
+# Funkcja odpowiedzialna za wywoływanie komunikatów dialogowych
 def MSG(code, terminate, *optionalInfo):
     try:
         optionalInfo[0]
     except:
-        optionalInfo = ('', '')
+        optionalInfo = ['']
     
     # Błędy
     if code[0] == 'E':
@@ -2859,7 +2860,7 @@ class mainWindow:
         self.aboutInstructionButton.config(command = self.aboutInstructionButtonAction)
         self.aboutInstructionButton.config(style = 'button1.TButton')
         self.aboutInstructionButton.config(width = GUI.R('aboutInstructionButtonWidth'))
-        self.aboutInstructionButton.config(text = 'Instrukcja')
+        self.aboutInstructionButton.config(text = 'Więcej informacji')
         self.aboutInstructionButton.pack(side = TK.RIGHT)
 
         #############################################################
