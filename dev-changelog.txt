@@ -152,3 +152,7 @@
 4.0 Beta (Build 20252)
 - Kontynuacja praca na sekcją strony 'Dokumentacja'
 - Przeprojektowanie sprawdzania katalogu programu w appdata
+
+4.0 Beta (Build 20253)
+- Ukończenie sekcji strony 'Dokumentacja'
+- Dodano informację o ilości osób, których dane zostały przetworzone

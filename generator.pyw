@@ -41,7 +41,7 @@ class VAR:
     programName = 'Generator CSV'
     programVersion = '4.0'
     programVersionStage = 'Beta'
-    programVersionBuild = '20252'
+    programVersionBuild = '20253'
     programCustomer = 'ZSP Sobolew'
     programAuthors = ['Mateusz Skoczek']
     programToW = ['styczeń', '2019', 'wrzesień', '2020']
@@ -1008,6 +1008,97 @@ FMT = FMT()
 # ---------------------------------- # Przetwarzanie plików # ----------------------------------- #
 
 class dataProcess:
+    def start(self, files):
+        checkingOutput = []
+
+        testOutput = self.__checkIfAtLeastOneInputFileIsFilled(files[:-1])
+        checkingOutput.append(testOutput[0])
+        if not testOutput[0]:
+            return checkingOutput
+        filledFiles = testOutput[1]
+
+        testOutput = self.__checkIfInputFilesIsReadable(files[:-1], filledFiles)
+        checkingOutput.append(testOutput)
+        if not testOutput:
+            return checkingOutput
+
+        testOutput = self.__checkIfInputFilesFormatPresetsExist(files[:-1], filledFiles)
+        checkingOutput.append(testOutput)
+        if not testOutput:
+            return checkingOutput
+
+        input = []
+        for x in filledFiles:
+            input.append(files[x])
+        output = files[-1]
+        
+        try:
+            data = self.__getData(input)
+        except:
+            checkingOutput.append(False)
+            return checkingOutput
+        else:
+            checkingOutput.append(True)
+        
+        for x in data:
+            student = x[0]
+            login = x[1]
+            loginCheckingOutput = self.__checkLogin(login, student)
+            if not loginCheckingOutput[0]:
+                loginCheckingOutput[1] = loginCheckingOutput[1] + str(x[1:])
+                checkingOutput.append(loginCheckingOutput)
+                return checkingOutput
+            fname = x[2]
+            fnameCheckingOutput = self.__checkFname(fname)
+            if not fnameCheckingOutput[0]:
+                fnameCheckingOutput[1] = fnameCheckingOutput[1] + str(x[1:])
+                checkingOutput.append(fnameCheckingOutput)
+                return checkingOutput
+            lname = x[3]
+            lnameCheckingOutput = self.__checkLname(lname)
+            if not lnameCheckingOutput[0]:
+                lnameCheckingOutput[1] = lnameCheckingOutput[1] + str(x[1:])
+                checkingOutput.append(lnameCheckingOutput)
+                return checkingOutput
+            if student:
+                school = x[4]
+                schoolCheckingOutput = self.__checkSchool(school)
+                if not schoolCheckingOutput[0]:
+                    schoolCheckingOutput[1] = schoolCheckingOutput[1] + str(x[1:])
+                    checkingOutput.append(schoolCheckingOutput)
+                    return checkingOutput
+                classX = x[5]
+                classCheckingOutput = self.__checkClass(classX, school)
+                if not classCheckingOutput[0]:
+                    classCheckingOutput[1] = classCheckingOutput[1] + str(x[1:])
+                    checkingOutput.append(classCheckingOutput)
+                    return checkingOutput
+        checkingOutput.append([True])
+        amount = len(data)
+        
+        try:
+            data = self.__processData(data)
+        except:
+            checkingOutput.append(False)
+            return checkingOutput
+        else:
+            checkingOutput.append(True)
+
+        testOutput = self.__checkIfCreatingOutputFilesIsPossible(files[-1])
+        checkingOutput.append(testOutput)
+        if not testOutput:
+            return checkingOutput
+        
+        try:
+            self.__saveData(output, data)
+        except:
+            checkingOutput.append([False])
+            return checkingOutput
+        else:
+            checkingOutput.append([True, amount])
+            return checkingOutput
+    
+
     # Funkcje sprawdzające istnienie
     def __checkIfAtLeastOneInputFileIsFilled(self, files):
         filledFiles = []
@@ -1212,98 +1303,6 @@ class dataProcess:
             if CFG.R('ifHeadlineInOffice'):
                 office.write(CFG.R('headlineInOffice') + '\n')
             office.write('\n'.join(officeData))
-        
-
-
-
-    def start(self, files):
-        checkingOutput = []
-
-        testOutput = self.__checkIfAtLeastOneInputFileIsFilled(files[:-1])
-        checkingOutput.append(testOutput[0])
-        if not testOutput[0]:
-            return checkingOutput
-        filledFiles = testOutput[1]
-
-        testOutput = self.__checkIfInputFilesIsReadable(files[:-1], filledFiles)
-        checkingOutput.append(testOutput)
-        if not testOutput:
-            return checkingOutput
-
-        testOutput = self.__checkIfInputFilesFormatPresetsExist(files[:-1], filledFiles)
-        checkingOutput.append(testOutput)
-        if not testOutput:
-            return checkingOutput
-
-        input = []
-        for x in filledFiles:
-            input.append(files[x])
-        output = files[-1]
-        
-        try:
-            data = self.__getData(input)
-        except:
-            checkingOutput.append(False)
-            return checkingOutput
-        else:
-            checkingOutput.append(True)
-        
-        for x in data:
-            student = x[0]
-            login = x[1]
-            loginCheckingOutput = self.__checkLogin(login, student)
-            if not loginCheckingOutput[0]:
-                loginCheckingOutput[1] = loginCheckingOutput[1] + str(x[1:])
-                checkingOutput.append(loginCheckingOutput)
-                return checkingOutput
-            fname = x[2]
-            fnameCheckingOutput = self.__checkFname(fname)
-            if not fnameCheckingOutput[0]:
-                fnameCheckingOutput[1] = fnameCheckingOutput[1] + str(x[1:])
-                checkingOutput.append(fnameCheckingOutput)
-                return checkingOutput
-            lname = x[3]
-            lnameCheckingOutput = self.__checkLname(lname)
-            if not lnameCheckingOutput[0]:
-                lnameCheckingOutput[1] = lnameCheckingOutput[1] + str(x[1:])
-                checkingOutput.append(lnameCheckingOutput)
-                return checkingOutput
-            if student:
-                school = x[4]
-                schoolCheckingOutput = self.__checkSchool(school)
-                if not schoolCheckingOutput[0]:
-                    schoolCheckingOutput[1] = schoolCheckingOutput[1] + str(x[1:])
-                    checkingOutput.append(schoolCheckingOutput)
-                    return checkingOutput
-                classX = x[5]
-                classCheckingOutput = self.__checkClass(classX, school)
-                if not classCheckingOutput[0]:
-                    classCheckingOutput[1] = classCheckingOutput[1] + str(x[1:])
-                    checkingOutput.append(classCheckingOutput)
-                    return checkingOutput
-        checkingOutput.append([True])
-        
-        try:
-            data = self.__processData(data)
-        except:
-            checkingOutput.append(False)
-            return checkingOutput
-        else:
-            checkingOutput.append(True)
-
-        testOutput = self.__checkIfCreatingOutputFilesIsPossible(files[-1])
-        checkingOutput.append(testOutput)
-        if not testOutput:
-            return checkingOutput
-        
-        try:
-            self.__saveData(output, data)
-        except:
-            checkingOutput.append(False)
-            return checkingOutput
-        else:
-            checkingOutput.append(True)
-            return checkingOutput
 
 
 
@@ -2962,10 +2961,10 @@ class mainWindow:
                                     if not output[6]:
                                         MSG('E0013', False)
                                     else:
-                                        if not output[7]:
+                                        if not (output[7])[0]:
                                             MSG('E0014', False)
                                         else:
-                                            MSG('I0001', False)
+                                            MSG('I0001', False, 'Przetworzono dane %i osób' % (output[7])[1])
                                             self.GIF1SLocalizationEntryVar.set('')
                                             self.GIF1SFormatComboboxVar.set('')
                                             self.GIF2SLocalizationEntryVar.set('')

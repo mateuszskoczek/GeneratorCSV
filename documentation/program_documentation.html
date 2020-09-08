@@ -9,7 +9,7 @@
     <body>
         <button class="accordion"><b>generator.pyw - WPROWADZENIE</b></button>
         <div class="panel">
-            <p>Aby móc uruchomić aplikację w wersji developerskiej należy pobrać Pythona oraz wymagane biblioteki (wymienione w sekcji 'generator.pyw - Import bibliotek')</p>
+            <p>Aby móc uruchomić aplikację w wersji developerskiej należy pobrać Pythona (wersja zalecana: 3.8.5) oraz wymagane biblioteki (wymienione w sekcji 'generator.pyw - Import bibliotek')</p>
         </div>
 
         <button class="accordion"><b>generator.pyw - Import bibliotek</b></button>
@@ -242,7 +242,7 @@
             </p>
         </div>
 
-        <button class="accordion"><b>Zarządzanie plikami formatu</b></button>
+        <button class="accordion"><b>generator.pyw - Zarządzanie plikami formatu</b></button>
         <div class="panel">
             <p>
                 Klasa <code>FMT</code> odpowiedzialna jest za zarządzanie plikami formatu (.fmt)<br>
@@ -294,13 +294,78 @@
         <button class="accordion"><b>generator.pyw - Przetwarzanie plików</b></button>
         <div class="panel">
             <p>
-                
+                Klasa <code>dataProcess</code> odpowiedzialna za przetwarzanie plików wejściowych i generowanie plików wyjściowych<br>
+                <br>
+                <br>
+                <b>Główna funkcja klasy</b> (<code>start</code>)<br>
+                <br>
+                Funkcja ta odpowiedzialna za zainicjowanie kolejnych funkcji w odpowiedniej kolejności oraz zwrócenie informacji o błędach lub pomyślnym wykonaniu polecenia<br>
+                1. Inicjacja funkcji <code>__checkIfAtLeastOneInputFileIsFilled</code> w celu sprawdzenia czy przynajmniej jedno pole plików wejściowych zostało wypełnione<br>
+                2. Inicjacja funkcji <code>__checkIfInputFilesIsReadable</code> w celu sprawdzenia czy pliki wejściowe, do których ścieżki zostały podane, są możliwe do odczytania<br>
+                3. Inicjacja funkcji <code>__checkIfInputFilesFormatPresetsExist</code> w celu sprawdzenia czy format presety, które zostały wybrane, istnieją<br>
+                4. Inicjacja funkcji <code>__getData</code> w celu zebrania danych z plików wejściowych<br>
+                5. Dla każdego zbioru danych - <code>for x in data</code> (dla każdej osoby), inicjacja funkcji <code>__checkLogin</code>, <code>__checkFname</code>, <code>__checkLname</code>, oraz dla uczniów <code>__checkSchool</code>, <code>__checkClass</code>, w celu sprawdzenia poprawności danych<br>
+                6. Inicjacja funkcji <code>__processData</code> w celu przetworzenia danych w linie gotowe do zapisania w plikach wyjściowych<br>
+                7. Inicjacja funkcji <code>__checkIfCreatingOutputFilesIsPossible</code> w celu sprawdzenia czy możliwe jest utworzenie plików wyjściowych<br>
+                8. Inicjacja funkcji <code>__saveData</code> w celu zapisania danych w plikach wyjściowych<br>
+                Funkcja zwraca listę zawierającą zmienne boolean potwierdzające w którym momencie zakończyło się wykonywanie funkcji (z powodu błędu lub pomyślnego ukończenia operacji)<br>
+                <br>
+                <br>
+                <b>Funkcje sprawdzające istnienie</b>
+                <br>
+                <code>__checkIfAtLeastOneInputFileIsFilled</code> - sprawdza czy przynajmniej jedno pole plików wejściowych zostało wypełnione oraz zwraca dane z wypełnionych pól<br>
+                <code>__checkIfInputFilesIsReadable</code> - sprawdza czy pliki wejściowe są możliwe do odczytania<br>
+                <code>__checkIfInputFilesFormatPresetsExist</code> - sprawdza czy wybrane format presety istnieją<br>
+                <code>__checkIfCreatingOutputFilesIsPossible</code> - sprawdza czy utworzenie plików wyjściowych jest możliwe<br>
+                <br>
+                <br>
+                <b>Funkcje sprawdzające poprawność</b>
+                <br>
+                Funkcje te sprawdzają poprawność określonych typów danych.
+                <br>
+                <br>
+                <b>Wyodrębnienie danych z plików</b> (<code>__getData</code>)<br>
+                <br>
+                Funkcja odpowiedzialna jest za wyodrębnienie danych z pliku (<code>path</code>) na podstawie określonego format presetu (<code>format</code>)
+                Dla każdego zbioru ścieżek plików wejściowych i format presetów (<code>for x in input</code>):<br>
+                1. Pobranie danych z pliku formatu (za pomocą funkcji <code>FMT.R</code>)<br>
+                2. Pobranie zawartości z pliku wyjściowego i podzielenie ich na zbiory danych pojedyńczych osób (<code>.split(personseparator)</code>)<br>
+                Dla każdego zbioru danych pojedyńczych osób (<code>for x in file</code>):<br>
+                3. Dzielenie zbioru danych na linie (<code>x.split(linesSeparator)</code>)<br>
+                4. Dla każdej linii: dzielenie danych na pojedyńcze segmenty separatorami z listy <code>dataSeparators</code><br>
+                5. Wyodrębnienie wymaganych danych ze zbioru<br>
+                6. Dodanie danych pojedyńczej osoby do listy <code>data</code><br>
+                <br>
+                <br>
+                <b>Przetworzenie danych</b> (<code>__processData</code>)<br>
+                <br>
+                Funkcja odpowiedzialna jest za przetworzenie danych w linie gotowe do zapisania w plikach wyjściowych<br>
+                Funkcja zwraca listę <code>[mailData, officeData]</code><br>
+                <br>
+                <br>
+                <b>Zapisanie danych</b> (<code>__saveData</code>)<br>
+                <br>
+                Funkcja odpowiedzialna jest za zapisanie danych w plikach wyjściowych dla poczty i dla office
             </p>
         </div>
 
-        <button class="accordion"><b>Edycja ustawień ogólnych</b></button>
+        <button class="accordion"><b>generator.pyw - GUI</b></button>
         <div class="panel">
-            
+            <p>
+                Klasa <code>GUI</code> odpowiada za interfejs programu<br>
+                <br>
+                <br>
+                <b>1. Główna funkcja programu</b><br>
+                <br>
+                - Stworzenie okna<br>
+                - Inicjacja styli kontrolek<br>
+                - Kontrolki<br>
+                <br>
+                <br>
+                <b>Akcje przycisków</b><br>
+                <br>
+                Funkcje inicjowane przez naciśnięcie przycisków
+            </p>
         </div>
 
         <script>
