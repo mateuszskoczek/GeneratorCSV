@@ -148,3 +148,7 @@
 - Dodanie screenshotów programu do sekcji strony 'Opis'
 - Rozpoczęcie prac nad sekcją strony 'Dokumentacja'
 - Lekkie poprawki w kodzie programu
+
+4.0 Beta (Build 20252)
+- Kontynuacja praca na sekcją strony 'Dokumentacja'
+- Przeprojektowanie sprawdzania katalogu programu w appdata

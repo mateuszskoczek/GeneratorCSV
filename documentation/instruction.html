@@ -84,7 +84,7 @@
             <h5>Nagłówek dla pliku wyjściowego office</h5>
             <p>Jeżeli chcesz aby w pierwszej linii pliku wyjściowego dla office znajdował się nagłowek, zaznacz opcję "Umieść w pliku". Zawartość nagłówka można edytować w polu tekstowym po lewej.</p>
             <h5>Rozpoczęcie roku szkolnego (DD | MM)</h5>
-            <p>W tych polach należy wpisać datę rozpoczęcia roku szkolnego (z reguły). W pierwszym polu (po lewo) należy wpisać dzień, a w drugim (po prawo) miesiąc. Te dane są używane do obliczania roku w znaczniku klasy (przykłądowy znacznik klasy: 2023a).</p>
+            <p>W tych polach należy wpisać datę rozpoczęcia roku szkolnego (z reguły). W pierwszym polu (po lewo) należy wpisać dzień, a w drugim (po prawo) miesiąc. Te dane są używane do obliczania roku w znaczniku klasy (przykłądowy znacznik klasy: 2023a). W przypadku generowania plików na nowy rok szkolny przed jego rozpoczęciem, należy wprowadzić datę dzisiejszą lub wcześniejszą.</p>
             <h5>Dane o szkołach</h5>
             <p>W tym polu należy wprowadzić dane każdej szkoły w zespole szkół (po jednej szkole w linijce). Wymagane są trzy "kolumny danych". Są one odzielone znakami "<u> | </u>".<br>W pierwszej kolumnie należy wpisać oznaczenie szkoły (dowolne bez spacji, najlepiej jak najkrótsze). Te dane będą używane w znaczniku klasy, jeżeli w trzeciej kolumnie została wybrana opcja "1".<br>W drugiej kolmnie należy wpisać liczbę klas w danej szkole. Te dane używane są do obliczenia roku w znaczniku klasy.<br>W trzeciej kolumnie można wybrać opcję "1" lub "0" (Prawda/Fałsz). Wybierz "1" jeżeli chcesz, aby w znaczniku klasy znajdowało się oznaczenie szkoły (przykład: 2023bs). Wybierz "0" jeżeli chcesz, aby w znaczniku klasy znajdowała się litera klasy (przykład: 2023a).</p>
             <br>
@@ -149,11 +149,7 @@
 
             for (i = 0; i < acc.length; i++) {
                 acc[i].addEventListener("click", function() {
-                    /* Toggle between adding and removing the "active" class,
-                    to highlight the button that controls the panel */
                     this.classList.toggle("active");
-
-                    /* Toggle between hiding and showing the active panel */
                     var panel = this.nextElementSibling;
                     if (panel.style.display === "block") {
                     panel.style.display = "none";

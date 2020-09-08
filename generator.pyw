@@ -10,28 +10,6 @@
 
 
 
-# --------------------------------- # Główne zmienne globalne # --------------------------------- #
-
-class VAR:
-    # Informacje o programie
-    programName = 'Generator CSV'
-    programVersion = '4.0'
-    programVersionStage = 'Beta'
-    programVersionBuild = '20246'
-    programCustomer = 'ZSP Sobolew'
-    programAuthors = ['Mateusz Skoczek']
-    programToW = ['styczeń', '2019', 'wrzesień', '2020']
-
-    # Dozwolone kodowanie plików
-    allowedCoding = ['utf-8', 'ANSI', 'iso-8859-2']
-
-    # Dozwolone znaki
-    allowedCharactersInSeparator = ['`', '~', '!', '@', '#', '$', '%', '^', '&', '(', ')', '-', '_', '=', '+', '[', ']', ' ', '?', '/', '>', '.', '<', ',', '"', "'", ':', ';', '|']
-
-
-
-
-
 # ------------------------------------- # Import bibliotek # ------------------------------------ #
 
 # Biblioteki główne
@@ -51,6 +29,37 @@ from tkinter import filedialog as TKfld
 
 from PIL import ImageTk as PLitk
 from PIL import Image as PLimg
+
+
+
+
+
+# --------------------------------- # Główne zmienne globalne # --------------------------------- #
+
+class VAR:
+    # Informacje o programie
+    programName = 'Generator CSV'
+    programVersion = '4.0'
+    programVersionStage = 'Beta'
+    programVersionBuild = '20252'
+    programCustomer = 'ZSP Sobolew'
+    programAuthors = ['Mateusz Skoczek']
+    programToW = ['styczeń', '2019', 'wrzesień', '2020']
+
+    # Dozwolone kodowanie plików
+    allowedCoding = ['utf-8', 'ANSI', 'iso-8859-2']
+
+    # Dozwolone znaki
+    allowedCharactersInSeparator = ['`', '~', '!', '@', '#', '$', '%', '^', '&', '(', ')', '-', '_', '=', '+', '[', ']', ' ', '?', '/', '>', '.', '<', ',', '"', "'", ':', ';', '|']
+
+    # Katalog APPDATA
+    appdataPath = PT.Path.home() / 'Appdata/Roaming'
+
+
+
+
+
+
 
 
 
@@ -85,6 +94,8 @@ MSGlist = {
     'A0005' : 'Czy na pewno chcesz przywrócić domyślne ustawienia ogólne?',
     'A0006' : 'Czy na pewno chcesz przywrócić domyślne ustawienia wyglądu?',
     'A0007' : 'Czy na pewno chcesz usunąc zaznaczone format presety?',
+    'A0008' : 'Nie znaleziono informacji o wersji programu w katalogu programu w APPDATA. Nastąpi zresetowanie katalogu programu w APPDATA oraz utworzenie kopii zapasowej dotychczasowej zawartości. Czy chcesz kontynuować?',
+    'A0009' : 'Została zainstalowana nowa wersja programu. Nastąpi zresetowanie katalogu programu w APPDATA oraz utworzenie kopii zapasowej dotychczasowej zawartości. Czy chcesz kontynuować?',
     'I0001' : 'Operacja ukończona pomyślnie',
     'I0002' : 'Aplikacja zostanie zamknięta w celu przeładowania ustawień',
 }
@@ -126,94 +137,233 @@ def MSG(code, terminate, *optionalInfo):
 
 
 
-# ----------------------------------- # Opcje deweloperskie # ----------------------------------- #
-
-dev_config = []
-if 'dev.cfg' in [x for x in OS.listdir('.\configs')]:
-    try:
-        dev_config = CD.open(r'.\configs\dev.cfg', 'r', 'utf-8').read().split('\n')
-    except Exception as exceptInfo:
-        print('DEVELOPER CONSOLE LOG: Nie można załadować listy aktywnych opcji developerskich')
-    else:
-        print('DEVELOPER CONSOLE LOG: Pomyślnie załadowano listę aktywnych opcji developerskich')
-        print('DEVELOPER CONSOLE LOG: Lista aktywnych opcji developerskich: %s' % str(dev_config))
-
-
-
-
-
 # ------------------------- # Sprawdzanie katalogu programu w APPDATA # ------------------------- #
 
-appdata = PT.Path.home() / 'Appdata/Roaming'
+class checkAppdata:
+    def __init__(self):
+        if 'Generator CSV' in [x for x in OS.listdir(VAR.appdataPath)]:
+            if 'version' in [x for x in OS.listdir(str(VAR.appdataPath) + '\Generator CSV')]:
+                versionFile = CD.open((str(VAR.appdataPath) + r'\Generator CSV\version'), 'r', 'utf-8')
+                if versionFile.read() == VAR.programVersionBuild:
+                    versionFile.close()
+                    if 'config.cfg' not in [x for x in OS.listdir(str(VAR.appdataPath) + '\Generator CSV')]:
+                        self.__restoreCFG('config')
+                    if 'style.cfg' not in [x for x in OS.listdir(str(VAR.appdataPath) + '\Generator CSV')]:
+                        self.__restoreCFG('style')
+                    if 'format-presets' not in [x for x in OS.listdir(str(VAR.appdataPath) + '\Generator CSV')]:
+                        self.__createFormatPresetsDir()
+                else:
+                    versionFile.close()
+                    if MSG('A0009', False):
+                        self.__resetAppdata()
+                        MSG('I0002', True)
+                    else:
+                        SS.exit(0)
+            else:
+                if MSG('A0008', False):
+                    self.__resetAppdata()
+                    MSG('I0002', True)
+                else:
+                    SS.exit(0)
+        else:
+            self.__buildAppdata()
 
-if 'reset_appdata' in dev_config:
-    try:
-        SU.rmtree(str(appdata) + '\Generator CSV')
-        OS.mkdir(str(appdata) + '\Generator CSV')
-        versionFile = CD.open((str(appdata) + r'\Generator CSV\version'), 'w', 'utf-8')
-        versionFile.write(VAR.programVersionBuild)
-        versionFile.close()
-        SU.copy('configs\config.cfg', str(appdata) + '\Generator CSV\config.cfg')
-        SU.copy('configs\style.cfg', str(appdata) + '\Generator CSV\style.cfg')
-        OS.mkdir(str(appdata) + r'\Generator CSV\format-presets')
-    except Exception as exceptInfo:
-        print("DEVELOPER CONSOLE LOG: Folder 'Generator CSV' w folderze 'APPDATA' nie został zresetowany z powodu błędu: %s" % exceptInfo)
-    else:
-        print("DEVELOPER CONSOLE LOG: Folder 'Generator CSV' w folderze 'APPDATA' został zresetowany pomyślnie")
 
-def checkAppdata():
-    if 'Generator CSV' not in [x for x in OS.listdir(appdata)]:
+    # Budowanie katalogu programu
+    def __buildAppdata(self):
         try:
-            OS.mkdir(str(appdata) + '\Generator CSV')
-            versionFile = CD.open((str(appdata) + r'\Generator CSV\version'), 'w', 'utf-8')
+            OS.mkdir(str(VAR.appdataPath) + '\Generator CSV')
+
+            versionFile = CD.open((str(VAR.appdataPath) + r'\Generator CSV\version'), 'w', 'utf-8')
             versionFile.write(VAR.programVersionBuild)
             versionFile.close()
-            SU.copy('configs\config.cfg', str(appdata) + '\Generator CSV\config.cfg')
-            SU.copy('configs\style.cfg', str(appdata) + '\Generator CSV\style.cfg')
-            OS.mkdir(str(appdata) + r'\Generator CSV\format-presets')
         except Exception as exceptInfo:
             MSG('E0001', True, exceptInfo)
-    else:
-        if 'version' not in [x for x in OS.listdir(str(appdata) + '\Generator CSV')]:
-            SU.rmtree(str(appdata) + '\Generator CSV')
-            checkAppdata()
-        else:
-            versionFile = CD.open((str(appdata) + r'\Generator CSV\version'), 'r', 'utf-8')
-            if versionFile.read() != VAR.programVersionBuild:
-                versionFile.close()
-                SU.rmtree(str(appdata) + '\Generator CSV')
-                checkAppdata()
-        if 'config.cfg' not in [x for x in OS.listdir(str(appdata) + '\Generator CSV')]:
-            try:
-                SU.copy('configs\config.cfg', str(appdata) + '\Generator CSV\config.cfg')
-            except Exception as exceptInfo:
-                MSG('E0001', True, exceptInfo)
-        if 'style.cfg' not in [x for x in OS.listdir(str(appdata) + '\Generator CSV')]:
-            try:
-                SU.copy('configs\style.cfg', str(appdata) + '\Generator CSV\style.cfg')
-            except Exception as exceptInfo:
-                MSG('E0001', True, exceptInfo)
-        if 'format-presets' not in [x for x in OS.listdir(str(appdata) + '\Generator CSV')]:
-            try:
-                OS.mkdir(str(appdata) + r'\Generator CSV\format-presets')
-            except Exception as exceptInfo:
-                MSG('E0001', True, exceptInfo)
+
+        self.__restoreCFG('config')
+        self.__restoreCFG('style')
+        self.__createFormatPresetsDir()
     
+
+    # Resetowanie katalogu programu
+    def __resetAppdata(self):
+        try:
+            if 'Generator CSV_old' in [x for x in OS.listdir(str(VAR.appdataPath) + '\Generator CSV')]:
+                SU.rmtree(str(VAR.appdataPath) + '\Generator CSV\Generator CSV_old')
+            OS.rename((str(VAR.appdataPath) + '\Generator CSV'), (str(VAR.appdataPath) + '\Generator CSV_old'))
+        except Exception as exceptInfo:
+            MSG('E0001', True, exceptInfo)
+
+        self.__buildAppdata()
+
+        try:
+            SU.move((str(VAR.appdataPath) + '\Generator CSV_old'), (str(VAR.appdataPath) + '\Generator CSV\Generator CSV_old'))
+        except Exception as exceptInfo:
+            MSG('E0001', True, exceptInfo)
+    
+
+    # Przywracanie plików konfiguracyjnych
+    def __restoreCFG(self, configFileName):
+        try:
+            SU.copy(('configs\%s.cfg' % configFileName), str(VAR.appdataPath) + ('\Generator CSV\%s.cfg' % configFileName))
+        except Exception as exceptInfo:
+            MSG('E0001', True, exceptInfo)
+    
+
+    # Tworzenie katalogu przechowującego format presety
+    def __createFormatPresetsDir(self):
+        try:
+            OS.mkdir(str(VAR.appdataPath) + r'\Generator CSV\format-presets')
+        except Exception as exceptInfo:
+            MSG('E0001', True, exceptInfo)
+
+
+
 checkAppdata()
 
 
 
 
 
-# ----------------------------- # Ładowanie pliku konfiguracyjnego # ---------------------------- #
+# ------------------ # Ładowanie głównego pliku konfiguracyjnego 'config.cfg' # ----------------- #
 
 class CFG:
+    def R(self, record):
+        self.__checkIfFileExist(False)
+        content = {}
+        for x in CD.open((str(VAR.appdataPath) + '\Generator CSV\config.cfg'), 'r', 'utf-8').read().strip('\r').split('\n'):
+            x = x.split(' = ')
+            try:
+                name = x[0].split('(')[0]
+                var = x[1]
+                type = x[0].split('(')[1].strip(')')
+                content[name] = [var, type] 
+            except:
+                continue
+        checkingOutput = self.__checkIfRecordExist(content, record)
+        if not checkingOutput[0]:
+            MSG('E0003', True, checkingOutput[1])
+        var = content[record]
+        if var[1] == 'S':
+            # String
+            var = var[0].strip('\r')
+            return var
+        elif var[1] == 'Sc':
+            # Integer
+            checkingOutput = self.__checkSc(record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0003', True, checkingOutput[1])
+        elif var[1] == 'I':
+            # Integer
+            checkingOutput = self.__checkI(False, record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0003', True, checkingOutput[1])
+        elif var[1] == 'D':
+            # Date (DD.MM.RRRR HH:MM:SS)
+            checkingOutput = self.__checkD(False, record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0003', True, checkingOutput[1])
+        elif var[1] == 'MSAs':
+            # Multiple Specified Arrays - schoolData
+            checkingOutput = self.__checkMSAs(False, record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0003', True, checkingOutput[1])
+        elif var[1] == 'B':
+            # Boolean
+            checkingOutput = self.__checkB(False, record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0003', True, checkingOutput[1])
+        else:
+            MSG('E0003', True, 'Nie można rozpoznać typu klucza %s' % record)
+    
+    def W(self, changes):
+        self.__checkIfFileExist(True)
+        file = CD.open(str(VAR.appdataPath) + '\Generator CSV\config.cfg', 'r', 'utf-8').read().split('\n')
+        if file[-1] == '':
+            file = file[:-1]
+        content = {}
+        for x in file:
+            x = x.split(' = ')
+            try:
+                name = x[0].split('(')[0]
+                var = x[1]
+                type = x[0].split('(')[1].strip(')')
+                content[name] = [var, type]
+            except Exception as exceptInfo:
+                MSG('E0003', False, exceptInfo)
+        for x in changes:
+            name = x
+            var = changes[name]
+            type = (content[name])[1]
+            if type == 'S':
+                # String
+                pass
+            elif type == 'Sc':
+                # Integer
+                checkingOutput = self.__checkSc(name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'I':
+                # Integer
+                checkingOutput = self.__checkI(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'D':
+                # Date (DD.MM.RRRR HH:MM:SS)
+                checkingOutput = self.__checkD(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'MSAs':
+                # Multiple Specified Arrays - schoolData
+                checkingOutput = self.__checkMSAs(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'B':
+                # Boolean
+                checkingOutput = self.__checkB(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            else:
+                MSG('E0003', False, 'Nie można rozpoznać typu klucza %s' % name)
+                return False
+            content[name] = [var, type]
+        with CD.open(str(VAR.appdataPath) + '\Generator CSV\config.cfg', 'w', 'utf-8') as file:
+            for x in content:
+                file.write('%s(%s) = %s\n' % (x, (content[x])[1], (content[x][0])))
+        return True
+
+
     # Funkcje sprawdzające istnienie
     def __checkIfFileExist(self, write):
         if write:
             try:
                 checkAppdata()
-                file = open((str(appdata) + '\Generator CSV\config.cfg'), 'a')
+                file = open((str(VAR.appdataPath) + '\Generator CSV\config.cfg'), 'a')
             except Exception as exceptInfo:
                 MSG('E0002', True, exceptInfo)
                 return False
@@ -226,7 +376,7 @@ class CFG:
         else:
             try:
                 checkAppdata()
-                open(str(appdata) + '\Generator CSV\config.cfg')
+                open(str(VAR.appdataPath) + '\Generator CSV\config.cfg')
             except Exception as exceptInfo:
                 MSG('E0002', True, exceptInfo)
 
@@ -431,151 +581,82 @@ class CFG:
 
 
 
-    def R(self, record):
-        self.__checkIfFileExist(False)
-        content = {}
-        for x in CD.open((str(appdata) + '\Generator CSV\config.cfg'), 'r', 'utf-8').read().strip('\r').split('\n'):
-            x = x.split(' = ')
-            try:
-                name = x[0].split('(')[0]
-                var = x[1]
-                type = x[0].split('(')[1].strip(')')
-                content[name] = [var, type] 
-            except:
-                continue
-        checkingOutput = self.__checkIfRecordExist(content, record)
-        if not checkingOutput[0]:
-            MSG('E0003', True, checkingOutput[1])
-        var = content[record]
-        if var[1] == 'S':
-            # String
-            var = var[0].strip('\r')
-            return var
-        elif var[1] == 'Sc':
-            # Integer
-            checkingOutput = self.__checkSc(record, var[0])
-            if checkingOutput[0]:
-                return checkingOutput[1]
-            else:
-                MSG('E0003', True, checkingOutput[1])
-        elif var[1] == 'I':
-            # Integer
-            checkingOutput = self.__checkI(False, record, var[0])
-            if checkingOutput[0]:
-                return checkingOutput[1]
-            else:
-                MSG('E0003', True, checkingOutput[1])
-        elif var[1] == 'D':
-            # Date (DD.MM.RRRR HH:MM:SS)
-            checkingOutput = self.__checkD(False, record, var[0])
-            if checkingOutput[0]:
-                return checkingOutput[1]
-            else:
-                MSG('E0003', True, checkingOutput[1])
-        elif var[1] == 'MSAs':
-            # Multiple Specified Arrays - schoolData
-            checkingOutput = self.__checkMSAs(False, record, var[0])
-            if checkingOutput[0]:
-                return checkingOutput[1]
-            else:
-                MSG('E0003', True, checkingOutput[1])
-        elif var[1] == 'B':
-            # Boolean
-            checkingOutput = self.__checkB(False, record, var[0])
-            if checkingOutput[0]:
-                return checkingOutput[1]
-            else:
-                MSG('E0003', True, checkingOutput[1])
-        else:
-            MSG('E0003', True, 'Nie można rozpoznać typu klucza %s' % record)
-    
-    def W(self, changes):
-        self.__checkIfFileExist(True)
-        file = CD.open(str(appdata) + '\Generator CSV\config.cfg', 'r', 'utf-8').read().split('\n')
-        if file[-1] == '':
-            file = file[:-1]
-        content = {}
-        for x in file:
-            x = x.split(' = ')
-            try:
-                name = x[0].split('(')[0]
-                var = x[1]
-                type = x[0].split('(')[1].strip(')')
-                content[name] = [var, type]
-            except Exception as exceptInfo:
-                MSG('E0003', False, exceptInfo)
-        for x in changes:
-            name = x
-            var = changes[name]
-            type = (content[name])[1]
-            if type == 'S':
-                # String
-                pass
-            elif type == 'Sc':
-                # Integer
-                checkingOutput = self.__checkSc(name, var)
-                if checkingOutput[0]:
-                    var = checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-                    return False
-            elif type == 'I':
-                # Integer
-                checkingOutput = self.__checkI(True, name, var)
-                if checkingOutput[0]:
-                    var = checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-                    return False
-            elif type == 'D':
-                # Date (DD.MM.RRRR HH:MM:SS)
-                checkingOutput = self.__checkD(True, name, var)
-                if checkingOutput[0]:
-                    var = checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-                    return False
-            elif type == 'MSAs':
-                # Multiple Specified Arrays - schoolData
-                checkingOutput = self.__checkMSAs(True, name, var)
-                if checkingOutput[0]:
-                    var = checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-                    return False
-            elif type == 'B':
-                # Boolean
-                checkingOutput = self.__checkB(True, name, var)
-                if checkingOutput[0]:
-                    var = checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-                    return False
-            else:
-                MSG('E0003', False, 'Nie można rozpoznać typu klucza %s' % name)
-                return False
-            content[name] = [var, type]
-        with CD.open(str(appdata) + '\Generator CSV\config.cfg', 'w', 'utf-8') as file:
-            for x in content:
-                file.write('%s(%s) = %s\n' % (x, (content[x])[1], (content[x][0])))
-        return True
-
-
-
 CFG = CFG()
 
 
 
 
 
-# ---------------------------------- # Ładowanie pliku stylu # ---------------------------------- #
+# -------------------- # Ładowanie pliku konfiguracyjnego stylu 'style.cfg' # ------------------- #
 
 class GUI:
+    # Odczytywanie pojedyńczej zmiennej z pliku
+    def R(self, record):
+        self.__checkIfFileExist()
+        content = {}
+        for x in CD.open((str(VAR.appdataPath) + '\Generator CSV\style.cfg'), 'r', 'utf-8').read().strip('\r').split('\n'):
+            x = x.split(' = ')
+            try:
+                name = x[0].split('(')[0]
+                var = x[1]
+                type = x[0].split('(')[1].strip(')')
+                content[name] = [var.strip('\r'), type] 
+            except:
+                continue
+        checkingOutput = self.__checkIfRecordExist(content, record)
+        if not checkingOutput[0]:
+            MSG('E0005', True, checkingOutput[1])
+        var = content[record]
+        if var[1] == 'I':
+            # Integer
+            checkingOutput = self.__checkI(record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0005', True, checkingOutput[1])
+        elif var[1] == 'B':
+            # Boolean
+            checkingOutput = self.__checkB(record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0005', True, checkingOutput[1])
+        elif var[1] == 'C':
+            # Color
+            checkingOutput = self.__checkC(record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0005', True, checkingOutput[1])
+        elif var[1] == 'P':
+            # Path
+            checkingOutput = self.__checkP(record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0005', True, checkingOutput[1])
+        elif (var[1])[:2] == 'FA':
+            # From Array
+            checkingOutput = self.__checkFA(record, var[0], (var[1])[2:])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0005', True, checkingOutput[1])
+        elif var[1] == 'F':
+            # Font
+            checkingOutput = self.__checkF(record, var[0])
+            if checkingOutput[0]:
+                return checkingOutput[1]
+            else:
+                MSG('E0005', True, checkingOutput[1])
+        else:
+            MSG('E0005', True, 'Nie można rozpoznać typu klucza %s' % record)
+    
     # Funkcje sprawdzające istnienie
     def __checkIfFileExist(self):
         try:
             checkAppdata()
-            open(str(appdata) + '\Generator CSV\style.cfg')
+            open(str(VAR.appdataPath) + '\Generator CSV\style.cfg')
         except Exception as exceptInfo:
             checkAppdata()
     
@@ -643,69 +724,6 @@ class GUI:
         else:
             var = (var.split(';')[0], int(var.split(';')[1]))
         return [True, var]
-    
-    
-
-    def R(self, record):
-        self.__checkIfFileExist()
-        content = {}
-        for x in CD.open((str(appdata) + '\Generator CSV\style.cfg'), 'r', 'utf-8').read().strip('\r').split('\n'):
-            x = x.split(' = ')
-            try:
-                name = x[0].split('(')[0]
-                var = x[1]
-                type = x[0].split('(')[1].strip(')')
-                content[name] = [var.strip('\r'), type] 
-            except:
-                continue
-        checkingOutput = self.__checkIfRecordExist(content, record)
-        if not checkingOutput[0]:
-            MSG('E0005', True, checkingOutput[1])
-        var = content[record]
-        if var[1] == 'I':
-            # Integer
-            checkingOutput = self.__checkI(record, var[0])
-            if checkingOutput[0]:
-                return checkingOutput[1]
-            else:
-                MSG('E0005', True, checkingOutput[1])
-        elif var[1] == 'B':
-            # Boolean
-            checkingOutput = self.__checkB(record, var[0])
-            if checkingOutput[0]:
-                return checkingOutput[1]
-            else:
-                MSG('E0005', True, checkingOutput[1])
-        elif var[1] == 'C':
-            # Color
-            checkingOutput = self.__checkC(record, var[0])
-            if checkingOutput[0]:
-                return checkingOutput[1]
-            else:
-                MSG('E0005', True, checkingOutput[1])
-        elif var[1] == 'P':
-            # Path
-            checkingOutput = self.__checkP(record, var[0])
-            if checkingOutput[0]:
-                return checkingOutput[1]
-            else:
-                MSG('E0005', True, checkingOutput[1])
-        elif (var[1])[:2] == 'FA':
-            # From Array
-            checkingOutput = self.__checkFA(record, var[0], (var[1])[2:])
-            if checkingOutput[0]:
-                return checkingOutput[1]
-            else:
-                MSG('E0005', True, checkingOutput[1])
-        elif var[1] == 'F':
-            # Font
-            checkingOutput = self.__checkF(record, var[0])
-            if checkingOutput[0]:
-                return checkingOutput[1]
-            else:
-                MSG('E0005', True, checkingOutput[1])
-        else:
-            MSG('E0005', True, 'Nie można rozpoznać typu klucza %s' % record)
 
 
 
@@ -718,6 +736,186 @@ GUI = GUI()
 # ------------------------------- # Zarządzanie plikami formatu # ------------------------------- #
 
 class FMT:
+    # Odczytywanie pojedyńczej zmiennej z pliku
+    def R(self, preset, record):
+        self.__checkIfFolderExist()
+        if preset in self.getList():
+            path = str(VAR.appdataPath) + '/Generator CSV/format-presets/%s.fmt' % preset
+            file = CD.open(path, 'r', 'utf-8').read().strip('\r').split('\n')
+            content = {}
+            for x in file:
+                x = x.split(' = ')
+                try:
+                    name = x[0].split('(')[0]
+                    var = x[1]
+                    type = x[0].split('(')[1].strip(')')
+                    content[name] = [var, type] 
+                except:
+                    continue
+            checkingOutput = self.__checkIfRecordExist(content, record)
+            if not checkingOutput[0]:
+                MSG('E0006', False, checkingOutput[1])
+            var = content[record]
+            if var[1] == 'B':
+                # Boolean
+                checkingOutput = self.__checkB(False, record, var[0])
+                if checkingOutput[0]:
+                    return checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+            elif var[1] == 'Ss':
+                # String - separator
+                checkingOutput = self.__checkSs(record, var[0])
+                if checkingOutput[0]:
+                    return checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+            elif var[1] == 'As':
+                # Array - separator
+                checkingOutput = self.__checkAs(False, record, var[0])
+                if checkingOutput[0]:
+                    return checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+            elif var[1] == 'I':
+                # Integer
+                checkingOutput = self.__checkI(False, record, var[0])
+                if checkingOutput[0]:
+                    return checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+            elif var[1] == 'Sc':
+                # Integer
+                checkingOutput = self.__checkSc(record, var[0])
+                if checkingOutput[0]:
+                    return checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+            else:
+                MSG('E0006', True, 'Nie można rozpoznać typu klucza %s' % record)
+        else:
+            content = {
+                "student" : True,
+                "personSeparator" : '',
+                "rowSeparator" : '',
+                "dataSeparators" : [],
+                "loginRow" : 0,
+                "loginPositionInRow" : 0,
+                "fnameRow" : 0,
+                "fnamePositionInRow" : 0,
+                "lnameRow" : 0,
+                "lnamePositionInRow" : 0,
+                "schoolRow" : 0,
+                "schoolPositionInRow" : 0,
+                "classRow" : 0,
+                "classPositionInRow" : 0,
+                "inputCoding" : 'utf-8',
+            }
+            var = content[record]
+        return var
+
+    # Zapisywanie zmian w pliku
+    def W(self, preset, changes):
+        self.__checkIfFolderExist()
+        if preset in self.getList():
+            file = CD.open(str(VAR.appdataPath) + '/Generator CSV/format-presets/%s.fmt' % preset, 'r', 'utf-8').read().split('\n')
+            if file[-1] == '':
+                file = file[:-1]
+            content = {}
+            for x in file:
+                x = x.split(' = ')
+                try:
+                    name = x[0].split('(')[0]
+                    var = x[1]
+                    type = x[0].split('(')[1].strip(')')
+                    content[name] = [var, type]
+                except Exception as exceptInfo:
+                    MSG('E0006', False, exceptInfo)
+        else:
+            content = {
+                "student" : ['1', 'B'],
+                "personSeparator" : ['', 'Ss'],
+                "rowSeparator" : ['', 'Ss'],
+                "dataSeparators" : ['', 'As'],
+                "loginRow" : ['0', 'I'],
+                "loginPositionInRow" : ['0', 'I'],
+                "fnameRow" : ['0', 'I'],
+                "fnamePositionInRow" : ['0', 'I'],
+                "lnameRow" : ['0', 'I'],
+                "lnamePositionInRow" : ['0', 'I'],
+                "schoolRow" : ['0', 'I'],
+                "schoolPositionInRow" : ['0', 'I'],
+                "classRow" : ['0', 'I'],
+                "classPositionInRow" : ['0', 'I'],
+                "inputCoding" : ['utf-8', 'Sc']
+            }
+        for x in changes:
+            name = x
+            var = changes[name]
+            type = (content[name])[1]
+            if type == 'B':
+                checkingOutput = self.__checkB(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'Ss':
+                checkingOutput = self.__checkSs(name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'As':
+                checkingOutput = self.__checkAs(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'I':
+                # Integer
+                checkingOutput = self.__checkI(True, name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            elif type == 'Sc':
+                checkingOutput = self.__checkSc(name, var)
+                if checkingOutput[0]:
+                    var = checkingOutput[1]
+                else:
+                    MSG('E0006', False, checkingOutput[1])
+                    return False
+            else:
+                MSG('E0006', False, 'Nie można rozpoznać typu klucza %s' % name)
+                return False
+            content[name] = [var, type]
+        try:
+            with CD.open(str(VAR.appdataPath) + '/Generator CSV/format-presets/%s.fmt' % preset, 'w', 'utf-8') as file:
+                for x in content:
+                    file.write('%s(%s) = %s\n' % (x, (content[x])[1], (content[x][0])))
+        except Exception as exceptInfo:
+            MSG('E0017', False, exceptInfo)
+            return False
+        return True
+
+    
+    # Funkcja zwracająca listę presetów
+    def getList(self):
+        self.__checkIfFolderExist()
+        filesList = OS.listdir(str(VAR.appdataPath) + '/Generator CSV/format-presets')
+        formatPresetsList = []
+        for x in filesList:
+            if x[-4:] == '.fmt':
+                formatPresetsList.append(x[:-4])
+            else:
+                continue
+        return formatPresetsList
+
+
     # Funkcje sprawdzające istnienie
     def __checkIfFolderExist(self):
         checkAppdata()
@@ -798,185 +996,6 @@ class FMT:
         if var not in VAR.allowedCoding:
             return [False, 'Niepoprawne dane - klucz: %s' % record]
         return [True, var]
-
-
-    # Funkcja zwracająca listę presetów
-    def getList(self):
-        self.__checkIfFolderExist()
-        filesList = OS.listdir(str(appdata) + '/Generator CSV/format-presets')
-        formatPresetsList = []
-        for x in filesList:
-            if x[-4:] == '.fmt':
-                formatPresetsList.append(x[:-4])
-            else:
-                continue
-        return formatPresetsList
-    
-    
-
-    def R(self, preset, record):
-        self.__checkIfFolderExist()
-        if preset in self.getList():
-            path = str(appdata) + '/Generator CSV/format-presets/%s.fmt' % preset
-            file = CD.open(path, 'r', 'utf-8').read().strip('\r').split('\n')
-            content = {}
-            for x in file:
-                x = x.split(' = ')
-                try:
-                    name = x[0].split('(')[0]
-                    var = x[1]
-                    type = x[0].split('(')[1].strip(')')
-                    content[name] = [var, type] 
-                except:
-                    continue
-            checkingOutput = self.__checkIfRecordExist(content, record)
-            if not checkingOutput[0]:
-                MSG('E0006', False, checkingOutput[1])
-            var = content[record]
-            if var[1] == 'B':
-                # Boolean
-                checkingOutput = self.__checkB(False, record, var[0])
-                if checkingOutput[0]:
-                    return checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-            elif var[1] == 'Ss':
-                # String - separator
-                checkingOutput = self.__checkSs(record, var[0])
-                if checkingOutput[0]:
-                    return checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-            elif var[1] == 'As':
-                # Array - separator
-                checkingOutput = self.__checkAs(False, record, var[0])
-                if checkingOutput[0]:
-                    return checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-            elif var[1] == 'I':
-                # Integer
-                checkingOutput = self.__checkI(False, record, var[0])
-                if checkingOutput[0]:
-                    return checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-            elif var[1] == 'Sc':
-                # Integer
-                checkingOutput = self.__checkSc(record, var[0])
-                if checkingOutput[0]:
-                    return checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-            else:
-                MSG('E0006', True, 'Nie można rozpoznać typu klucza %s' % record)
-        else:
-            content = {
-                "student" : True,
-                "personSeparator" : '',
-                "rowSeparator" : '',
-                "dataSeparators" : [],
-                "loginRow" : 0,
-                "loginPositionInRow" : 0,
-                "fnameRow" : 0,
-                "fnamePositionInRow" : 0,
-                "lnameRow" : 0,
-                "lnamePositionInRow" : 0,
-                "schoolRow" : 0,
-                "schoolPositionInRow" : 0,
-                "classRow" : 0,
-                "classPositionInRow" : 0,
-                "inputCoding" : 'utf-8',
-            }
-            var = content[record]
-        return var
-
-    def W(self, preset, changes):
-        self.__checkIfFolderExist()
-        if preset in self.getList():
-            file = CD.open(str(appdata) + '/Generator CSV/format-presets/%s.fmt' % preset, 'r', 'utf-8').read().split('\n')
-            if file[-1] == '':
-                file = file[:-1]
-            content = {}
-            for x in file:
-                x = x.split(' = ')
-                try:
-                    name = x[0].split('(')[0]
-                    var = x[1]
-                    type = x[0].split('(')[1].strip(')')
-                    content[name] = [var, type]
-                except Exception as exceptInfo:
-                    MSG('E0006', False, exceptInfo)
-        else:
-            content = {
-                "student" : ['1', 'B'],
-                "personSeparator" : ['', 'Ss'],
-                "rowSeparator" : ['', 'Ss'],
-                "dataSeparators" : ['', 'As'],
-                "loginRow" : ['0', 'I'],
-                "loginPositionInRow" : ['0', 'I'],
-                "fnameRow" : ['0', 'I'],
-                "fnamePositionInRow" : ['0', 'I'],
-                "lnameRow" : ['0', 'I'],
-                "lnamePositionInRow" : ['0', 'I'],
-                "schoolRow" : ['0', 'I'],
-                "schoolPositionInRow" : ['0', 'I'],
-                "classRow" : ['0', 'I'],
-                "classPositionInRow" : ['0', 'I'],
-                "inputCoding" : ['utf-8', 'Sc']
-            }
-        for x in changes:
-            name = x
-            var = changes[name]
-            type = (content[name])[1]
-            if type == 'B':
-                checkingOutput = self.__checkB(True, name, var)
-                if checkingOutput[0]:
-                    var = checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-                    return False
-            elif type == 'Ss':
-                checkingOutput = self.__checkSs(name, var)
-                if checkingOutput[0]:
-                    var = checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-                    return False
-            elif type == 'As':
-                checkingOutput = self.__checkAs(True, name, var)
-                if checkingOutput[0]:
-                    var = checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-                    return False
-            elif type == 'I':
-                # Integer
-                checkingOutput = self.__checkI(True, name, var)
-                if checkingOutput[0]:
-                    var = checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-                    return False
-            elif type == 'Sc':
-                checkingOutput = self.__checkSc(name, var)
-                if checkingOutput[0]:
-                    var = checkingOutput[1]
-                else:
-                    MSG('E0006', False, checkingOutput[1])
-                    return False
-            else:
-                MSG('E0006', False, 'Nie można rozpoznać typu klucza %s' % name)
-                return False
-            content[name] = [var, type]
-        try:
-            with CD.open(str(appdata) + '/Generator CSV/format-presets/%s.fmt' % preset, 'w', 'utf-8') as file:
-                for x in content:
-                    file.write('%s(%s) = %s\n' % (x, (content[x])[1], (content[x][0])))
-        except Exception as exceptInfo:
-            MSG('E0017', False, exceptInfo)
-            return False
-        return True
 
 
 
@@ -3154,8 +3173,8 @@ class mainWindow:
     def settingsButtonPDUOAction(self):
         if MSG('A0005', False):
             try:
-                OS.remove(str(appdata) + '\Generator CSV\config.cfg')
-                SU.copy('configs/config.cfg', str(appdata) + '\Generator CSV\config.cfg')
+                OS.remove(str(VAR.appdataPath) + '\Generator CSV\config.cfg')
+                SU.copy('configs/config.cfg', str(VAR.appdataPath) + '\Generator CSV\config.cfg')
             except Exception as exceptInfo:
                 MSG('E0001', True, exceptInfo)
             MSG('I0002', True)
@@ -3165,8 +3184,8 @@ class mainWindow:
     def settingsButtonPDUWAction(self):
         if MSG('A0006', False):
             try:
-                OS.remove(str(appdata) + '\Generator CSV\style.cfg')
-                SU.copy('configs/style.cfg', str(appdata) + '\Generator CSV\style.cfg')
+                OS.remove(str(VAR.appdataPath) + '\Generator CSV\style.cfg')
+                SU.copy('configs/style.cfg', str(VAR.appdataPath) + '\Generator CSV\style.cfg')
             except Exception as exceptInfo:
                 MSG('E0001', True, exceptInfo)
             MSG('I0002', True)
@@ -3178,7 +3197,7 @@ class mainWindow:
             selected = self.selectFPListbox.curselection()
             for x in selected:
                 try:
-                    OS.remove(str(appdata) + ('/Generator CSV/format-presets') + ('\%s.fmt' % self.selectFPListbox.get(x)))
+                    OS.remove(str(VAR.appdataPath) + ('/Generator CSV/format-presets') + ('\%s.fmt' % self.selectFPListbox.get(x)))
                 except Exception as exceptInfo:
                     MSG('E0015', True, exceptInfo)
             MSG('I0001', False)

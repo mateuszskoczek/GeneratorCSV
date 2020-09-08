@@ -72,9 +72,8 @@ section {
 
 iframe {
     float: left;
-    width: 99%;
+    width: 100%;
     border: none;
-    padding: 0.5%;
     height: calc(100% - 220px);
     overflow: scroll;
     position: absolute;

@@ -7,29 +7,9 @@
         <title>Generator CSV</title>
     </head>
     <body>
-        <button class="accordion"><b>generator.pyw - Główne zmienne globalne</b></button>
+        <button class="accordion"><b>generator.pyw - WPROWADZENIE</b></button>
         <div class="panel">
-            <p>
-                <b>Informacje o programie</b><br>
-                <br>
-                <code>programName</code> - Zmienna definująca nazwę programu<br>
-                <code>programVersion</code> - Zmienna definiująca główną wersję programu<br>
-                <code>programVersionStage</code> - Zmienna definiująca etap rozwoju programu. Wersja stabilna definiowana jest przez pusty string<br>
-                <code>programVersionBuild</code> - Zmienna definiująca numer buildu programu. Zapisany jest on w formacie '[ostatnie dwie cyfry roku][numer dnia w roku]'<br>
-                <code>programCustomer</code> - Zmienna definiująca nazwę organizacji zlecającej stworzenie programu<br>
-                <code>programAuthors</code> - Lista zawierająca nazwy osób rozwijających program.<br>
-                <code>programToW</code> - Lista zawierająca informacje na temat czasu rozwoju programu. Format: ['miesiąc rozpoczęcia prac', 'rok rozpoczęcia prac', 'aktualny dla rozwoju danej wersji miesiąc', 'aktualny dla rozwoju danej wersji rok']<br>
-                <br>
-                <br>
-                <b>Dozwolone kodowanie plików</b><br>
-                <br>
-                <code>allowedCoding</code> - Lista zawierająca wspierane kodowania plików. Są one wyświetlane w rozwijanych listach wyboru kodowania pliku.<br>
-                <br>
-                <br>
-                <b>Dozwolone znaki</b><br>
-                <br>
-                <code>allowedCharactersInSeparator</code> - Lista zawierająca znaki które można wpisać w pola dotyczące separatorów osób, linii i danych<br>
-            </p>
+            <p>Aby móc uruchomić aplikację w wersji developerskiej należy pobrać Pythona oraz wymagane biblioteki (wymienione w sekcji 'generator.pyw - Import bibliotek')</p>
         </div>
 
         <button class="accordion"><b>generator.pyw - Import bibliotek</b></button>
@@ -65,6 +45,36 @@
             </p>
         </div>
 
+        <button class="accordion"><b>generator.pyw - Główne zmienne globalne</b></button>
+        <div class="panel">
+            <p>
+                <b>Informacje o programie</b><br>
+                <br>
+                <code>programName</code> - Zmienna definująca nazwę programu<br>
+                <code>programVersion</code> - Zmienna definiująca główną wersję programu<br>
+                <code>programVersionStage</code> - Zmienna definiująca etap rozwoju programu. Wersja stabilna definiowana jest przez pusty string<br>
+                <code>programVersionBuild</code> - Zmienna definiująca numer buildu programu. Zapisany jest on w formacie '[ostatnie dwie cyfry roku][numer dnia w roku]'<br>
+                <code>programCustomer</code> - Zmienna definiująca nazwę organizacji zlecającej stworzenie programu<br>
+                <code>programAuthors</code> - Lista zawierająca nazwy osób rozwijających program.<br>
+                <code>programToW</code> - Lista zawierająca informacje na temat czasu rozwoju programu. Format: ['miesiąc rozpoczęcia prac', 'rok rozpoczęcia prac', 'aktualny dla rozwoju danej wersji miesiąc', 'aktualny dla rozwoju danej wersji rok']<br>
+                <br>
+                <br>
+                <b>Dozwolone kodowanie plików</b><br>
+                <br>
+                <code>allowedCoding</code> - Lista zawierająca wspierane kodowania plików. Są one wyświetlane w rozwijanych listach wyboru kodowania pliku.<br>
+                <br>
+                <br>
+                <b>Dozwolone znaki</b><br>
+                <br>
+                <code>allowedCharactersInSeparator</code> - Lista zawierająca znaki które można wpisać w pola dotyczące separatorów osób, linii i danych<br>
+                <br>
+                <br>
+                <b>Katalog APPDATA</b><br>
+                <br>
+                <code>appdataPath</code> - zmienna definiująca ścieżkę do folderu %appdata%
+            </p>
+        </div>
+
         <button class="accordion"><b>generator.pyw - Okna dialogowe</b></button>
         <div class="panel">
             <p>
@@ -87,7 +97,204 @@
                 <br>
                 Wywoływanie funkcji: <code>MSG(</code>[kod dialogowy]<code>,</code>[<code>True</code> - Zakończ działanie programu po zamknięciu okna dialogowego/<code>False</code> - Kontynuuj działanie programu po zamknięciu okna dialogowego]<code>,</code>[dodatkowe informacje wyświetlane w komunikacie - <b>opcjonalnie</b>]<code>)</code><br>
                 <br>
+                <code>
+                    try:<br>
+                        optionalInfo[0]<br>
+                    except:<br>
+                        optionalInfo = ['']<br>
+                </code>
+                Sprawdza czy zostały wpisane 'dodatkowe informacje wyświetlane w komunikacie' i jeżeli nie, definiuje listę, w której znajduje się pusty string (ma to na celu uniknięcia błędu podczas próby wywołania dodatkowych informacji przez dalszą część funkcji)<br>
+                <br>
+                <code>
+                    if code[0] == 'E/I/W':<br>
+                        TKmsb.showerror/showinfo/showwarning('</code>[tytuł komunikatu]<code>', '%s\n%s' % (MSGlist[code], optionalInfo[0]))<br>
+                </code>
+                Wywoływanie danego rodzaju komunikatu na podstawie jednoznakowego znacznika rodzaju okna dialogowego.<br>
+                <br>
+                <code>
+                    if terminate:<br>
+                        SS.exit(0)<br>
+                </code>
+                Zakończenie działania programu po zamknięciu okna dialogowego, jeżeli została ustawiona opdowiednia opcja.<br>
+                <br>
+                <code>
+                    elif code[0] == 'A':<br>
+                        if TKmsb.askokcancel('Pytanie', '%s\n%s' % (MSGlist[code], optionalInfo[0])):<br>
+                            return True<br>
+                        else:<br>
+                            return False<br>
+                </code>
+                Funkcja zwraca wartość boolean w przypadku wywołania komunikatu zapytania
+            </p>
+        </div>
 
+        <button class="accordion"><b>generator.pyw - Sprawdzanie katalogu programu w APPDATA</b></button>
+        <div class="panel">
+            <p>
+                Klasa <code>checkAppdata</code> odpowiedzialna jest za sprawdzenie poprawności i, w razie potrzeby, doprowadzenie go do stanu poprawności.
+                <br>
+                <br>
+                <b>Główna funkcja programu</b><br>
+                <br>
+                1. Czy w folderze %appdata% istnieje folder programu (Generator CSV)?<br>
+                Jeżeli nie istnieje, uruchamiana jest funckja <code>__buildAppdata</code> (odpowiedzialna za zbudowanie całości katalogu programu).<br>
+                2. Czy w folderze programu istnieje plik 'version' (przechowuje on numer buildu programu, w którym został zbudowany katalog programu)?<br>
+                Jeżeli nie istnieje, uruchamiane jest okno dialogowe zapytania z pytaniem czy pozwolić na zresetowanie katalogu programu i kontynuować ładowanie programu<br> 
+                3. Czy numer buildu programu w pliku 'version' jest zgodny z numerem buildu zawartym w zmiennej <code>VAR.programVersionBuild</code><br>
+                Jeżeli nie, uruchamiane jest okno dialogowe zapytania z pytaniem czy pozwolić na zresetowanie katalogu programu i kontynuować ładowanie programu<br>
+                Jeżeli tak, sprawdzane są poszczególne pliki i foldery które powinny być zawarte w folderze, i jeżeli któryś plik/folder nie znajduje się w folderze, wywołuje się funkcje mające na celu przywrócenie/utworzenie tych plików/folderów (odpowiednio: <code>__restoreCFG</code> dla plików konfiguracyjnych, <code>__createFormatPresetsDir</code> dla folderu przechowującego format presety)<br>
+                <br>
+                <br>
+                <b>Budowanie katalogu programu</b> (<code>__buildAppdata</code>)<br>
+                <br>
+                Funkcja ta, jest odpowiedzialna za zbudowanie całości katalogu programu w folderze %appdata%.<br>
+                1. Tworzenie katalogu 'Generator CSV'<br>
+                2. Tworzenie pliku 'version' i zapisanie w nim numeru buildu.<br>
+                3. Inicjacja funkcji <code>__restoreCFG</code> (w celu skopiowania pliku 'config.cfg' z głównego katalogu programu do katalogu 'Generator CSV' w folderze %appdata%).<br>
+                4. Inicjacja funkcji <code>__restoreCFG</code> (w celu skopiowania pliku 'style.cfg' z głównego katalogu programu do katalogu 'Generator CSV' w folderze %appdata%).<br>
+                5. Inicjacja funkcji <code>__createFormatPresetsDir</code> (w celu stworzenia folderu 'format-presets' przechowującego format presety)<br>
+                <br>
+                <br>
+                <b>Resetowanie katalogu programu</b> (<code>__resetAppdata</code>)<br>
+                <br>
+                Funkcja ta, jest odpowiedzialna za przywrócenie katalogu programu w folderze %appdata% do stanu podstawowego oraz stworzenie kopii zapasowej starego katalogu.<br>
+                1. W przypadku gdy w katalogu istnieje jeszcze starsza kopia zapasowa folderu, kopia ta jest usuwana.<br>
+                2. Nazwa katalogu programu jest zmieniana na taką z dopiskiem '_old'.<br>
+                3. Inicjacja funkcji <code>__buildAppdata</code> w celu zbudowania nowego katalogu programu<br>
+                4. Skopiowanie katalogu 'Generator CSV_old' do nowego katalogu 'Generator CSV'<br>
+                <br>
+                <br>
+                <b>Przywracanie plików konfiguracyjnych</b> (<code>__restoreCFG</code>)<br>
+                <br>
+                Funkcja ta, jest odpowiedzialna za skopiowanie pliku konfiguracyjnego (.cfg) o danej nazwie z głównego katalogu programu do katalogu programu w folderze %appdata%<br>
+                <br>
+                <br>
+                <b>Tworzenie katalogu przechowującego format presety</b> (<code>__createFormatPresetsDir</code>)<br>
+                <br>
+                Funkcja ta, jest odpowiedzialna za utworzenie folderu 'format-presets', przechowującego format presety, w katalogu programu w folderze %appdata%
+            </p>
+        </div>
+
+        <button class="accordion"><b>generator.pyw - Ładowanie głównego pliku konfiguracyjnego 'config.cfg'</b></button>
+        <div class="panel">
+            <p>
+                Klasa <code>CFG</code> odpowiedzialna jest za zarządzanie plikiem konfiguracyjnym 'config.cfg'<br>
+                <br>
+                <br>
+                <b>Odczytywanie pojedyńczej zmiennej z pliku</b> (<code>R</code>)<br>
+                <br>
+                Funkcja ta, jest odpowiedzialna za odczytanie zawartości danego recordu i sprawdzenie jego poprawności<br>
+                1. Inicjacja funkcji <code>__checkIfFileExist</code> w celu sprawdzenia czy plik 'config.cfg' istnieje<br>
+                2. Zczytanie i zapisanie wszystkich danych z pliku 'config.cfg' do słownika <code>content</code> w formacie: 'nazwa zmiennej' : ['zmienna', 'typ zmiennej']<br>
+                3. Inicjacja funckji <code>__checkIfRecordExist</code> w celu sprawdzenia czy w słowniku <code>content</code> znajduje się żądany record<br>
+                4. Inicjacja, odpowiedniej dla typu zmiennej, funkcji mającej na celu sprawdzenie jej poprawności i jej przetworzenie<br>
+                5. Funkcja zwraca wartość zmiennej.<br>
+                <br>
+                <br>
+                <b>Zapisywanie zmian w pliku</b> (<code>W</code>)<br>
+                <br>
+                Funkcja ta jest odpowiedzialna za sprawdzenie, przetworzenie i zapisanie zmian w pliku konfiguracyjnych.<br>
+                1. Inicjacja funkcji <code>__checkIfFileExist</code> w celu sprawdzenia czy plik 'config.cfg' istnieje<br>
+                2. Zczytanie i zapisanie wszystkich danych z pliku 'config.cfg' do słownika <code>content</code> w formacie: 'nazwa zmiennej' : ['zmienna', 'typ zmiennej']<br>
+                3. Inicjacja, odpowiedniej dla typu zmiennej, funkcji mającej na celu sprawdzenie jej poprawności i jej przetworzenie, dla każdego recordu ze słownika <code>changes</code><br>
+                4. Nadpisanie zmiennej ze słownika content, wartością <code>var</code>.<br>
+                5. Zapisanie zawartości słownika <code>content</code> w pliku 'config.cfg'<br>
+                6. Funkcja zwraca <code>True</code> jeżeli operacja została wykonana pomyślnie lub <code>False</code> jeżeli wystąpił błąd<br>
+                <br>
+                <br>
+                <b>Funkcje sprawdzające istnienie</b><br>
+                <br>
+                <code>__checkIfFileExist</code> - funkcja sprawdza czy plik istnieje i możliwe jest jego nadpisanie (w przypadku zapisu)<br>
+                <code>__checkIfRecordExist</code> - funkcja sprawdza czy <code>record</code> istnieje w słowniku <code>content</code><br>
+                <br>
+                <br>
+                <b>Funkcje sprawdzające poprawność recordu</b><br>
+                <br>
+                Funkcje te odpowiadają za sprawdzenie poprawności zmiennej i w razie potrzeby przetwarzają ją na pożądaną formę.
+            </p>
+        </div>
+
+        <button class="accordion"><b>generator.pyw - Ładowanie pliku konfiguracyjnego stylu 'style.cfg'</b></button>
+        <div class="panel">
+            <p>
+                Klasa <code>GUI</code> odpowiedzialna jest za zarządzanie plikiem konfiguracyjnym 'style.cfg'<br>
+                <br>
+                <br>
+                <b>Odczytywanie pojedyńczej zmiennej z pliku</b> (<code>R</code>)<br>
+                <br>
+                Funkcja ta, jest odpowiedzialna za odczytanie zawartości danego recordu i sprawdzenie jego poprawności<br>
+                1. Inicjacja funkcji <code>__checkIfFileExist</code> w celu sprawdzenia czy plik 'style.cfg' istnieje<br>
+                2. Zczytanie i zapisanie wszystkich danych z pliku 'style.cfg' do słownika <code>content</code> w formacie: 'nazwa zmiennej' : ['zmienna', 'typ zmiennej']<br>
+                3. Inicjacja funkcji <code>__checkIfRecordExist</code> w celu sprawdzenia czy w słowniku <code>content</code> znajduje się żądany record<br>
+                4. Inicjacja, odpowiedniej dla typu zmiennej, funkcji mającej na celu sprawdzenie jej poprawności i jej przetworzenie<br>
+                Funkcja zwraca wartość zmiennej.<br>
+                <br>
+                <br>
+                <b>Funkcje sprawdzające istnienie</b><br>
+                <br>
+                <code>__checkIfFileExist</code> - funkcja sprawdza czy plik istnieje<br>
+                <code>__checkIfRecordExist</code> - funkcja sprawdza czy <code>record</code> istnieje w słowniku <code>content</code><br>
+                <br>
+                <br>
+                <b>Funkcje sprawdzające poprawność recordu</b><br>
+                <br>
+                Funkcje te odpowiadają za sprawdzenie poprawności zmiennej i w razie potrzeby przetwarzają ją na pożądaną formę.
+            </p>
+        </div>
+
+        <button class="accordion"><b>Zarządzanie plikami formatu</b></button>
+        <div class="panel">
+            <p>
+                Klasa <code>FMT</code> odpowiedzialna jest za zarządzanie plikami formatu (.fmt)<br>
+                <br>
+                <br>
+                <b>Odczytywanie pojedyńczej zmiennej z pliku</b> (<code>R</code>)<br>
+                <br>
+                Funkcja ta, jest odpowiedzialna za odczytanie zawartości danego recordu i sprawdzenie jego poprawności<br>
+                1. Inicjacja funkcji <code>__checkIfFolderExist</code> w celu sprawdzenia czy folder 'format-presets' istnieje<br>
+                2. Sprawdzenie czy podany plik formatu (<code>preset</code>) znajduje się w folderze 'format-presets' (funkcja <code>getList</code> zwraca listę plików formatu w folderze 'format-presets')<br>
+                Jeżeli nie, wartość zmiennej jest wybierana ze słownika <code>content</code> (zawierającego podstawowe wartości zmiennych)<br>
+                Jeżeli tak:
+                3. Zczytanie i zapisanie wszystkich danych z wybranego pliku formatu do słownika <code>content</code> w formacie: 'nazwa zmiennej' : ['zmienna', 'typ zmiennej']<br>
+                4. Inicjacja funkcji <code>__checkIfRecordExist</code> w celu sprawdzenia czy w słowniku <code>content</code> znajduje się żądany record<br>
+                5. Inicjacja, odpowiedniej dla typu zmiennej, funkcji mającej na celu sprawdzenie jej poprawności i jej przetworzenie<br>
+                Funkcja zwraca wartość zmiennej.<br>
+                <br>
+                <br>
+                <b>Zapisywanie zmian w pliku</b> (<code>W</code>)<br>
+                <br>
+                Funkcja ta jest odpowiedzialna za sprawdzenie, przetworzenie i zapisanie zmian w pliku konfiguracyjnych.<br>
+                1. Inicjacja funkcji <code>__checkIfFolderExist</code> w celu sprawdzenia czy folder 'format-presets' istnieje<br>
+                2. Sprawdzenie czy podany plik formatu (<code>preset</code>) znajduje się w folderze 'format-presets' (funkcja <code>getList</code> zwraca listę plików formatu w folderze 'format-presets')<br>
+                Jeżeli nie, tworzony jest słownik <code>content</code> z zawartością podstawową
+                Jeżeli tak: Zczytanie i zapisanie wszystkich danych z wybranego pliku formatu do słownika <code>content</code> w formacie: 'nazwa zmiennej' : ['zmienna', 'typ zmiennej']<br>
+                3. Inicjacja, odpowiedniej dla typu zmiennej, funkcji mającej na celu sprawdzenie jej poprawności i jej przetworzenie, dla każdego recordu ze słownika <code>changes</code><br>
+                4. Nadpisanie zmiennej ze słownika content, wartością <code>var</code>.<br>
+                5. Zapisanie zawartości słownika <code>content</code> w pliku 'config.cfg'<br>
+                6. Funkcja zwraca <code>True</code> jeżeli operacja została wykonana pomyślnie lub <code>False</code> jeżeli wystąpił błąd<br>
+                <br>
+                <br>
+                <b>Funkcja zwracająca listę presetów</b> (<code>getList</code>)<br>
+                <br>
+                Funkcja ta odpowiedzialna jest za stworzenie listy plików .fmt w folderze 'format-presets' oraz za jej zwrócenie.<br>
+                <br>
+                <br>
+                <b>Funkcje sprawdzające istnienie</b><br>
+                <br>
+                <code>__checkIfFolderExist</code> - funkcja sprawdza czy folder 'format-presets' istnieje (inicjuje <code>checkAppdata</code>)<br>
+                <code>__checkIfRecordExist</code> - funkcja sprawdza czy <code>record</code> istnieje w słowniku <code>content</code><br>
+                <br>
+                <br>
+                <b>Funkcje sprawdzające poprawność recordu</b><br>
+                <br>
+                Funkcje te odpowiadają za sprawdzenie poprawności zmiennej i w razie potrzeby przetwarzają ją na pożądaną formę.
+            </p>
+        </div>
+
+        <button class="accordion"><b>generator.pyw - Przetwarzanie plików</b></button>
+        <div class="panel">
+            <p>
+                
             </p>
         </div>
 
@@ -102,11 +309,7 @@
 
             for (i = 0; i < acc.length; i++) {
                 acc[i].addEventListener("click", function() {
-                    /* Toggle between adding and removing the "active" class,
-                    to highlight the button that controls the panel */
                     this.classList.toggle("active");
-
-                    /* Toggle between hiding and showing the active panel */
                     var panel = this.nextElementSibling;
                     if (panel.style.display === "block") {
                     panel.style.display = "none";
