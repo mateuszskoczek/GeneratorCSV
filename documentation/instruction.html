@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel = "stylesheet" type = "text/css" href = "content.css">
+        <meta charset = "utf-8">
+        <link rel = "shortcut icon" href = "../assets/documentation-page/icon.ico">
+        <title>Generator CSV</title>
+    </head>
+    <body>
+        <button class="accordion"><b>Tworzenie/edytowanie format presetu dla danego pliku źródłowego</b></button>
+        <div class="panel">
+            <p>Dane dla przykładu:</p>
+            <img src = '../assets/documentation-page/instruction/example-input-data.png'><br>
+            <p>W praktyce układ danych wygląda tak (* - nieznaczące dla programu dane):</p>
+            <p>[imię] [nazwisko]<br>[klasa] [szkoła]<br>[login], [haslo*]</p>
+            <p>Uruchom program i otwórz zakładkę FORMAT DANYCH. W pierwszej kolejności należy nadać nazwę presetowi formatu w polu zaznaczonym poniżej lub wybrać preset już istniejący z listy rozwijanej</p>
+            <img width = '700px' src = '../assets/documentation-page/instruction/input-name.png'><br>
+            <p> Aby przejśc do edycji presetu należy wcisnąć przycisk WCZYTAJ</p>
+            <br>
+            <h5>Typ osoby</h5>
+            <p>Wybierz odpowiednią opcję w zależności od tego jakich osób dane znajdują się w pliku wejściowym</p>
+            <h5>Separator pomiędzy danymi</h5>
+            <p>W tym polu należy wpisać znaki, które oddzielają zbiór danych pojeńczych osób. Jeżeli zbiór danych odziela znak końca wiersza (wciśnięcie ENTER) należy wpisać &ltenter&gt (ilość zależna od ilości znaków końca wiersza). Niedozwolone znaki to litery, cyfry oraz * i \. Dla przykładowych danych będzie to "<u>&ltenter&gt&ltenter&gt</u>"</p>
+            <h5>Separator pomiędzy wierszami</h5>
+            <p>W tym polu należy wpisać znaki, które oddzielają wiersze. Zazwyczaj jest to jeden znak końca wiersza. Jeżeli wiersze odziela znak końca wiersza (wciśnięcie ENTER) należy wpisać &ltenter&gt (ilość zależna od ilości znaków końca wiersza). Niedozwolone znaki to litery, cyfry oraz * i \. Dla przykładowych danych będzie to "<b>&ltenter&gt</b>"</p>
+            <h5>Separatory pomiędzy danymi</h5>
+            <p>W tym polu należy wpisać znaki, które oddzielają pojedyńcze dane. Każdy kolejny separator musi być zapisany w następnej linijce. Jeżeli dane odziela znak końca wiersza (wciśnięcie ENTER) należy wpisać &ltenter&gt (ilość zależna od ilości znaków końca wiersza). Niedozwolone znaki to litery, cyfry oraz * i \. Dla przykładowych danych będzie to (znaki są podkreślone aby je wyróżnić):<br>"""<br><u>, <br> </u><br>"""</p>
+            <h5>Prawa kolumna - pozycja danych w zbiorze</h5>
+            <p>W tej sekcji należy dla każdego typu danych ustawić jego położenie w zbiorze. Typy SZKOŁA i KLASA nie są istotne jeżeli w sekcji TYP OSOBY zosła zaznaczona opcja Nauczyciele. Dla przykładowych danych uczniów bedzie to:</p>
+            <table>
+                <tr>
+                    <th></th>
+                    <th>Wiersz</th>
+                    <th>Pozycja<br>w wierszu</th>
+                </tr>
+                <tr>
+                    <td>Login</td>
+                    <td>3</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td>Imię</td>
+                    <td>1</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td>Nazwisko</td>
+                    <td>1</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td>Szkoła</td>
+                    <td>2</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td>Klasa</td>
+                    <td>2</td>
+                    <td>1</td>
+                </tr>
+            </table>
+            <h5>Prawa kolumna - Kodowanie</h5>
+            <p>W tym polu należy wybrać kodowanie pliku wejściowego.</p>
+            <br>
+            <p><b>Aby zapisać preset należy wcisnąć przycisk ZAPISZ. Aby anulować tworzenie należy wcisnąć przycisk Anuluj</b></p>
+        </div>
+
+        <button class="accordion"><b>Edycja ustawień ogólnych</b></button>
+        <div class="panel">
+            <p>Uruchom program i przejdź do zakładki USTAWIENIA.</p>
+            <br>
+            <h5>Kodowanie wyjściowe dla pliku poczty</h5>
+            <p>W tym polu należy wybrać kodowanie, w jakim ma być zapisany plik csv z danymi uczniów do importu w panelu administracyjnym serwisu szkoły</p>
+            <h5>Kodowanie wyjściowe dla pliku office</h5>
+            <p>W tym polu należy wybrać kodowanie, w jakim ma być zapisany plik csv z danymi uczniów do importu w panelu administracyjnym serwisu portal.office.com</p>
+            <h5>Domena (używana w mailu)</h5>
+            <p>W tym polu należy wpisać domenę serwisu szkoły. Będzie ona używana w mailu każdego uzytkownika. Przykład: jan.kowalski2023a@<b>losobolew.pl</b></p>
+            <h5>Quota (MB)</h5>
+            <p>W tym polu należy wpisać ilość miejsca (w megabajtach) przeznaczoną dla każdego użytkownika na przechowywanie maili. Te dane są używane w pliku wyjściowym poczty. Przykład: jan.kowalski2023a@losobolew.pl,1234567u:JK,<b>500</b></p>
+            <h5>Kraj (zapisany w danych na office)</h5>
+            <p>W tym polu należy wpisać nazwę kraju zamieszkania użytkowników. Będzie ona wykorzystywana w pliku wyjściowym office oraz widoczna w profilu użytkownika w serwisie office. Przykład: jan.kowalski2023a@losobolew.pl,Jan,Kowalski,Jan Kowalski,uczeń,1b LO,,,,,,,,,<b>Rzeczpospolita Polska</b></p>
+            <h5>Nagłówek dla pliku wyjściowego poczty</h5>
+            <p>Jeżeli chcesz aby w pierwszej linii pliku wyjściowego dla poczty znajdował się nagłowek, zaznacz opcję "Umieść w pliku". Zawartość nagłówka można edytować w polu tekstowym po lewej.</p>
+            <h5>Nagłówek dla pliku wyjściowego office</h5>
+            <p>Jeżeli chcesz aby w pierwszej linii pliku wyjściowego dla office znajdował się nagłowek, zaznacz opcję "Umieść w pliku". Zawartość nagłówka można edytować w polu tekstowym po lewej.</p>
+            <h5>Rozpoczęcie roku szkolnego (DD | MM)</h5>
+            <p>W tych polach należy wpisać datę rozpoczęcia roku szkolnego (z reguły). W pierwszym polu (po lewo) należy wpisać dzień, a w drugim (po prawo) miesiąc. Te dane są używane do obliczania roku w znaczniku klasy (przykłądowy znacznik klasy: 2023a). W przypadku generowania plików na nowy rok szkolny przed jego rozpoczęciem, należy wprowadzić datę dzisiejszą lub wcześniejszą.</p>
+            <h5>Dane o szkołach</h5>
+            <p>W tym polu należy wprowadzić dane każdej szkoły w zespole szkół (po jednej szkole w linijce). Wymagane są trzy "kolumny danych". Są one odzielone znakami "<u> | </u>".<br>W pierwszej kolumnie należy wpisać oznaczenie szkoły (dowolne bez spacji, najlepiej jak najkrótsze). Te dane będą używane w znaczniku klasy, jeżeli w trzeciej kolumnie została wybrana opcja "1".<br>W drugiej kolmnie należy wpisać liczbę klas w danej szkole. Te dane używane są do obliczenia roku w znaczniku klasy.<br>W trzeciej kolumnie można wybrać opcję "1" lub "0" (Prawda/Fałsz). Wybierz "1" jeżeli chcesz, aby w znaczniku klasy znajdowało się oznaczenie szkoły (przykład: 2023bs). Wybierz "0" jeżeli chcesz, aby w znaczniku klasy znajdowała się litera klasy (przykład: 2023a).</p>
+            <br>
+            <p><b>Aby zapisać ustawienia należy wcisnąć przycisk ZAPISZ. Aby anulować zmiany wciśnij przycisk Anuluj</b></p>
+        </div>
+
+        <button class="accordion"><b>Generowanie plików wyjściowych</b></button>
+        <div class="panel">
+            <h5>Krok 1</h5>
+            <p>W pierwszej kolejności należy przygotować pliki wejściowe oraz stworzyć presety formatu dla tych plików, według instrukcji w sekcji "Tworzenie/edytowanie format presetu dla danego pliku źródłowego" (jednego presetu formatu można używac do kilku plików jeżeli pliki mają ten sam format i to samo kodowanie)</p>
+            <h5>Krok 2</h5>
+            <p>Przejdź do zakładki GENERATOR CSV. Możesz przetworzyć naraz 4 pliki wejściowe. Dla każdego pliku należy wybrać jego lokalizację (wpisać ją w polu, oznaczonym kolorem czerwonym na poniższym zdjęciu, lub otworzyć okno wyboru lokalizacji za pomocą przycisku "Przeglądaj" i tam wybrać plik. Następnie należy wybrać preset formatu, odpowiedni dla pliku wejściowego, w polu oznaczonym kolorem zielonym na poniższym zdjęciu.</p>
+            <img width = '700px' src = '../assets/documentation-page/instruction/generate-input-file-settings.png'><br>
+            <h5>Krok 3</h5>
+            <p>Wybierz lokalizację zapisu pliku wyjściowego dla serwisu szkoły, wpisując lokalizację wraz z nazwą pliku w polu, oznaczonym kolorem czerwonym na poniższym zdjęciu, lub otwierając okno wyboru lokalizacji za pomocą przycisku "Przeglądaj" obok tego pola i tam wybierając plik.<br>Wybierz lokalizację zapisu pliku wyjściowego dla serwisu portal.office.com, wpisując lokalizację wraz z nazwą pliku w polu, oznaczonym kolorem zielonym na poniższym zdjęciu, lub otwierając okno wyboru lokalizacji za pomocą przycisku "Przeglądaj" obok tego pola i tam wybierając plik.</p>
+            <img width = '700px' src = '../assets/documentation-page/instruction/generate-output-file-settings.png'><br>
+            <h5>Krok 4</h5>
+            <p>Aby rozpocząć generowanie wciśnij przycisk START i potwierdź komunikat. Pliki wyjściowe zostaną zapisane w wybranych lokalizacjach. Przed importem upewnij się że w plikach nie występują błędy.</p>
+        </div>
+
+        <button class="accordion"><b>Usuwanie presetów formatu</b></button>
+        <div class="panel">
+            <h5>Krok 1</h5>
+            <p>Uruchom program i przejdź do zakładki USTAWIENIA.</p>
+            <h5>Krok 2</h5>
+            <p>Naciśnij przycisk "Zarządzaj presetami formatu".</p>
+            <h5>Krok 3</h5>
+            <p>Zaznacz presety formatu które chcesz usunąć.</p>
+            <h5>Krok 4</h5>
+            <p>Naciśnij przycisk "Usuń zaznaczone"</p>
+        </div>
+
+        <button class="accordion"><b>Przywracanie domyślnych ustawień ogólnych programu</b></button>
+        <div class="panel">
+            <h5>Krok 1</h5>
+            <p>Uruchom program i przejdź do zakładki USTAWIENIA.</p>
+            <h5>Krok 2</h5>
+            <p>Naciśnij przycisk "Przywróć domyślne ustawienia ogólne". Po potwierdzeniu i ponownym uruchomieniu programu, ustawienia zostaną przywrócone do ustawień fabrycznych.</p>
+        </div>
+
+        <button class="accordion"><b>Przywracanie domyślnego wyglądu programu</b></button>
+        <div class="panel">
+            <h5>Krok 1</h5>
+            <p>Uruchom program i przejdź do zakładki USTAWIENIA.</p>
+            <h5>Krok 2</h5>
+            <p>Naciśnij przycisk "Przywróć domyślne ustawienia wyglądu". Po potwierdzeniu i ponownym uruchomieniu programu, wygląd zostanie przywrócony do ustawień fabrycznych.</p>
+        </div>
+
+        <button class="accordion"><b>Zaawansowana edycja ustawień programu i wyglądu</b></button>
+        <div class="panel">
+            <h5>Krok 1</h5>
+            <p>Otwórz menu start i wpisz "%appdata%"</p>
+            <h5>Krok 2</h5>
+            <p>Przejdź do folderu "Generator CSV"</p>
+            <h5>Krok 3</h5>
+            <p>Za ustawienia programu odpowiedzialny jest plik "config.cfg", a za wygląd plik "style.cfg". Użyj dowolnego edytora plików tekstowych, do edycji tych plików. Więcej informacji o tych plikach znajduje się w Dokumentacji technicznej.<br>Aby przywrócić te pliki do stanu fabrycznego wykonaj kroki z sekcji odpowiednio "Przywracanie domyślnych ustawień ogólnych programu" lub "Przywracanie domyślnego wyglądu programu"</p>
+        </div>
+
+        <script>
+            var acc = document.getElementsByClassName("accordion");
+            var i;
+
+            for (i = 0; i < acc.length; i++) {
+                acc[i].addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    var panel = this.nextElementSibling;
+                    if (panel.style.display === "block") {
+                    panel.style.display = "none";
+                    } else {
+                    panel.style.display = "block";
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>
