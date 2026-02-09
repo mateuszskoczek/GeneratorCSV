@@ -19,6 +19,7 @@ import time as TM
 import codecs as CD
 import pathlib as PT
 import shutil as SU
+import webbrowser as WB
 
 
 # Biblioteki interfejsu graficznego
@@ -39,9 +40,8 @@ from PIL import Image as PLimg
 class VAR:
     # Informacje o programie
     programName = 'Generator CSV'
-    programVersion = '4.0'
     programVersionStage = ''
-    programVersionBuild = '20254'
+    programVersionBuild = '26000'
     programCustomer = 'ZSP Sobolew'
     programAuthors = ['Mateusz Skoczek']
     programToW = ['styczeń', '2019', 'wrzesień', '2020']
@@ -80,7 +80,6 @@ MSGlist = {
     'E0013' : 'Nie można utworzyć plików wejściowych',
     'E0014' : 'Nie można zapisać plików wejściowych',
     'E0015' : 'Nie można usunąć wybranych format presetów',
-    'E0016' : 'Nie można uruchomić pliku instrukcji (documentation/index.html)',
     'E0017' : 'Nie można zapisać pliku formatu',
     'A0001' : 'Czy chcesz zapisać? Zostanie utworzony nowy plik',
     'A0002' : 'Czy chcesz zapisać? Plik zostanie nadpisany',
@@ -197,7 +196,7 @@ class checkAppdata:
     # Przywracanie plików konfiguracyjnych
     def __restoreCFG(self, configFileName):
         try:
-            SU.copy(('configs\%s.cfg' % configFileName), str(VAR.appdataPath) + ('\Generator CSV\%s.cfg' % configFileName))
+            SU.copy(OS.path.join(OS.path.dirname(OS.path.abspath(__file__)), ('configs\%s.cfg' % configFileName)), str(VAR.appdataPath) + ('\Generator CSV\%s.cfg' % configFileName))
         except Exception as exceptInfo:
             MSG('E0001', True, exceptInfo)
     
@@ -690,6 +689,7 @@ class GUI:
         return [True, var]
     
     def __checkP(self, record, var):
+        var = OS.path.join(OS.path.dirname(OS.path.abspath(__file__)), var.replace("/","\\"))
         try:
             check = open(var)
         except:
@@ -1310,11 +1310,11 @@ class mainWindow:
     def __init__(self, master):
         # Okno
         self.master = master
-        master.title('%s %s %s' % (VAR.programName, VAR.programVersion, VAR.programVersionStage))
+        master.title('%s %s %s' % (VAR.programName, CFG.R('version'), VAR.programVersionStage))
         master.geometry('%ix%i' % (GUI.R('windowWidth'), GUI.R('windowHeight')))
         master.resizable(width = GUI.R('windowWidthResizable'), height = GUI.R('windowHeightResizable'))
         master.configure(bg = GUI.R('windowMainBG'))
-        master.iconbitmap(GUI.R('mainIcon'))
+        master.iconbitmap(OS.path.join(OS.path.dirname(OS.path.abspath(__file__)), GUI.R('mainIcon')))
 
 
 
@@ -2826,7 +2826,7 @@ class mainWindow:
         # Wersja programu
         self.aboutInfoProgramNameLabel = TKttk.Label(self.aboutInfoFrame)
         self.aboutInfoProgramNameLabel.config(style = 'label1.TLabel')
-        self.aboutInfoProgramNameLabel.config(text = 'Wersja %s %s (Build %s)' % (VAR.programVersion, VAR.programVersionStage, VAR.programVersionBuild))
+        self.aboutInfoProgramNameLabel.config(text = 'Wersja %s %s (Build %s)' % (CFG.R('version'), VAR.programVersionStage, VAR.programVersionBuild))
         self.aboutInfoProgramNameLabel.pack()
 
         # (3) Pozostałe informacje ##############
@@ -3207,7 +3207,7 @@ class mainWindow:
         self.ZPFWindow.geometry('%ix%i' % (GUI.R('ZPFWindowWidth'), GUI.R('ZPFWindowHeight')))
         self.ZPFWindow.resizable(width = GUI.R('ZPFWindowWidthResizable'), height = GUI.R('ZPFWindowHeightResizable'))
         self.ZPFWindow.configure(bg = GUI.R('ZPFWindowMainBG'))
-        self.ZPFWindow.iconbitmap(GUI.R('mainIcon'))
+        self.ZPFWindow.iconbitmap(OS.path.join(OS.path.dirname(OS.path.abspath(__file__)), GUI.R('mainIcon')))
 
         # Wybór format presetu - listbox
         self.selectFPListbox = TK.Listbox(self.ZPFWindow)
@@ -3231,10 +3231,7 @@ class mainWindow:
         self.deleteSelectedFPButton.pack(fill = TK.X, padx = 6, pady = 6)
     
     def aboutInstructionButtonAction(self):
-        try:
-            OS.startfile('documentation\index.html')
-        except Exception as exceptInfo:
-            MSG('E0016', False, exceptInfo)
+        WB.open("https://repos.mateuszskoczek.com/MateuszSkoczek/GeneratorCSV/wiki", new = 2, autoraise = True)
 
 
 
