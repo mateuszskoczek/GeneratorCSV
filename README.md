@@ -19,7 +19,7 @@
 > The application only supports the Polish language because it was written for my school and one of the requirements was that it be easy to use for people who do not speak English. Since there are no plans to further develop the application, support for other languages is not planned. Detailed documentation (Wiki) is also in Polish. I leave the repository mainly as a sample of my skills (or at least their state as of 2020). 
 
 > [!NOTE]  
-> Polska wersja README znajduje się w Wiki
+> Polska wersja README znajduje się <a href="https://repos.mateuszskoczek.com/MateuszSkoczek/GeneratorCSV/src/branch/main/README.pl.md">tu</a>
 
 ## Features
 
