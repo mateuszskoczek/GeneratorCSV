@@ -21,7 +21,6 @@ import pathlib as PT
 import shutil as SU
 import webbrowser as WB
 
-
 # Biblioteki interfejsu graficznego
 import tkinter as TK
 from tkinter import ttk as TKttk
