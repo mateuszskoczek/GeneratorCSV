@@ -51,6 +51,8 @@ pip install -r requirements.txt
 python generator_csv
 ```
 
+Detailed documentation can be found in Wiki (only in Polish)
+
 ## Attribution
 
 You can copy this repository and create your own version of the app freely. However, it would be nice if you included URL to this repository in the description to your repository or in README file.
