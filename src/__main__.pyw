@@ -1,15 +1,3 @@
-"""
-# Generator CSV
-# Wersja 4.0
-# Autorzy: Mateusz Skoczek
-# styczeń 2019 - wrzesień 2020
-# dla ZSP Sobolew
-"""
-
-
-
-
-
 # ------------------------------------- # Import bibliotek # ------------------------------------ #
 
 # Biblioteki główne
