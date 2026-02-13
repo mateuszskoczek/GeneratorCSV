@@ -51,7 +51,7 @@ pip install -r requirements.txt
 python generator_csv
 ```
 
-Detailed documentation can be found in Wiki (only in Polish)
+Detailed documentation can be found in <a href="https://repos.mateuszskoczek.com/MateuszSkoczek/GeneratorCSV/wiki">Wiki</a> (only in Polish)
 
 ## Attribution
 
