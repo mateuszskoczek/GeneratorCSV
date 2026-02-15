@@ -12,6 +12,11 @@
 
 ## Informacje
 
+> [!Important]
+> **Dla użytkowników Githuba:**
+>
+> To jest jedynie repozytorium lustrzane (mirror). Wszystkie zmiany są najpierw przesyłane do <a href="https://repos.mateuszskoczek.com/MateuszSkoczek/GeneratorCSV">tego</a> repozytorium. Wydania i dokumentacja (Wiki) są również publikowane w oryginalnym repozytorium. Jednakże repozytorium Github obsługuje "Issues", aby zapewnić większą dostępność.
+
 > [!IMPORTANT]  
 > Apikacja nie jest już utrzymywana, jednak powinna nadal działać.
 
