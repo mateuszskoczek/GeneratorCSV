@@ -12,6 +12,11 @@
 
 ## Informations
 
+> [!Important]
+> **For Github users:**
+>
+> This is only mirror repository. All changes are first uploaded to the repository <a href="https://repos.mateuszskoczek.com/MateuszSkoczek/GeneratorCSV">here</a>. Releases and documentation (Wiki) are also published on original repository. However, Github repository handles issues for better accessibility.
+
 > [!IMPORTANT]  
 > App is no longer maintained, but should work properly
 
