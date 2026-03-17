@@ -64,4 +64,4 @@ This project is open source on MIT License, so you can just copy and upload agai
 
 **Other sources:**
 
-- Icon by <a href="icons8.com">Icons8</a>
+- Icon by <a href="https://icons8.com/">Icons8</a>
